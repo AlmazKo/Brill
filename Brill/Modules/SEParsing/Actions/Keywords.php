@@ -9,8 +9,9 @@
  *
  * @author almaz
  */
+require_once MODULES_PATH . ParsingQuery::instance()->module . '/' . ParsingQuery::instance()->module . '.php';
 require_once CORE_PATH . 'Actions/Action.php';
-require_once MODULES_PATH . 'View/sepView.php';
+require_once MODULES_PATH . SEParsing::$name . '/Views/sepView.php';
 
 class Keywords extends Action {
     protected $defaultAct = 'view';
@@ -32,10 +33,13 @@ class Keywords extends Action {
         $context->set('title', 'Добавление ключевых слов');
     }
 
+
+
     /*
      * Отдаем родителю нашу вьюшку
      */
     protected function initView() {
         return new sepView();
-    }
+     }
+
 }

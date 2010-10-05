@@ -5,7 +5,7 @@
  * @author almaz
  */
 require_once CORE_PATH . 'Actions/Action.php';
-require_once CORE_PATH . 'Route.php';
+require_once CORE_PATH . 'ParsingQuery.php';
 class ActionResolver {
     private static $defaultAction;
 
@@ -14,7 +14,7 @@ class ActionResolver {
      * core/module/action/act/nav
      */
     public static function routing($uri) {
-        $route = new Route();
+        $route = ParsingQuery::instance();
         /*
          * Одна из возможных стратегий
          * В это - каждый эелемент должен заканчиваться на слэш
@@ -24,13 +24,13 @@ class ActionResolver {
         $navStrategy = '(?:nav(&[a-z]+\=[^\/]*)+\/)?';
         $stdRule = '/\/(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
         if (preg_match($stdRule, $uri, $m)) {
-            $route->site = $_SERVER['HTTP_HOST'];
-            $route->core = isset($m[1]) ? $m[1] : '';
-            $route->module = isset($m[2]) ? $m[2] : '';
-            $route->action = isset($m[3]) ? $m[3] : '';
-            $route->act = isset($m[4]) ? $m[4] : '';
-            $route->search = isset($m[5]) ? $m[5] : '';
-            $route->nav = isset($m[6]) ? $m[6] : '';
+            $route->set('site', $_SERVER['HTTP_HOST']);
+            $route->set('core', isset($m[1]) ? $m[1] : '');
+            $route->set('module', isset($m[2]) ? $m[2] : '');
+            $route->set('action', isset($m[3]) ? $m[3] : '');
+            $route->set('act', isset($m[4]) ? $m[4] : '');
+            $route->set('search', isset($m[5]) ? $m[5] : '');
+            $route->set('nav', isset($m[6]) ? $m[6] : '');
             return $route;
         } else {
             return null;
@@ -49,11 +49,11 @@ class ActionResolver {
         $filePath = MODULES_PATH . $route->module . $sep . 'Actions' . $sep . $route->action . '.php';
         $className = $route->action;
         if (file_exists($filePath)) {
-            @require_once $filePath;
+            require_once $filePath;
             if (class_exists($className)) {
-                $act = new $className($route->act);
+                $action = new $className($route->act);
                 //ADD проверка subclass От Actions
-                return $act;
+                return $action;
             }
         } else {
             Log::warning('Не найден файл: '.$filePath);

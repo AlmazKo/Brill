@@ -1,3 +1,3 @@
 RewriteEngine on
-RewriteCond %{REQUEST_URI} !^/brill/index.php
-RewriteRule ^(.*)$ /brill/index.php [L]
+RewriteCond %{REQUEST_URI} !^/Brill/index.php
+RewriteRule ^(.*)$ /Brill/index.php [L]

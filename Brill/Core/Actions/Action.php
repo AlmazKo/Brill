@@ -23,7 +23,7 @@ abstract class Action {
         } else {
             $this->runAct($this->defaultAct);
         }
-                $this->input();
+        $this->input();
     }
 
     /**
@@ -47,12 +47,10 @@ abstract class Action {
     }
 
     public function  __construct($act = '', $queryString = null, $nav = null, $search = null) {
-
         $this->act = $act;
         $this->nav = $nav;
         $this->request = RegistryRequest::instance();
-        $this->view =self::initView();
-
+        $this->view = $this->initView();
     }
 
     public function input() {
@@ -63,6 +61,6 @@ abstract class Action {
      * factory method
      */
     protected function initView() {
-
+       
     }
 }

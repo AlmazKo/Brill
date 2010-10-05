@@ -26,4 +26,8 @@ class sepView extends View{
         //TODO пусть береть назване моделю из класса Route
         $this->dirTemplates = MODULES_PATH . 'SEParsing/Views/';
     }
+
+    function  input() {
+        include($this->defaultParent);
+    }
 }

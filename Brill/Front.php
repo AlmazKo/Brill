@@ -34,7 +34,7 @@ class Front {
     private function handleRequest() {
         $request = RegistryRequest::instance();
         $context = RegistryContext::instance();
-        $actR = new ActionResolver();
+        $actR = new ActionResolver(); 
         $act = $actR->getAction($request);
         $act->execute($context);
     }
