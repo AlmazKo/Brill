@@ -1,24 +1,34 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 
 /**
- * Description of sUrl
+ * Класс распарсенной строки
  *
  * @author Alexander
  */
-class Route {
-    public $schema;
-    public $site;
-    public $core;
-    public $module;
-    public $action;
-    public $act;
-    public $queryString;
-    public $search;
-    public $nav;
-    public $fragment;
+class parsingQuery {
+    private $schema;
+    private $site;
+    private $core;
+    private $module;
+    private $action;
+    private $act;
+    private $queryString;
+    private $search;
+    private $nav;
+    private $fragment;
+
+    public static function set($key, $value) {
+        if (is_null(self::${$key})) {
+                self::${$key} = $value;
+        }
+    }
+
+    public static function  __get($name) {
+        return self::${$name};
+    }
+
   }
-?>

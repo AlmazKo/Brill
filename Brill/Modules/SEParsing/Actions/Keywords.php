@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -14,18 +14,18 @@ require_once MODULES_PATH . 'View/sepView.php';
 
 class Keywords extends Action {
     protected $defaultAct = 'view';
-    protected $parentTpl = true;
 
     public function act_Add($context) {}
 
     public function act_View($context) {
        // $nav = $request->getNav();
-      
+
        // обработка данных
         // выбор нужного вью
         // и получение небходимыъ данных для него (аторизация и прочее)
 
-        $context->set('parentTpl', true);
+        $context->set('useParentTpl', true);
+
         $context->set('tpl', 'Keywords_HTML.php');
 
         $context->set('h1', __METHOD__);

@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -15,9 +15,8 @@ abstract class Action {
     protected $act = null;
     protected $nav = null;
     protected $search = null;
-    protected $parentTpl = true;
 
-    
+
     public function execute () {
         if($this->act) {
             $this->runAct($this->act);
@@ -48,7 +47,7 @@ abstract class Action {
     }
 
     public function  __construct($act = '', $queryString = null, $nav = null, $search = null) {
-       
+
         $this->act = $act;
         $this->nav = $nav;
         $this->request = RegistryRequest::instance();
@@ -63,7 +62,7 @@ abstract class Action {
     /*
      * factory method
      */
-    abstract protected function initView() {
-        
+    protected function initView() {
+
     }
 }

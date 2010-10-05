@@ -1,8 +1,8 @@
 <?php
-/* 
+/*
  * Model
  *
- * Класс родитель для вех моделей
+ * РљР»Р°СЃСЃ СЂРѕРґРёС‚РµР»СЊ РґР»СЏ РІРµС… РјРѕРґРµР»РµР№
  */
 
 require_once 'DBExt.php';
@@ -13,29 +13,20 @@ abstract class Model {
     protected $fields = array();
 
     final function  __construct() {
-     /* убрал. чтобы например в update не заполнялись все поля, а только заданные значения
-      *    if ($this->values === null) {
-            $this->values = array();
-            //заполнение полей дефолтными значениями
-          foreach ($this->fields as $field => $value) {
-                $this->values[$field] = $value;
-            }
 
-        }
-      *  */
     }
 
     /**
-     * Получает значения по полю
+     * РџРѕР»СѓС‡Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РїРѕ РїРѕР»СЋ
      * used for only unique fields
      */
     function getObject($field, $val) {
-        // подумать, как от этого избавиться
+        // РїРѕРґСѓРјР°С‚СЊ, РєР°Рє РѕС‚ СЌС‚РѕРіРѕ РёР·Р±Р°РІРёС‚СЊСЃСЏ
         $val = addslashes($val);
-        $values = DBExt::getByField($this->tbl_name, $field, $val); 
+        $values = DBExt::getByField($this->tbl_name, $field, $val);
         if (empty($values)) return false;
         $this->values = array();
-        //заполнение полей значениями
+        //Р·Р°РїРѕР»РЅРµРЅРёРµ РїРѕР»РµР№ Р·РЅР°С‡РµРЅРёСЏРјРё
         foreach ($this->fields as $fld) {
             $this->values[$fld] = $values[$fld];
         }
@@ -43,14 +34,14 @@ abstract class Model {
     }
 
     /**
-     * Получить массив объектов
+     * РџРѕР»СѓС‡РёС‚СЊ РјР°СЃСЃРёРІ РѕР±СЉРµРєС‚РѕРІ
      */
     function getArrayObjects() {
         return DBExt::select($this->tbl_name);
     }
 
     /**
-     * Вставляет данные в базу
+     * Р’СЃС‚Р°РІР»СЏРµС‚ РґР°РЅРЅС‹Рµ РІ Р±Р°Р·Сѓ
      */
     function add () {
         return  DBExt::insert($this->tbl_name, $this->values);
@@ -60,26 +51,26 @@ abstract class Model {
         if (array_key_exists($field, $this->values)) {
              return $this->values[$field];
         } else {
-            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
+            Log::warning('РќРµ РІРѕР·РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ СЃРІРѕР№СЃС‚РІРѕ. / ' . get_class($this) .'->' . $field . ' - РЅРµ РѕРїСЂРµРґРµР»РµРЅРѕ');
         }
-       
+
     }
 
     function  __set($field, $value) {
         if (in_array($field, $this->fields)) {
-            //экранируем все от греха по дельше
+            //СЌРєСЂР°РЅРёСЂСѓРµРј РІСЃРµ РѕС‚ РіСЂРµС…Р° РїРѕ РґРµР»СЊС€Рµ
             $this->values[$field] = addslashes($value);
         } else {
-            Log::warning('Не возможно задать свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
+            Log::warning('РќРµ РІРѕР·РјРѕР¶РЅРѕ Р·Р°РґР°С‚СЊ СЃРІРѕР№СЃС‚РІРѕ. / ' . get_class($this) .'->' . $field . ' - РЅРµ РѕРїСЂРµРґРµР»РµРЅРѕ');
         }
-        
+
     }
     /**
      *
-     * @param string $field обновить только конкретное поле
+     * @param string $field РѕР±РЅРѕРІРёС‚СЊ С‚РѕР»СЊРєРѕ РєРѕРЅРєСЂРµС‚РЅРѕРµ РїРѕР»Рµ
      */
 
-    //сделать какойто идентификатор id каждому объекту модели
+    //СЃРґРµР»Р°С‚СЊ РєР°РєРѕР№С‚Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ id РєР°Р¶РґРѕРјСѓ РѕР±СЉРµРєС‚Сѓ РјРѕРґРµР»Рё
     function save($field = null) {
         if ($field) {
             $value = $this->__get($field);
@@ -87,12 +78,10 @@ abstract class Model {
         } else {
             $result = DBExt::update($this->tbl_name, $this->values, 'id', $this->id);
         }
-        
+
     }
     function update () {}
-    
+
     function delete() {}
 
 }
-
-

@@ -4,4 +4,12 @@
  * and open the template in the editor.
  */
 
+/**
+ *
+ * @author Alexander
+ */
+interface IPaging {
+    
+    //put your code here
+}
 ?>

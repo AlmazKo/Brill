@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -9,7 +9,9 @@
  *
  * @author Alexander
  */
-class oList {
+require_once 'ISorting.php';
+
+class oList implements ISorting {
     private $page = 1;
     private $search = '';
     private $sort = null;
@@ -25,11 +27,30 @@ class oList {
     public function setSelected ($array = array()) {
         $this->selected = $array;
     }
-    function __construct(array $list) {
+    function __construct(array $data) {
+        $list = array();
+         foreach ($data as $value) {
+            $list[$value[0]] = $value[1];
+        }
         $this->values = $list;
     }
     public function getArray () {
         return $this->values;
+    }
+    function  Sort($field, $direction = null) {
+        if ($field === 'key' || $field === 0){
+           if(!$direction || $direction === 'ASC') {
+                sort($this->values);
+            } else {
+                asort($this->values);
+            }
+        } else if($field === 'value' || $field === 1) {
+            if(!$direction || $direction === 'ASC') {
+                ksort($this->values);
+            } else {
+                krsort($this->values);
+            }
+        }
     }
 
     public function BuildHtmlSelect ($html = "<select>") {
@@ -38,7 +59,7 @@ class oList {
             if (in_array($key, $this->selected)) {
                 $selected = "selected=selected";
             }
-            $html .= '<option ' . $selected . ' value="' . $value[0] . '">' . $value[1] . '</option>';
+            $html .= '<option ' . $selected . ' value="' . $key . '">' . $value . '</option>';
         }
         $html .= '</select>';
         return $html;

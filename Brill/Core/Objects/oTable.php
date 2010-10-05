@@ -9,7 +9,8 @@
  *
  * @author Alexander
  */
-class oTable {
+require_once 'ISorting.php';
+class oTable implements ISorting{
     private $page = 1;
     private $search = '';
     private $sort = null;
@@ -45,7 +46,7 @@ class oTable {
      * @param string $rule
      */
     function addRulesView($field, $rule) {
-        if (in_array($field, $this->fields)) {
+        if ($this->isField($field)) {
             $this->rulesView[$field] = $rule;
         }
     }
@@ -66,9 +67,9 @@ class oTable {
     }
     /**
      * Форматирует строку по шаблону
-     * @param <type> $cell
-     * @param <type> $field
-     * @param <type> $row
+     * @param string $cell
+     * @param string $field
+     * @param string $row
      * @return <type>
      */
     private function buildTd($cell, $field, $row) {
@@ -127,6 +128,35 @@ class oTable {
      */
     public function getFields() {
         return $this->fields;
+    }
+    /**
+     * Существует ли это поле
+     * @param string $field
+     */
+    public function isField($field) {
+        return in_array($field, $this->fields);
+    }
+
+    function  Sort($field, $direction = null) {
+        if ($this->isField($field)) {
+           if(!$direction || $direction === 'ASC') {
+
+           } else if ($direction == 'DESC') {}
+        }
+
+        if ($field === 'key' || $field === 0){
+           if(!$direction || $direction = 'ASC') {
+                sort($this->values);
+            } else {
+                asort($this->values);
+            }
+        } else if($field === 'value' || $field === 1) {
+            if(!$direction || $direction = 'ASC') {
+                ksort($this->values);
+            } else {
+                krsort($this->values);
+            }
+        }
     }
 
     /**

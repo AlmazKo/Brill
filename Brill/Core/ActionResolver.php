@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Поиск модуля, экшена и
  *
  * @author almaz
@@ -48,7 +48,7 @@ class ActionResolver {
         $sep = '/';
         $filePath = MODULES_PATH . $route->module . $sep . 'Actions' . $sep . $route->action . '.php';
         $className = $route->action;
-        if (file_exists($filePath)) { 
+        if (file_exists($filePath)) {
             @require_once $filePath;
             if (class_exists($className)) {
                 $act = new $className($route->act);
