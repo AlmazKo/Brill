@@ -1,0 +1,14 @@
+rewriteEngine on
+#RewriteCond %{REQUEST_URI} ^/admin
+#RewriteCond %{REQUEST_URI} ^/index
+RewriteRule ^(.*)$ http://%{HTTP_HOST}/$1 [L]
+
+#RewriteCond %{REQUEST_URI} ^/deamon/[a-zA-Z0-9]+/?
+#RewriteCond %{QUERY_STRING} !^$
+#RewriteRule ^deamon/([a-zA-Z0-9]+)/?$   /newindex.php?deamon=$1 [L]
+
+
+#RewriteCond %{REQUEST_URI} ^/deamon/[a-zA-Z0-9]+/?
+#RewriteCond %{QUERY_STRING} ^([a-zA-Z0-9_%?&="'-]*)$
+#RewriteRule ^deamon/([a-zA-Z0-9]+)/?$   /newindex.php?deamon=$1 [L,R=301]
+#Rewriterule ^deamon/([a-zA-Z0-9]+) /newindex.php?deamon=$1&%1 [L]
