@@ -46,9 +46,14 @@ class ActionResolver {
 
         $route = self::routing($_SERVER["REQUEST_URI"]);
         $sep = '/';
-        $filePath = MODULES_PATH . $route->module . $sep . 'Actions' . $sep . $route->action . '.php';
+        $module = $route->module;
+        $filePath = MODULES_PATH . $module . $sep . 'Actions' . $sep . $route->action . '.php';
         $className = $route->action;
         if (file_exists($filePath)) {
+            require_once MODULES_PATH . $module . $sep . $module . '.php';
+            
+            //иницилизируем настройки модуля
+            $module::init();
             require_once $filePath;
             if (class_exists($className)) {
                 $action = new $className($route->act);

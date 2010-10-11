@@ -5,8 +5,6 @@
  * Класс родитель для вех моделей
  */
 
-require_once 'DBExt.php';
-
 abstract class Model {
     protected $tbl_name;
     private $values = null;
@@ -30,6 +28,19 @@ abstract class Model {
         foreach ($this->fields as $fld) {
             $this->values[$fld] = $values[$fld];
         }
+        return true;
+    }
+    /**
+     * Получает значения по полю
+     * used for only unique fields
+     */
+    function getOneObject($field, $val) {
+        // подумать, как от этого избавиться
+        $val = addslashes($val);
+        $values = DBExt::getByField($this->tbl_name, $field, $val);
+        if (empty($values)) return false;
+        $this->values = array();
+        $this->values[$fld] = $values[$fld];
         return true;
     }
 

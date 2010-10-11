@@ -1,24 +1,22 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
- * Description of SiteForm
+ * Форма под конкретный сайт
  *
  * @author Alexander
  */
-class SiteForm {
+class SiteForm extends oForm {
     // массив [имя поля]= значение
     private $fields = array ();
+    private $site = array ();
 
-    private function constructForm($siteHostб, $fields = array()) {
+
+    private function constructForm($fields = array()) {
         //
     }
     //должна брать RegistryRequest->get('POST')
     //учитывает все поля с их валидаторами
-    //если все ок возвращает тру, иначе вызывает констрк
+    //если все ок возвращает тру, иначе вызывает constructForm, которая отдается во вью
     private function setFields() {
 
     }

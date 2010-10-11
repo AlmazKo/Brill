@@ -9,7 +9,7 @@
  *
  * @author Alexander
  */
-require_once 'ISorting.php';
+
 class oTable implements ISorting{
     private $page = 1;
     private $search = '';

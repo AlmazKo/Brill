@@ -34,10 +34,18 @@ require_once CORE_PATH . 'Common/TFormat.php';
 require_once 'RegistryRequest.php';
 require_once 'RegistryContext.php';
 require_once 'RegistryDb.php';
+require_once CORE_PATH . 'DB/DBExt.php';
+require_once CORE_PATH . 'Actions/Action.php';
+require_once CORE_PATH . 'Models/Model.php';
+require_once CORE_PATH . 'Views/View.php';
+require_once CORE_PATH . 'Views/View.php';
 
 $timer = new RunTimer();
 
 Log::setLevel(1);
+RegistryDb::instance()->setSettings('default', array('localhost', 'root', '12345', 'brill'));
+DB::connect();
+
 /*
 require_once 'DBParsingInterface.php';
 require_once 'DBCheckingInterface.php';
@@ -53,4 +61,11 @@ require_once 'RegistryContext.php';
 require_once 'RegistryDb.php';
 
 require CORE_PATH . 'ActionResolver.php';
-RegistryDb::instance()->setSettings('default', array('localhost', 'nindex_user', 'MINI!index', 'newindex'));
+
+require CORE_PATH . 'Interfaces/IPaging.php';
+require CORE_PATH . 'Interfaces/ISorting.php';
+
+require CORE_PATH . 'Objects/oList.php';
+require CORE_PATH . 'Objects/oTable.php';
+require CORE_PATH . 'Objects/oForm.php';
+require CORE_PATH . 'Objects/oTree.php';

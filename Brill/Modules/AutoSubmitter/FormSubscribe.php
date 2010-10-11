@@ -1,14 +1,9 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of FormSubscribe
+ * Форма рассылки
  *
  * @author Alexander
  */
-class FormSubscribe {
+class FormSubscribe extends oForm {
     //put your code here
 }

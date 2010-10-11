@@ -13,13 +13,12 @@ abstract class View {
     protected $defaultParent;
     protected $aHeaders = array();
     protected $httpStatus = '200';
-     public function  input () {
-         $context = RegistryContext::instance();
+    public function  input ($context) {
          if($context->is('error_page')) {
             $this->httpStatus = '404';
          }
          $this->inputHeaders();
-         if ($context->get('parent_tpl')) {
+         if ($context->get('useParentTpl')) {
              @include $this->dirTemplates . $defaultParent;
          }
         //здесь уже можно делать вывод

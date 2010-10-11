@@ -50,7 +50,7 @@ class RegistryRequest extends Registry{
                 foreach ($_GET as $key => $val) {
                     $get[$key] = trim($val);//TODO добавить экранирование
                 }
-                $this->set('GET', $post);
+                $this->set('GET', $get);
             } else {
                 $this->set('GET', null);
             }

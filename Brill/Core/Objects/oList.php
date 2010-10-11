@@ -9,7 +9,6 @@
  *
  * @author Alexander
  */
-require_once 'ISorting.php';
 
 class oList implements ISorting {
     private $page = 1;

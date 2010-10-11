@@ -23,6 +23,7 @@ abstract class Action {
         } else {
             $this->runAct($this->defaultAct);
         }
+        $this->view = $this->initView();
         $this->input();
     }
 
@@ -50,17 +51,17 @@ abstract class Action {
         $this->act = $act;
         $this->nav = $nav;
         $this->request = RegistryRequest::instance();
-        $this->view = $this->initView();
+
     }
 
     public function input() {
-        $this->view->input();
+        $this->view->input(RegistryContext::instance());
     }
 
     /*
      * factory method
      */
     protected function initView() {
-       
+       Log::warning('Не определен метод: ' . get_class($this) .'->initView()');
     }
 }

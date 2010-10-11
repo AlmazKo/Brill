@@ -1,8 +1,6 @@
 <?php
 #include 'MysqliExt.php';
-
-require_once 'LogMysql.php';
-
+require_once CORE_PATH . 'Common/LogMysql.php';
 Class DB {
     protected static $lnk = null;
 
