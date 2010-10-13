@@ -7,7 +7,7 @@
 require_once CORE_PATH . 'Actions/Action.php';
 require_once CORE_PATH . 'ParsingQuery.php';
 class ActionResolver {
-    private static $defaultAction;
+    private static $defaultModule = 'Pages';
 
     /*
      * Определяет правило для разбиения
@@ -46,12 +46,27 @@ class ActionResolver {
 
         $route = self::routing($_SERVER["REQUEST_URI"]);
         $sep = '/';
+        if (!$route->module) {
+            $route->set('module', self::$defaultModule);
+        }
         $module = $route->module;
+
+        if (empty($route->action)) {
+            $filePathModule = MODULES_PATH . $module . $sep . $module . '.php';
+            if (file_exists($filePathModule)) {
+          require_once $filePathModule;
+            $route->set('action', $module::$defaultAction);
+            }else {
+            Log::warning('Не найден файл: '.$filePathModule);
+        }
+
+        }
         $filePath = MODULES_PATH . $module . $sep . 'Actions' . $sep . $route->action . '.php';
+
         $className = $route->action;
         if (file_exists($filePath)) {
-            require_once MODULES_PATH . $module . $sep . $module . '.php';
             
+
             //иницилизируем настройки модуля
             $module::init();
             require_once $filePath;

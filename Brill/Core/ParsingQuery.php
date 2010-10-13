@@ -31,9 +31,9 @@ class ParsingQuery {
     }
 
     public function set($key, $value) {
-        if (is_null($this->$key)) {
+    //    if (is_null($this->$key)) {
                 $this->$key = $value;
-        }
+     //   }
     }
 
     public function  __get($name) {
