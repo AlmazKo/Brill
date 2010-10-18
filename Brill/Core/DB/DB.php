@@ -1,6 +1,8 @@
 <?php
 #include 'MysqliExt.php';
 require_once CORE_PATH . 'Common/LogMysql.php';
+require_once 'mysqliHelper.php';
+
 Class DB {
     protected static $lnk = null;
 
@@ -64,6 +66,84 @@ Class DB {
         return $result;
     }
 
+    /**
+     *
+     * @param <type> $prepare_stmt
+     * @param <type> $params
+     * @param <type> $lnk
+     * @return <type>
+     */
+    static function execute($prepare_stmt, $params, $returnFields = null, $lnk = null) {
+//Log::dump(func_get_args());
+//        $result = false;
+//        $lnk = $lnk ? $lnk : self::$lnk;
+//        $stmt = $lnk->prepare($prepare_stmt);
+//
+//
+//
+//
+//        $fieldsInfo = mysqli_fetch_fields($stmt->result_metadata());
+//        //$typesR = mysqliHelper::getSpecification($fieldsInfo);
+//        $types = mysqliHelper::getSpecification($fieldsInfo, array_keys($params));
+//        Log::dump($types);
+//
+//        mysqliHelper::bindParam(&$stmt, $types, $params);
+//        $params[0] = 0;
+//        Log::dump($stmt);
+
+
+
+        $stmt = self::$lnk->prepare("SELECT id,name,content,date FROM `Pages` WHERE id=?");
+        $stmt->bind_param('i', $d);
+        $d = 0 ;
+        $stmt->execute();
+        $stmt->store_result();
+        var_dump(self::$lnk->get_result());
+//
+//        foreach($column as $col_name)
+//        {
+//          // Assign the fetched value to the variable '$data[$name]'
+//          $params[] =& $data[$col_name] ;
+//        }
+//        $res = call_user_func_array(array($stmt, "bind_result"), $params) ;
+//
+//
+//
+//        //        Log::dump($stmt->param_count());
+//    $stmt->bind_result($col1);
+//
+//    /* fetch values */
+//    while ($stmt->fetch()) {
+//        var_dump($col1);
+//    }
+
+                    /* fetch values */
+//    while ($row = $stmt->fetch()) {
+//       Log::dump($row);
+//    }
+
+
+        while(mysqli_more_results(self::$lnk)) {
+    mysqli_next_result(self::$lnk);
+}
+   echo '--';
+    printf("Number of rows: %d.\n", $stmt->num_rows);
+    $stmt->close();
+        die();
+//        // тут можно какой нить prepare sql делать //$sql = mysql_real_escape_string($sql);
+//        RunTimer::addPoint('Mysql');
+//        $result = $lnk->query($sql);
+//        if($result){
+//            LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
+//        }else{
+//            LogMysql::errorQuery($sql . ' / ' .$lnk->error);
+//            die();
+//        }
+//        return $result;
+    }
+
+
+
 
      /**
      * Обвертка self::query для получения только одного поля из результа запроса
@@ -86,4 +166,9 @@ Class DB {
             return null;
         }
     }
+
+    //static function
+
+
+
 }

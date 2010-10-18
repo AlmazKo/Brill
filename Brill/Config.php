@@ -27,7 +27,7 @@ $dirs [] = CORE_PATH . '/Registry';
 //$dirs [] = DIR_PATH . '/Templates';
 
 set_include_path(implode(PATH_SEPARATOR, $dirs));
-
+require_once CORE_PATH . 'Common/General.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';

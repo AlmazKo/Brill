@@ -77,12 +77,13 @@ class RegistryRequest extends Registry{
         if (isset($this->_isAjax)) {
             return $this->_isAjax;
         }
-        if ($this->isXmlHttpRequest) { //ADD чтото вроде этого: if ($this->isXmlHttpRequest xor $this->get('AJaX') == '1')) {
+        if ($this->isXmlHttpRequest()) { //ADD чтото вроде этого: if ($this->isXmlHttpRequest xor $this->get('AJaX') == '1')) {
             $this->_isAjax = true;
             return true;
         } else {
             $this->_isAjax = false;
         }
+        return $this->_isAjax;
     }
 
     public function isXmlHttpRequest() {

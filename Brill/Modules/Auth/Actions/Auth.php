@@ -18,8 +18,8 @@ class Auth {
         if ($request->get('POST')) {
 
             if($post['login'] && $post['password']) {
-                $user->fill(query($post['login'], $post['password'])
-                        oForm('error')
+                //$user->fill(query($post['login'], $post['password'])
+                      //  oForm('error')
             }
         } else {
             oForm();

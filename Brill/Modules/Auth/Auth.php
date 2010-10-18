@@ -15,10 +15,11 @@ class Auth extends Modules {
     static $pathActions = null;
     static $pathViews = null;
 
-    public static function init() {
+    protected function configure() {
         self::$pathModels = MODULES_PATH . self::$name . '/Models/';
         self::$pathActions = MODULES_PATH . self::$name . '/Actions/';
         self::$pathViews = MODULES_PATH . self::$name . '/Views/';
+
     }
 }
 

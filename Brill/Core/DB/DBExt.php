@@ -33,8 +33,23 @@ class DBExt extends DB{
      * Получает значения по полю
      * used for only unique fields
      */
-    function getByField($tblName, $field, $value) {
-        $value = is_string($value) ? "'".$value."'" : (string) $value;
+    function getByField($tblName, $field, $value, $returnFields) {
+////FIX если одно поле
+//        $prepared = "SELECT ".implode(',',$returnFields) ." FROM `$tblName` WHERE $field=?";
+//      //   $prepared = "SELECT id FROM `$tblName` WHERE $field=?";
+//        parent::execute($prepared, $value, $returnFields);
+//
+//
+
+
+
+
+
+
+
+
+
+        $value = is_string($value) ? "'".addslashes($value)."'" : (string) $value;
         $query = "select * from `$tblName` where $field=$value Limit 1";
 
         $result = parent::query($query);

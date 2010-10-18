@@ -1,0 +1,117 @@
+body {
+    font-family:arial;
+    font-size:10pt;
+    color: #333;
+    margin: 0;
+    padding: 0;
+
+}
+#page {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+#page .first_col{
+    padding-left: 10px;
+    width: 300px;
+}
+
+#page_menu{
+
+     padding-left: 10px;
+}
+
+#page .last_col{
+    width: 200px;
+}
+#page_head {
+    height: 100px
+    
+}
+
+#page_head td{
+    background-color: #DDD;
+
+}
+
+#page_body {
+
+ 
+}
+
+form p {
+    margin: 2px 0;
+}
+
+form {
+    margin: 2px;
+}
+
+form .form_field_error{
+    color:Red;
+    padding-left:110px;
+}
+
+#UserForm input {
+    width: 500px;
+    
+}
+
+#UserForm textarea {
+    width: 500px;
+
+}
+
+#UserForm select {
+    width: 500px;
+
+}
+#UserForm label {
+    display:block;
+    float:left;
+    padding:3px;
+    text-align:right;
+    width:100px;
+}
+
+#page_menu li {
+    cursor: pointer;
+}
+/*
+table {
+    border-collapse: collapse;
+    width: 900px;
+}
+table td {
+    border: 1px solid #ccc;
+    font-size:10pt;
+    text-align: left;
+    padding:3px;
+
+}
+
+table th {
+    border: 1px solid #ccc;
+    border-collapse: separate;
+    font-size:10pt;
+    text-align: left;
+    padding:3px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.null_table {
+    color:#80a6ae;
+    text-align: center;
+    padding: 10px 0;
+    font-style: italic;
+    font-size: 1.1 em;
+}
+
+.separator_table {
+    background-color: #DDD;
+    text-align: center;
+    font-style: italic;
+    font-weight: bold;
+}
+*/

@@ -82,14 +82,14 @@ class Log {
         if (self::$_file) {
             $filename = Helper::logFileWrite($filename, TFormat::txtMessageLog($title, $descr));
         }
-        echo self::$aLog[self::$i];
+      //  echo self::$aLog[self::$i];
         //return  self::$aLog[self::$i];
     }
 
     public static function viewLog() {
         $html = '';
         foreach (self::$aLog as $key => $value) {
-            $html .= str_pad($key, 3, chr(160), STR_PAD_LEFT) .' - '. $value;
+            $html .= str_pad($key, 1, '.', STR_PAD_LEFT) .' - '. $value;
         }
         return $html;
        

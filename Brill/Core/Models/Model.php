@@ -45,6 +45,25 @@ abstract class Model {
     }
 
     /**
+     * Получает значения по первому полю
+     * used for only unique fields
+     */
+    function getPkObject($val) {
+
+        // подумать, как от этого избавиться
+    
+        $values = DBExt::getByField($this->tbl_name, $this->fields[0], $val, $this->fields);
+
+        if (empty($values)) return false;
+        $this->values = array();
+        //заполнение полей значениями
+        foreach ($this->fields as $fld) {
+            $this->values[$fld] = $values[$fld];
+        }
+        return true;
+    }
+
+    /**
      * Получить массив объектов
      */
     function getArrayObjects() {

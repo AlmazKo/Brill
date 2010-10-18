@@ -21,7 +21,7 @@ class ActionResolver {
          *
          */
         $searchStrategy = '(?:search(&[a-zA-Z0-9_-]+\=[^\/]*)+\/)?';
-        $navStrategy = '(?:nav(&[a-z]+\=[^\/]*)+\/)?';
+        $navStrategy = '(?:nav(?:&([a-z]+\=[^\/]*))+\/)?';
         $stdRule = '/\/(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
         if (preg_match($stdRule, $uri, $m)) {
             $route->set('site', $_SERVER['HTTP_HOST']);
@@ -30,7 +30,16 @@ class ActionResolver {
             $route->set('action', isset($m[3]) ? $m[3] : '');
             $route->set('act', isset($m[4]) ? $m[4] : '');
             $route->set('search', isset($m[5]) ? $m[5] : '');
-            $route->set('nav', isset($m[6]) ? $m[6] : '');
+            if (isset($m[6])) {
+                $nav_params = explode('&', $m[6]);
+                foreach ($nav_params as $param) {
+                    $par = explode('=', $param);
+                    $navigation[$par[0]] = $par[1];
+                }
+                $route->set('nav', $navigation);
+            } else {
+                $route->set('nav', '');
+            }
             return $route;
         } else {
             return null;
@@ -61,14 +70,17 @@ class ActionResolver {
         }
 
         }
-        $filePath = MODULES_PATH . $module . $sep . 'Actions' . $sep . $route->action . '.php';
 
+        General::$route = $route;
+
+        $filePath = MODULES_PATH . $module . $sep . 'Actions' . $sep . $route->action . '.php';
+        
         $className = $route->action;
         if (file_exists($filePath)) {
-            
-
             //иницилизируем настройки модуля
-            $module::init();
+            $gModule = new $module();
+
+       //     $module::init();
             require_once $filePath;
             if (class_exists($className)) {
                 $action = new $className($route->act);
