@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <document>
-  <field title="&#x417;&#x430;&#x433;&#x43E;&#x43B;&#x43E;&#x432;&#x43E;&#x43A;" type="text" requried="1" validator="" info="" error="" attr="">&#x444;&#x44B;&#x432;</field>
-  <field title="&#x41A;&#x43E;&#x43C;&#x43F;&#x430;&#x43D;&#x438;&#x44F;" type="text" requried="1" validator="" info="" error="">&#x444;&#x44B;&#x432;&#x444;&#x44B;&#x432;</field>
-  <field title="&#x410;&#x43D;&#x43E;&#x43D;&#x441;" type="textarea" requried="1" validator="" info="" error="" attr="rows=4">&#x444;&#x44B;&#x432;&#x444;&#x44B;&#x432;</field>
-  <field title="&#x420;&#x435;&#x43B;&#x438;&#x437;" type="textarea" requried="1" validator="" info="" error="" attr="rows=10">sdfasda</field>
-  <field title="Email" type="text" requried="1" validator="" info="" error="">asdadsasd</field>
-  <field title="&#x410;&#x432;&#x442;&#x43E;&#x440;" type="text" requried="1" validator="" info="" error="">asdadsasd</field>
+  <field title="&#x417;&#x430;&#x433;&#x43E;&#x43B;&#x43E;&#x432;&#x43E;&#x43A;" type="text" requried="1" validator="" info="" error="" attr="">er</field>
+  <field title="&#x41A;&#x43E;&#x43C;&#x43F;&#x430;&#x43D;&#x438;&#x44F;" type="text" requried="1" validator="" info="" error="">rwerwerw</field>
+  <field title="&#x410;&#x43D;&#x43E;&#x43D;&#x441;" type="textarea" requried="1" validator="" info="" error="" attr="rows=4">rewrewe</field>
+  <field title="&#x420;&#x435;&#x43B;&#x438;&#x437;" type="textarea" requried="1" validator="" info="" error="" attr="rows=10">erwerw</field>
+  <field title="Email" type="text" requried="1" validator="" info="" error="">werwerw</field>
+  <field title="&#x410;&#x432;&#x442;&#x43E;&#x440;" type="text" requried="1" validator="" info="" error="">sewetw</field>
 </document>

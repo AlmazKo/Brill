@@ -24,9 +24,7 @@ class UserSubscribeForm extends oForm {
 
 
 
-$string =  "<?xml version='1.0'?>
-<document>
-</document>";
+$string = '<?xml version="1.0" encoding="UTF-8"?><document></document>';
 $sxe = simplexml_load_string($string);
 
     foreach ($this->fields as $name => $settings) {

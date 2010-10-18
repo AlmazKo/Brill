@@ -28,8 +28,8 @@ class aPages extends Action {
         }
         $page->getPkObject($idPage);
         $context->set('content', $page->content);
-        $fields['login'] = array('title' => 'Логин:', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $fields['password'] = array('title' => 'Пароль:', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $fields['login'] = array('title' => 'Логин', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
         $auth = new oForm($fields);
         $context->set('auth', $auth);
         //$return = f::run($sites[0]->siteHost);
