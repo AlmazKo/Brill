@@ -34,6 +34,13 @@ class aPages extends Action {
         $context->set('auth', $auth);
         //$return = f::run($sites[0]->siteHost);
 
+        $menu[0]['node'] = 'Мои рассылки';
+        $menu[0][0] = 'Завершившиеся';
+        $menu[0][1] = 'В процессе';
+        $menu[1] = 'Новая рассылка';
+
+    //    Log::dump($menu);
+        $context->set('menu', $menu);
     }
 
 

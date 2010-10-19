@@ -11,32 +11,44 @@
  */
 
 class oTable implements ISorting{
-    private $page = 1;
-    private $search = '';
-    private $sort = null;
-    private $directSort = 'ASC';
-    private $altWhere = '';
-    private $name = null;
+    protected $page = 1;
+    protected $search = '';
+    protected $sort = null;
+    protected $directSort = 'ASC';
+    protected $altWhere = '';
+    protected $name = null;
     //отображаемое название полей
     public $headers = array();
-    private $htmlHeaders = array();
-    private $values = array();
+    protected $htmlHeaders = array();
+    protected $values = array();
     //названия полей
-    private $fields = array();
+    protected $fields = array();
     //масссив отображаемых полей
-    private $view_cols = array();
+    protected $view_cols = array();
     //количество строк
-    private $count = 0;
+    protected $count = 0;
 
-    private $separator = false;
-    private $separatorValue = null;
-    private $separatorHeader = null;
-    private $rulesView = null;
-    function __construct(array $tbl) {
-        $this->fields = $this->headers = $this->viewCols = $tbl[0];
-        $this->values = $tbl[1];
+    protected $separator = false;
+    protected $separatorValue = null;
+    protected $separatorHeader = null;
+    protected $rulesView = null;
+    function __construct($data) {
+        if(is_object($data)) {
+            if (is_subclass_of($tbl, 'Model')) {
+                $this->fields = $this->headers = $this->viewCols = $data->getFields();
+                $this->values = $data->getValues();
+            } else {
+                Log::warning('Переданы, не поддерживемые ' .__CLASS__ . ' данные');
+            }
+            
+        } else if (is_array ($data)) {
+            $this->fields = $this->headers = $this->viewCols = $data[0];
+            $this->values = $data[1];
+        } else {
+            Log::warning('Переданы, не поддерживемые ' .__CLASS__ . ' данные');
+        }
+
         $this->count = count($this->values);
-
 
     }
 
@@ -72,7 +84,7 @@ class oTable implements ISorting{
      * @param string $row
      * @return <type>
      */
-    private function buildTd($cell, $field, $row) {
+    protected function buildTd($cell, $field, $row) {
         $str = $cell;
         if (isset($this->rulesView[$field])) {
             $str = $this->rulesView[$field];
@@ -165,7 +177,7 @@ class oTable implements ISorting{
      * @return string
      */
     public function build($idCss = false) {
-        $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0">';
+        $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" class="table">';
             $html .= '<tr>';
             foreach ($this->viewCols as $i => $cell) {
                 $html .= '<th>' . $this->headers[$i] . '</th>';

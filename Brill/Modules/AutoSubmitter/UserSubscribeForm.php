@@ -16,56 +16,51 @@ class UserSubscribeForm extends oForm {
     }
 
     /**
-     * Сохраняет xml получая данные из поста
+     * Сохраняет форму, как xml
      * @param <type> $fileName
      */
-   public function save($fileName22 ='asa')  {
-
-
-
-
-$string = '<?xml version="1.0" encoding="UTF-8"?><document></document>';
-$sxe = simplexml_load_string($string);
-
-    foreach ($this->fields as $name => $settings) {
-        $field = $sxe->addChild('field', isset($settings['value']) ? $settings['value'] : '');
-        foreach($settings as $key => $value) {
-            if ($key != 'value') {
-                $field->addAttribute($key, $value);
+    public function save($subscribeName)  {
+        $string = '<?xml version="1.0" encoding="UTF-8"?><document></document>';
+        $sxe = simplexml_load_string($string);
+        foreach ($this->fields as $name => $settings) {
+            $field = $sxe->addChild('field', isset($settings['value']) ? $settings['value'] : '');
+            foreach($settings as $key => $value) {
+                if ($key != 'value') {
+                    $field->addAttribute($key, $value);
+                }
             }
         }
+
+        $dom = new DOMDocument('1.0');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadXML($sxe->asXML());
+        $data = $dom->saveXML();
+
+        $filename = MODULES_PATH . 'AutoSubmitter/XmlSubscribeForms/'.$subscribeName;
+        if (!$handle = fopen($filename, 'w')) {
+            Log::warning("Не могу открыть файл ($filename)");
+        }
+        if (fwrite($handle, $data) === FALSE) {
+            Log::warning("Не могу произвести запись в файл ($filename)");
+        }
+        fclose($handle);
+        return true;
     }
+    /**
+     *
+     * @param string $subscribeName]
+     * @return oForm
+     */
+    public function load($subscribeName) {
+        $sxe = simplexml_load_file($subscribeName);
 
-$dom = new DOMDocument('1.0');
-$dom->preserveWhiteSpace = false;
-$dom->formatOutput = true;
-$dom->loadXML($sxe->asXML());
-$data =$dom->saveXML();
 
+        foreach ($sxe->document->fields as $key => $value) {
+            foreach ($value['parameters'] as $key1 => $value1) {
 
-
-$subscribeName = '0'.'_'.'0'.'.xml';
-
-$filename = MODULES_PATH . 'AutoSubmitter/XmlSubscribeForms/'.$subscribeName;
-$somecontent = $data;
-    // В нашем примере мы открываем $filename в режиме "дописать в конец".
-    // Таким образом, смещение установлено в конец файла и
-    // наш $somecontent допишется в конец при использовании fwrite().
-    if (!$handle = fopen($filename, 'w')) {
-         echo "Не могу открыть файл ($filename)";
-         exit;
+            }
+        }
+        return $form;
     }
-
-    // Записываем $somecontent в наш открытый файл.
-    if (fwrite($handle, $somecontent) === FALSE) {
-        echo "Не могу произвести запись в файл ($filename)";
-        exit;
-    }
-
-    echo "Ура! Записали ($somecontent) в файл ($filename)";
-
-    fclose($handle);
-
-
-   }
 }

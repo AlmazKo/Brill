@@ -17,45 +17,95 @@ class Subscribe extends Action{
      */
     public function act_Start() {
         $rr = RegistryRequest::instance();
-
         $sites = new as_Sites;
-        $sites = $sites->getArrayObjects('config_status', 'Yes');
+        
+      //  $sites->getArrayObjects('config_status', 'Yes');
+
+     //   var_dump($sites->getFields());
+
         $context = RegistryContext::instance();
         if ($rr->isAjax()) {
              $context->set('useParentTpl', false);
         } else {
-             $context->set('useParentTpl', true);
+            $context->set('useParentTpl', true);
             $context->set('title', 'Рассылка');
         }
-       $context->set('tpl', 'subscribe_start_html.php');
-       $context->set('info_text_1', 'Текст текст текст текст текст текст текст текст текст текст текст текст текст ');
-       $userForm = new UserSubscribeForm();
-        
-
+        $tbl = new oTableExt(array($sites->getFields(), $sites->getArrayObjects('config_status', 'Yes')));
+        $f = new oFormFree();
+        $tbl->viewColumns('host');
+        $tbl->setNamesColumns(array(
+            'host'=>'Выберите сайт'));
+        $context->set('tbl', $tbl);
+        $context->set('f', $f);
+        $context->set('tpl', 'subscribe_start_html.php');
+        $context->set('info_text_1', 'Общая форма для рассылки, некоторые данные могут быть избыточными');
+        $userForm = new UserSubscribeForm();
+        $idSubscribe = '0';
+        $idUser = '0';
         if($rr->is('POST')) {
             $userForm->fill($rr->get('POST'));
             if ($userForm->isComplited()) {
-               $userForm->save();
+               $file = $idUser . '_' . $idSubscribe . '.xml';
+               $userForm->save($file);
+               // $context->clean();
+//               $s = new UserSubscribe($idUser, $file);
+//               $sites = new as_Sites();
+//               if ($user->groupIs(array('admin','user')))
+//               $sites->getFree();
+//               $s->id;
+
+            /*
+             * Узнаем права
+             * Узнаем ид рассылки
+             * Узнаем состояние расслыки
+             * если новая
+             * получаем список доступных сайтов
+             * которые может юзать данная категория ( выбор всего 5 из доступных для триала)
+             * выбираем сайты
+             * запускаем
+             *
+             * запрашиваем стратегию
+             * выводим ее результат
+             *
+             */
+               $this->act_Next();
             }
         }
-        $context->set('form', $userForm);
+       
+        //$context->set('form', $userForm);
 
-
-        //Log::dump($sxe);
-        //$return = f::run($sites[0]->siteHost);
     }
-    public function act_Next() {
+
+    /**
+     * Работает нпосдредственно со стратегией и рассылкой
+     */
+     public function act_Next() {
+        $rr = RegistryRequest::instance();
         /*
          * должен принимать только аякс запросы
          * возвращает html блок
          */
-
-        $context = RegistryContext::instance();
-        $context->set('tpl', 'subscribe_next_html.php');
-        $context->set('useParentTpl', false);
-        $context->set('info_text_1', 'Текст для подгружаемого аяксом конетента');
-        $context->set('form', new oForm());
-
+        if ($rr->isAjax()) {
+            $context = RegistryContext::instance();
+            $context->set('tpl', 'subscribe_next_html.php');
+            $context->set('useParentTpl', false);
+            $context->set('info_text_1', 'РАССЫЛКА');
+            $context->set('form', new oForm());
+            /*
+             * Узнаем права
+             * Узнаем ид рассылки
+             * Узнаем состояние расслыки
+             * если новая
+             * получаем список доступных сайтов
+             * которые может юзать данная категория ( выбор всего 5 из доступных для триала)
+             * выбираем сайты
+             * запускаем
+             *
+             * запрашиваем стратегию
+             * выводим ее результат
+             *
+             */
+        }
       //  self::run();
     }
 

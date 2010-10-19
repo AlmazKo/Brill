@@ -114,4 +114,11 @@ abstract class Model {
 
     function delete() {}
 
+    public function getValues() {
+        return $this->values;
+    }
+
+    public function getFields() {
+        return $this->fields;
+    }
 }

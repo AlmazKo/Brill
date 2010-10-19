@@ -13,8 +13,8 @@ abstract class Registry{
     /**
      * Удаляет все свойства
      */
-    public static function clean () {
-        ##!!$this->values = array();
+    public function clean () {
+        $this->values = array();
     }
 
     public function get($key) {
@@ -37,4 +37,3 @@ abstract class Registry{
    }
 
 }
-?>

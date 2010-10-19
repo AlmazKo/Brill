@@ -77,20 +77,19 @@ form .form_field_error{
 #page_menu li {
     cursor: pointer;
 }
-/*
-table {
+
+.table {
     border-collapse: collapse;
     width: 900px;
 }
-table td {
+.table td {
     border: 1px solid #ccc;
     font-size:10pt;
     text-align: left;
     padding:3px;
 
 }
-
-table th {
+.table th {
     border: 1px solid #ccc;
     border-collapse: separate;
     font-size:10pt;
@@ -99,6 +98,31 @@ table th {
     text-align: center;
     font-weight: bold;
 }
+.table_chk {
+    width: 1%;
+}
+
+.tableExt {
+    border-collapse: collapse;
+
+}
+.tableExt td {
+    border-bottom: 1px solid #ccc;
+    font-size:10pt;
+    text-align: left;
+    padding:3px;
+
+}
+.tableExt th {
+    border-bottom: 1px solid #ccc;
+    border-collapse: separate;
+    font-size:10pt;
+    text-align: left;
+    padding:3px;
+    text-align: center;
+    font-weight: bold;
+}
+
 
 .null_table {
     color:#80a6ae;
@@ -114,4 +138,4 @@ table th {
     font-style: italic;
     font-weight: bold;
 }
-*/
+
