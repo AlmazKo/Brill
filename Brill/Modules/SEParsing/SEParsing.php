@@ -1,6 +1,8 @@
 <?php
 /* 
  * SEParsing
+ * модуль по парсингу поисковых систем
+ * а также для работы с ними
  */
 
 class SEParsing extends Modules {
