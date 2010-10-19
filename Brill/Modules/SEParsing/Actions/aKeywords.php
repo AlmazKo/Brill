@@ -1,19 +1,12 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Keywords
  *
  * @author almaz
  */
-require_once MODULES_PATH . ParsingQuery::instance()->module . '/' . ParsingQuery::instance()->module . '.php';
-require_once CORE_PATH . 'Actions/Action.php';
-require_once MODULES_PATH . SEParsing::$name . '/Views/sepView.php';
+require_once MODULES_PATH . 'SEParsing/Views/vKeywords.php';
 
-class Keywords extends Action {
+class aKeywords extends Action {
     protected $defaultAct = 'view';
 
     public function act_Add($context) {}
