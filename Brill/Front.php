@@ -77,6 +77,7 @@ class Front {
         $context = RegistryContext::instance();
         $actR = new ActionResolver(); 
         $act = $actR->getAction($request);
+
         $act->execute($context);
     }
 }

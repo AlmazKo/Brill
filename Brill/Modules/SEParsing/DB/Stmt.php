@@ -8,7 +8,7 @@
 /*
  * FIX ВСЕ НАХ УБРАТЬ и заменить на хранилище prepare_stmt!!!
  */
-class Statements {
+class Stmt {
 
 
 // получить урлы и позиции для конкертного сайта
@@ -19,9 +19,9 @@ join Urls as u on (u.id=p.url_id)
 WHERE p.site_id=#site_id# and to_days(p.date) = to_days(now())";
 
 // получить все ключевики
-const ALL_KEYWORDS = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `Keywords` as k
-left join Thematics as t on (t.id=k.thematic_id)
-left join `Sets` as s on (s.id=k.set_id)";
+const ALL_KEYWORDS = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `sep_keywords` as k
+left join `sep_thematics` as t on (t.id=k.thematic_id)
+left join `sep_sets` as s on (s.id=k.set_id)";
 
 // получить все ключевики кокретной тематики
 const ALL_KEYWORDS_THEMATIC = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `Keywords` as k
@@ -39,11 +39,11 @@ WHERE set_id = #set_id# AND to_days( p.date ) = to_days( now( ) )
 ORDER BY k_id, pos DESC";
 
 //получить все сайты с их урлами и позициями, по указанному ключевику
-const URLS_AND_POS_FOR_KEYWORD = "SELECT s.id as site_id, s.name, p.pos, u.url, p.pos_dot FROM `Positions` as p
-join Sites as s on (s.id=p.site_id)
-join Keywords as k on (k.id=p.keyword_id)
-join Urls as u on (u.id=p.url_id)
-WHERE keyword_id=#keyword_id# and to_days(p.date) = to_days(now())";
+const URLS_AND_POS_FOR_KEYWORD = "SELECT s.id as site_id, s.name, p.pos_dot, p.pos, u.url FROM `sep_positions` as p
+join sep_sites as s on (s.id=p.site_id)
+join sep_keywords as k on (k.id=p.keyword_id)
+join sep_urls as u on (u.id=p.url_id)
+WHERE keyword_id=#keyword_id# and to_days(p.date) = to_days(now())-1";
 
 // получить все тематики
 const ALL_THEMATICS = "SELECT id, name FROM `Thematics`";

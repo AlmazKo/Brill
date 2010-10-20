@@ -2,7 +2,8 @@
 /*
  * ПОдключение необходимых файлов и общая настройка
  */
-error_reporting(2047);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 /*
 @ini_set ('pcre.backtrack_limit', '5000000');
@@ -39,6 +40,8 @@ require_once CORE_PATH . 'Actions/Action.php';
 require_once CORE_PATH . 'Models/Model.php';
 require_once CORE_PATH . 'Views/View.php';
 require_once CORE_PATH . 'Views/View.php';
+
+require_once CORE_PATH . 'Lang/ru/texts.php';
 
 $timer = new RunTimer();
 

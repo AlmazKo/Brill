@@ -2,10 +2,9 @@
 /**
  * Urls
  *
- * класс ссылок
  */
 
-class Urls extends Model {
+class sep_urls extends Model {
     protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',

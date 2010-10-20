@@ -2,10 +2,9 @@
 /**
  * Positions
  *
- * класс Позиций
  */
 
-class Positions extends Model {
+class sep_positions extends Model {
     protected $tbl_name = __CLASS__;
     protected $fields = array (
         'keyword_id',

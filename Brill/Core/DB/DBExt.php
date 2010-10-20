@@ -95,6 +95,7 @@ class DBExt extends DB{
                 $values[] = $row;
             }
         }
+
         return array($fields, $values);
     }
 

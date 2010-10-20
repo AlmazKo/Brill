@@ -17,7 +17,7 @@ abstract class Action {
     protected $search = null;
 
 
-    public function execute () {
+    public function execute () {                 
         if($this->act) {
             $this->runAct($this->act);
         } else {
@@ -25,6 +25,7 @@ abstract class Action {
         }
         $this->view = $this->initView();
         $this->input();
+
     }
 
     /**

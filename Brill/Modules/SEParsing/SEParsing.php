@@ -9,7 +9,7 @@ class SEParsing extends Modules {
     static $version = 1;
     static $prefix = "sep_";
     static $name = __CLASS__;
-   // static $defaultAction = 'Auth';
+    static $defaultAction = 'aKeywords';
     static $pathModels = null;
     static $pathActions = null;
     static $pathViews = null;

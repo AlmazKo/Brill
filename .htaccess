@@ -1,6 +1,6 @@
 RewriteEngine on
-RewriteCond %{REQUEST_URI} !^/Brill/index.php
-RewriteCond %{REQUEST_URI} !^/Brill/Brill/css
-RewriteCond %{REQUEST_URI} !^/Brill/Brill/img
-RewriteCond %{REQUEST_URI} !^/Brill/Brill/js
-RewriteRule ^(.*)$ /Brill/index.php [L]
+RewriteCond %{REQUEST_URI} !^/ba/index.php
+RewriteCond %{REQUEST_URI} !^/ba/Brill/css
+RewriteCond %{REQUEST_URI} !^/ba/Brill/img
+RewriteCond %{REQUEST_URI} !^/ba/Brill/js
+RewriteRule ^(.*)$ /ba/index.php [L]

@@ -2,7 +2,6 @@
 /**
  * Domains
  *
- * класс доменов и информации по ним
  */
 
 class Domains extends Model {

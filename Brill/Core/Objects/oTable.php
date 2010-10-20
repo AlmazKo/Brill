@@ -32,6 +32,7 @@ class oTable implements ISorting{
     protected $separatorValue = null;
     protected $separatorHeader = null;
     protected $rulesView = null;
+    protected $mapsView = null;
     function __construct($data) {
         if(is_object($data)) {
             if (is_subclass_of($tbl, 'Model')) {
@@ -62,6 +63,15 @@ class oTable implements ISorting{
             $this->rulesView[$field] = $rule;
         }
     }
+
+    /*
+     * Связывает столбец с пред-обработчиком
+     */
+    function addMap ($field, $func) {
+        if ($this->isField($field)) {
+            $this->mapsView[$field] = $func;
+        }
+    }
     /**
      * Разделитель таблицы
      * @param string $nameSep какое поле должно измениться, чтобы сработало разделитель
@@ -86,6 +96,10 @@ class oTable implements ISorting{
      */
     protected function buildTd($cell, $field, $row) {
         $str = $cell;
+        if (isset($this->mapsView[$field])) {
+            $func = $this->mapsView[$field];
+            $str = $func($str);
+        }
         if (isset($this->rulesView[$field])) {
             $str = $this->rulesView[$field];
             foreach ($this->fields as $f) {

@@ -2,10 +2,10 @@
 /**
  * Updates
  *
- * класс апдейтов
+
  */
 
-class Updates extends Model {
+class sep_updates extends Model {
     private $id;
     private $date;
     private $percent_changes;

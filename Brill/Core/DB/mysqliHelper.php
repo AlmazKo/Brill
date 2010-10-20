@@ -85,7 +85,7 @@ class mysqliHelper {
         switch (count($params)) {
             case 1:
                 echo '90909';
-                $stmt->bind_param($types, &$params[0]);
+                $stmt->bind_param($types, $params[0]);
             break;
             case 2:
                 $stmt->bind_param($types, $params[0], $params[1]);

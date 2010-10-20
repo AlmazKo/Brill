@@ -4,9 +4,9 @@
  *
  * @author almaz
  */
-
+               
 class vKeywords extends View{
-     protected $defaultParent = 'GPage_HTML.php';
+     protected $defaultParent = 'parent.php';
      protected $dirTemplates;
      protected $aHeaders = array();
 

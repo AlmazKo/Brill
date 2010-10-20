@@ -4,8 +4,8 @@
  *
  * класс ключевых слов
  */
-require_once 'Model.php';
-class Keywords extends Model {
+
+class sep_keywords extends Model {
     protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',

@@ -54,27 +54,33 @@ class ActionResolver {
     public function getAction (RegistryRequest $request) {
 
         $route = self::routing($_SERVER["REQUEST_URI"]);
+
+
         $sep = '/';
         if (!$route->module) {
             $route->set('module', self::$defaultModule);
         }
-        $module = $route->module;
 
-        if (empty($route->action)) {
-            $filePathModule = MODULES_PATH . $module . $sep . $module . '.php';
-            if (file_exists($filePathModule)) {
-          require_once $filePathModule;
+        $module = $route->module;
+        if ($route->action) {
+            $route->set('action', 'a' . $route->action);
+        } else {
             $route->set('action', $module::$defaultAction);
-            }else {
+        }
+
+        $filePathModule = MODULES_PATH . $module . $sep . $module . '.php';
+
+        if (file_exists($filePathModule)) {
+            require_once $filePathModule;
+        }else {
             Log::warning('Не найден файл: '.$filePathModule);
         }
 
-        }
-
+       
         General::$route = $route;
 
         $filePath = MODULES_PATH . $module . $sep . 'Actions' . $sep . $route->action . '.php';
-        
+
         $className = $route->action;
         if (file_exists($filePath)) {
             //иницилизируем настройки модуля

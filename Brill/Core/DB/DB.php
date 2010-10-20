@@ -22,6 +22,9 @@ Class DB {
             $lnk = null;
             die();
         }
+        if (!$lnk->set_charset('utf8')) {
+            Log::warning("Error loading character set utf8: %s", $lnk->error);
+        }
         return $lnk;
     }
 
