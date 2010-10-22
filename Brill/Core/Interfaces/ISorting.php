@@ -9,7 +9,9 @@
  * @author Alexander
  */
 interface ISorting {
+    /**
+     *  Сортирует данные по полю $field и направлению $direction
+     */
     function sort($field, $direction = null);
 }
-?>
 

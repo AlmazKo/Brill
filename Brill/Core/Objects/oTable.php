@@ -9,6 +9,13 @@
  *
  * @author Alexander
  */
+function cmp($a, $b) {
+    if ($a == $b) {
+        return 0;
+    }
+    return ($a < $b) ? -1 : 1;
+}
+
 
 class oTable implements ISorting{
     protected $page = 1;
@@ -33,6 +40,9 @@ class oTable implements ISorting{
     protected $separatorHeader = null;
     protected $rulesView = null;
     protected $mapsView = null;
+    protected $viewIterator = false;
+    protected $typeSelected = false;
+    protected $viewSorting = true;
     function __construct($data) {
         if(is_object($data)) {
             if (is_subclass_of($tbl, 'Model')) {
@@ -41,7 +51,7 @@ class oTable implements ISorting{
             } else {
                 Log::warning('Переданы, не поддерживемые ' .__CLASS__ . ' данные');
             }
-            
+
         } else if (is_array ($data)) {
             $this->fields = $this->headers = $this->viewCols = $data[0];
             $this->values = $data[1];
@@ -163,28 +173,84 @@ class oTable implements ISorting{
         return in_array($field, $this->fields);
     }
 
-    function  Sort($field, $direction = null) {
+    /**
+     * выводить столбец с нумерацией
+     * @param bool $view
+     */
+    function setViewIterator($view = false) {
+        $this->viewIterator = (bool) $view;
+    }
+
+    /**
+     *
+     * @param array $selected
+     * @param bool $multi  true - checked, false - radio
+     * @param int $minMulti  минимльное количество для выбора
+     * @param int $maxMulti максимальое количество для выбора, если стоит -1 - то не ограничено
+     */
+    public function setSelected(array $selected, $multi = true, $minMulti = 1,  $maxMulti = -1){
+
+    }
+
+    function  sort($field, $direction = null) {
         if ($this->isField($field)) {
-           if(!$direction || $direction === 'ASC') {
-
-           } else if ($direction == 'DESC') {}
+            if($this->values) {
+                foreach ($this->values as $row) {
+                    $tmp[] = $row[$field];
+                }
+                if ($direction !== 'DESC' ) {
+                    asort($tmp);
+                } else {
+                    arsort($tmp);
+                }
+                foreach ($tmp as $key => $row) {
+                    $new[] = $this->values[$key];
+                }
+                 unset($tmp);
+                $this->values = $new;
+            }
+            return true;
+        } else {
+            return false;
         }
+    }
+    /**
+     * выводить столбец с нумерацией
+     * @param bool $view
+     */
+    function setViewSorting($view = false) {
+        $this->viewSorting = (bool) $view;
+    }
 
-        if ($field === 'key' || $field === 0){
-           if(!$direction || $direction = 'ASC') {
-                sort($this->values);
-            } else {
-                asort($this->values);
+    /**
+     * Возвращает столбец таблицы
+     *
+     * @param string $field
+     * @return array, в случае осутствия столбца - false
+     */
+    public function getCol($field) {
+        if ($this->isField($field)) {
+            $col = array();
+            foreach ($this->values as $row) {
+                $col[] = $row[$field];
             }
-        } else if($field === 'value' || $field === 1) {
-            if(!$direction || $direction = 'ASC') {
-                ksort($this->values);
-            } else {
-                krsort($this->values);
-            }
+            return $col;
+        } else {
+            return false;
         }
     }
 
+    public function setCol($field, $col) {
+        if (count($col) == count($this->values)) {
+            foreach ($this->values as $key => $row) {
+                
+                $this->values[$key][$field] = $col[$key];
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
     /**
      * Строит таблицу
      * @param string $idCss
@@ -192,17 +258,16 @@ class oTable implements ISorting{
      */
     public function build($idCss = false) {
         $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" class="table">';
-            $html .= '<tr>';
-            foreach ($this->viewCols as $i => $cell) {
-                $html .= '<th>' . $this->headers[$i] . '</th>';
-            }
-            $html .= '</tr>';
+            $html .= $this->buildHead();
             $idRow = 0;
         if(empty($this->values)) {
             $html .= '<tr><td colspan="'.count($this->fields).'" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
         } else {
             foreach ($this->values as $row) {
                 $html .= '<tr>';
+                if ($this->viewIterator) {
+                    $html .= '<td>' . ($idRow + 1) . '</td>';
+                }
                 if ($this->separator &&  ($this->separatorValue != $row[$this->separator] || $idRow == 0)) {
                     $html .= '<tr><td colspan="' . count($this->viewCols) . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
                     $this->separatorValue = $row[$this->separator];
@@ -220,6 +285,25 @@ class oTable implements ISorting{
             }
         }
         $html .= '</table>';
+        return $html;
+    }
+
+    function buildHead (){
+        $html = '<tr>';
+
+        if ($this->viewIterator) {
+            $html .= '<th><a href="'. Routing::constructUrl(array('nav' => array())).'">#</a></th>';
+        }
+        foreach ($this->viewCols as $i => $cell) {
+            if ($this->viewSorting) {
+               
+                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'">' . $this->headers[$i] . '</a></th>';
+            } else {
+                $html .= '<th>' . $this->headers[$i] . '</th>';
+            }
+            
+        }
+        $html .= '</tr>';
         return $html;
     }
 }

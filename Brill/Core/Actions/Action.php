@@ -13,8 +13,7 @@ abstract class Action {
     protected $defaultAct;
     protected $request;
     protected $act = null;
-    protected $nav = null;
-    protected $search = null;
+    public $search = null;
 
 
     public function execute () {                 
@@ -64,5 +63,10 @@ abstract class Action {
      */
     protected function initView() {
        Log::warning('Не определен метод: ' . get_class($this) .'->initView()');
+    }
+
+
+    function changeSorting($field, $sort) {
+
     }
 }

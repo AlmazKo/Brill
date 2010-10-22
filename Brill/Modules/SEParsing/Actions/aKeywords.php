@@ -29,8 +29,8 @@ class aKeywords extends Action {
             $tbl = new oTable(DBExt::selectToTable($sql. ' order by pos_dot DESC'));
             $context->set('table', $tbl);
             $tbl->viewColumns('name', 'pos', 'url', 'pos_dot');
-            
-            //$tbl->sort('url');
+            $tbl->setViewIterator(true);
+            $tbl->sort(Navigation::get('field'), Navigation::get('order'));
             //$tbl->jsonBuild();
 
             $tbl->setNamesColumns(array(
@@ -39,12 +39,21 @@ class aKeywords extends Action {
                 'pos_dot' => 'Позиция с точкой',
                 'url' => 'Адрес'));
             $tbl->addMap('url', 'urldecode');
+            $posCol = $tbl->getCol('pos');
+            foreach ($posCol as &$pp) {
+                if ($pp == 0) {
+                    $pp = '&mdash;';
+                }
+            }
+            $tbl->setCol('pos', $posCol);
             $context->set('h1', 'Статистика по ключевому слову');
             $context->set('title', 'Ключевики');
         } else {
             $sql = Stmt::getSql('ALL_KEYWORDS');
             $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
             $tbl->viewColumns('name', 'yandex', 'set', 'thematic');
+            $tbl->sort(Navigation::get('field'), Navigation::get('order'));
+            $tbl->setViewIterator(true);
             $tbl->addRulesView('thematic', '<a href="newindex.php?view=keywords&thematic_id=#t_id#">#thematic#</a>');
             
             $context->set('h1', 'Все ключевые слова');
@@ -59,6 +68,10 @@ class aKeywords extends Action {
             $tbl->addRulesView('name', '<a href="newindex.php?view=sites&keyword_id=#id#">#name#</a>');
             $tbl->addRulesView('set', '<a href="newindex.php?view=sites&set_id=#s_id#">#set#</a>');
         }
+
+
+
+
 
         $context->set('table', $tbl);
         $context->set('tpl', 'keywords_list.php');

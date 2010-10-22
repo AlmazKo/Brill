@@ -43,7 +43,7 @@ const URLS_AND_POS_FOR_KEYWORD = "SELECT s.id as site_id, s.name, p.pos_dot, p.p
 join sep_sites as s on (s.id=p.site_id)
 join sep_keywords as k on (k.id=p.keyword_id)
 join sep_urls as u on (u.id=p.url_id)
-WHERE keyword_id=#keyword_id# and to_days(p.date) = to_days(now())-1";
+WHERE keyword_id=#keyword_id#"; // and to_days(p.date) = to_days(now())-1
 
 // получить все тематики
 const ALL_THEMATICS = "SELECT id, name FROM `Thematics`";
