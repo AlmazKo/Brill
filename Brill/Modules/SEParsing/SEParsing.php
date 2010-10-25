@@ -13,6 +13,7 @@ class SEParsing extends Modules {
     static $pathModels = null;
     static $pathActions = null;
     static $pathViews = null;
+    //static $requiredModules = array ('Pages');
 
     protected function configure() {
         self::$pathModels = MODULES_PATH . self::$name . '/Models/';

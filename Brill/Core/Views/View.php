@@ -10,7 +10,8 @@
  * @author almaz
  */
 abstract class View {
-    protected $defaultParent;
+    protected $parentTpl;
+    protected $tpl;
     protected $aHeaders = array();
     protected $httpStatus = '200';
     public function  input ($context) {

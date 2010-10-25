@@ -6,10 +6,9 @@
  */
                
 class vKeywords extends View{
-     protected $defaultParent = 'parent.php';
+     protected $defaultParentTpl = 'parent.php';
+     protected $defaultTpl = false;
      protected $dirTemplates;
-     protected $aHeaders = array();
-
 
     // выводит хидеры
     function inputHeaders ($status = '200') {
@@ -17,15 +16,28 @@ class vKeywords extends View{
     }
 
     public function  __construct(RegistryContext $context) {
-        $this->context = &$context;
-        if (!$context->get('useParentTpl')) {
-            $this->useParent = false;
-            $this->defaultParent = $context->get('tpl');
+        var_dump(Pages);
+        die();
+        $this->defaultParentTpl = Pages::$pathViews . 'pages_parent_html.php';
+        var_dump($this->defaultParentTpl);
+        $this->context = $context;
+        if ($context->is('useParentTpl')) {
+            if ($context->is('parentTpl')) {
+                $this->parentTpl = $this->get('parentTpl');
+            } else {
+               $this->parentTpl = SEParsing::$pathViews . $this->defaultParentTpl;
+            }
+        } else  {
+            if ($context->is('tpl')) {
+                $this->parentTpl = $this->get('tpl');
+            } else {
+               $this->parentTpl = SEParsing::$pathViews . $this->defaultTpl;
+            }
         }
     }
 
     function  input() {
         $t = $this->context;
-        include(SEParsing::$pathViews . $this->defaultParent);
+        include($this->defaultParentTpl);
     }
 }
