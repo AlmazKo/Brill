@@ -1,8 +1,4 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  * Класс Формы
@@ -11,7 +7,10 @@
  */
 class oForm {
 protected $fields = array();
-    function __construct(array $fields = array()) {
+protected $url;
+    function __construct(array $fields = array(), $url = null) {
+        $this->url = Routing::constructUrl($url);
+
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););
 
@@ -25,10 +24,9 @@ protected $fields = array();
      * @return string
      */
     public function buildHtml($id = 'form',$disable = false) {
-    //    Log::dump($this->fields);
         $html = '';
         if ($this->fields) {
-            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="'.$_SERVER['REQUEST_URI'].'">';
+            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->url . '">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }

@@ -57,6 +57,7 @@ class ActionResolver {
 
                 //ADD проверка subclass От Actions
                 return $action;
+                
             }
         } else {
             Log::warning('Не найден файл: '.$filePath);

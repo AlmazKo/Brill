@@ -13,11 +13,15 @@ class oFormFree extends oForm{
 
     function buildFree($id, $content) {
             $html = '';
-            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="'.$_SERVER['REQUEST_URI'].'">';
+            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->url .'">';
             $html .= $content;
             $html .='<input type="submit"></form>';
             return $html;
     }
 
+    public function __construct($url = null) {
+        parent::__construct(array(), $url);
+
+    }
 }
 

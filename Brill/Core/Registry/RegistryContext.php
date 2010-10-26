@@ -21,7 +21,7 @@ class RegistryContext extends Registry {
     }
 
     function  __construct() {
-        $this->set('pge_tpl', 'page.tpl');
+
     }
 
     function simpleAccessToVars() {

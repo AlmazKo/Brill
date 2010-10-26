@@ -11,26 +11,36 @@
  */
 
 class vSubscribe extends View {
-     protected $defaultParent = 'subscribe_parent_html.php';
-     protected $useParent = true;
-     protected $aHeaders = array();
-     protected $context;
+     protected $defaultParentTpl = 'subscribe_parent_html.php';
+     protected $defaultTpl = false;
+     protected $dirTemplates;
 
-         // выводит хидеры
+    // выводит хидеры
     function inputHeaders ($status = '200') {
 
     }
 
     public function  __construct(RegistryContext $context) {
-        $this->context = &$context;
-        if (!$context->get('useParentTpl')) {
-            $this->useParent = false;
-            $this->defaultParent = $context->get('tpl');
+        $this->defaultParentTpl = AutoSubmitter::$pathViews . 'subscribe_start_html.php';
+        $this->context = $context;
+        if ($context->is('useParentTpl')) {
+            if ($context->is('parentTpl')) {
+                $this->parentTpl = $this->get('parentTpl');
+            } else {
+               $this->parentTpl = SEParsing::$pathViews . $this->defaultParentTpl;
+            }
+        } else  {
+            if ($context->is('tpl')) {
+                $this->parentTpl = $this->get('tpl');
+            } else {
+               $this->parentTpl = SEParsing::$pathViews . $this->defaultTpl;
+            }
         }
     }
 
     function  input() {
         $t = $this->context;
-        include(AutoSubmitter::$pathViews . $this->defaultParent);
+        include($this->defaultParentTpl);
     }
 }
+

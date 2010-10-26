@@ -32,13 +32,14 @@ class RegistryRequest extends Registry{
     protected function __construct() {
         if (isset($_SERVER['REQUEST_METHOD'])) {
             foreach ($_REQUEST as $key => $val) {
-            $this->set($key, trim($val));
+
+            $this->set($key, $val);
             }
             //инициализация _POST
             if ($_POST) {
                 $post = array();
                 foreach ($_POST as $key => $val) {
-                    $post[$key] = trim($val);
+                    $post[$key] =$val;
                 }
                 $this->set('POST', $post);
             } else {
@@ -48,7 +49,7 @@ class RegistryRequest extends Registry{
             if ($_GET) {
                 $get = array();
                 foreach ($_GET as $key => $val) {
-                    $get[$key] = trim($val);//TODO добавить экранирование
+                    $get[$key] = $val;//TODO добавить экранирование И ПОДДЕРЖКУ МАССИВОВ!!!!
                 }
                 $this->set('GET', $get);
             } else {

@@ -25,7 +25,7 @@ class oTableExt extends oTable {
             $html .= '<tr><td colspan="'.count($this->fields).'" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
         } else {
             foreach ($this->values as $row) {
-                $html .= '<tr><td><input type="checkbox" name="table_chk[]" value="" /></td>';
+                $html .= '<tr><td><input type="checkbox" name="table_chk['.$idRow.']" value="" /></td>';
                 if ($this->separator &&  ($this->separatorValue != $row[$this->separator] || $idRow == 0)) {
                     $html .= '<tr><td colspan="' . count($this->viewCols) . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
                     $this->separatorValue = $row[$this->separator];

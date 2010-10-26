@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
-<link href="/Brill/Brill/css/page.css" type="text/css" rel=stylesheet />
+<link href="/ba/Brill/css/page.css" type="text/css" rel=stylesheet />
 </head>
 <body>
 <? include($t->get('tpl')) ?>
