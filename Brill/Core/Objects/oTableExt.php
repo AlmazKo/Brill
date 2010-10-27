@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of oTableExt
+ * Class extended Table
  *
  * @author almaz
  */

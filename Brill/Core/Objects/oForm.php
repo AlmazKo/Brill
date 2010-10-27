@@ -10,7 +10,6 @@ protected $fields = array();
 protected $url;
     function __construct(array $fields = array(), $url = null) {
         $this->url = Routing::constructUrl($url);
-
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););
 
@@ -30,7 +29,7 @@ protected $url;
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }
-            $html .='<input type="submit"></form>';
+            $html .='<label></label><input type="submit"></form>';
         }
         return $html;
     }
@@ -45,7 +44,7 @@ protected $url;
         $html = '<p>';
         switch ($settings['type']) { 
             case 'text':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" />';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
                 break;
             case 'textarea':
                 $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';

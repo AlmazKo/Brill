@@ -121,7 +121,7 @@ class Routing {
             }
 
             if (isset($parts['GET']) && is_array($parts['GET'])) {
-                $aGet = array_merge($parts['GET'], $route->get);
+                $aGet = array_merge($route->get, $parts['GET']);
 
                 if ($aGet) {
                     $queryString = '';

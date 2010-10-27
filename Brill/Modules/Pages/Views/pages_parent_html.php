@@ -11,10 +11,19 @@
     <table id="page" cellpadding="0" cellspacing="0">
         <tr id="page_head"><td class="first_col"><img src="/ba/Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
          <tr id="page_body"><td id="page_menu">
-                 <ul>
-                     <li id="startSubscribe">Начать новую рассылку</li>
+                 
+            <ul id="menu">
+                <li> <span>Рассылки</span>
+            <ul>
+            <li class="none">Активные</li>
+            <li class="none">Завершенные</li>
 
-                 </ul>
+            <li id="startSubscribe" class="yes">Начать новую</li>
+            </ul>
+            </li>
+            <li class="yes"> <span>Новости</span> </li>
+            <li class="yes"> <span>Написать сообщение</span> </li>
+            </ul>
              <td id="page_content">
                <?=$t->get('content')?>
                  <br />
@@ -30,6 +39,13 @@ $(document).ready(function(){
     $('#startSubscribe').click(function() {
          $("#page_content").load("/ba/AutoSubmitter/Subscribe/Start/");
     });
+
+
+    $('.yes').hover(function(e) {
+        $(this).css({'color':'green'})
+    },function() {
+        $(this).css({'color':'#333'})
+    })
 });
 
 </script>

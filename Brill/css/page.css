@@ -17,8 +17,8 @@ body {
 }
 
 #page_menu{
-
-     padding-left: 10px;
+    vertical-align: top;
+    padding-left: 10px;
 }
 
 #page .last_col{
@@ -72,10 +72,6 @@ form .form_field_error{
     padding:3px;
     text-align:right;
     width:100px;
-}
-
-#page_menu li {
-    cursor: pointer;
 }
 
 .table {
@@ -140,3 +136,20 @@ form .form_field_error{
     font-weight: bold;
 }
 
+
+
+#wizzard_subscribe {
+    margin: 10px;
+}
+
+#menu span {
+    font-weight: bold;
+}
+
+#menu .none {
+    color: #ccc;
+}
+
+#menu .yes {
+    cursor: pointer;
+}

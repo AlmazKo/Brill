@@ -72,5 +72,5 @@ require CORE_PATH . 'Objects/oList.php';
 require CORE_PATH . 'Objects/oTable.php';
 require CORE_PATH . 'Objects/oTableExt.php';
 require CORE_PATH . 'Objects/oForm.php';
-require CORE_PATH . 'Objects/oFormFree.php';
+require CORE_PATH . 'Objects/oFormExt.php';
 require CORE_PATH . 'Objects/oTree.php';

@@ -36,7 +36,7 @@ class aSubscribe extends Action{
     protected function act_SelectSite($context) {
         $rr = RegistryRequest::instance();
         $sites = new as_Sites;
-        $form = new oFormFree(array('GET' => array('step'=>'1'))); 
+        $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArrayObjects('config_status', 'Yes')));
        // $form = new UserSubscribeForm();
         if ($rr->is('POST')) {
@@ -54,10 +54,22 @@ class aSubscribe extends Action{
     }
 
     protected function act_FillForm($context) {
-         $form = new UserSubscribeForm();
+         $rr = RegistryRequest::instance();
+         $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
          $context->set('form', $form);
          $context->set('info_text', 'Внимательно заполните форму');
          $context->set('step', 2);
+        if ($rr->is('POST')) {
+            $form->fill($rr->get('POST'));
+            if ($form->isComplited()) {
+                $fileName = MODULES_PATH . 'AutoSubmitter/XmlSubscribeForms/0_0.xml';
+                //сделать как вариант выгрузку в базу
+                $form->save($fileName);
+                return true;
+            }
+        }
+
+         
     }
 
     /**
@@ -78,17 +90,26 @@ class aSubscribe extends Action{
         }
         switch ($step) {
             case 0:
-                 if (!$this->runAct('add')) {
+                 if ($this->runAct('add')) {
+                     $rr->clean();
+                 } else {
                      break;
-                 } 
-            
+                 }
 
             case 1:
-                if (!$this->runAct('SelectSite')) {
+                if ($this->runAct('SelectSite')) {
+                    $rr->clean();
+                } else {
                     break;
                 }
             case 2:
-                $this->runAct('FillForm');
+                if ($this->runAct('FillForm')) {
+                    $rr->clean();
+                } else {
+                    break;
+                }
+            case 3 :
+                 $context->set('step', 3);
         }
 
         

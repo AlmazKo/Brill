@@ -43,7 +43,7 @@ class Log {
         ob_start();
         var_dump($obj);
         $descr = ob_get_clean ();
-        self::inputLog($title, $descr, true, $color);
+        echo self::inputLog($title, $descr, true, $color);
     }
 
     /**
@@ -82,7 +82,6 @@ class Log {
         if (self::$_file) {
             $filename = Helper::logFileWrite($filename, TFormat::txtMessageLog($title, $descr));
         }
-      //  echo self::$aLog[self::$i];
         return  self::$aLog[self::$i];
     }
 
