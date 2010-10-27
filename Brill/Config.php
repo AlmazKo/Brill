@@ -32,6 +32,7 @@ require_once CORE_PATH . 'Common/General.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';
+require_once 'RegistrySession.php';
 require_once 'RegistryRequest.php';
 require_once 'RegistryContext.php';
 require_once 'RegistryDb.php';

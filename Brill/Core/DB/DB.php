@@ -63,8 +63,9 @@ Class DB {
         if($result){
             LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
         }else{
+
             LogMysql::errorQuery($sql . ' / ' .$lnk->error);
-            die();
+            die('бля...');
         }
         return $result;
     }

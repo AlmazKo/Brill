@@ -108,5 +108,32 @@ protected $url;
         }
         return $result;
     }
+
+    /**
+     * Возвращает массив значений
+     * @return array
+     */
+    public function getValues() {
+        $values = array();
+        foreach ($this->fields as $name => $settings) {
+            $values[$name] = $settings['value'];
+        }
+        return $values;
+    }
+    public function getFields() {
+        return $this->fields;
+    }
+
+
+    /**
+     * Возвращает значение указанного поля
+     *
+     * @param string $fieldName
+     * @return
+     */
+    public function getFieldValue($fieldName) {
+        $values = $this->getValues();
+        return $values[$fieldName];
+    }
 }
 

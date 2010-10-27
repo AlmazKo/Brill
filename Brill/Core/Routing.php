@@ -1,11 +1,6 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Класс распарсенной строки
+ * Класс для работы с урлом
  *
  * @author Alexander
  */
@@ -119,7 +114,7 @@ class Routing {
             } else {
                 $url .= isset($parts['nav']) ? $parts['nav'] . '/' : $route->nav ? $route->nav . '/' : '';
             }
-
+            $queryString = '';
             if (isset($parts['GET']) && is_array($parts['GET'])) {
                 $aGet = array_merge($route->get, $parts['GET']);
 
@@ -135,5 +130,18 @@ class Routing {
         } else {
             return $route->uri;
         }
+    }
+
+
+    /**
+     *
+     * @param object $url
+     */
+    public static function redirect($url) {
+        if (is_array($url)) {
+            $url = self::constructUrl($url);
+        }
+        header('Location: ' . $url);
+        die();
     }
 }

@@ -15,7 +15,7 @@
             <ul id="menu">
                 <li> <span>Рассылки</span>
             <ul>
-            <li class="none">Активные</li>
+            <li id="subscribes" class="yes">Активные</li>
             <li class="none">Завершенные</li>
 
             <li id="startSubscribe" class="yes">Начать новую</li>
@@ -39,7 +39,9 @@ $(document).ready(function(){
     $('#startSubscribe').click(function() {
          $("#page_content").load("/ba/AutoSubmitter/Subscribe/Start/");
     });
-
+    $('#subscribes').click(function() {
+         $("#page_content").load("/ba/AutoSubmitter/Subscribe/List/");
+    });
 
     $('.yes').hover(function(e) {
         $(this).css({'color':'green'})

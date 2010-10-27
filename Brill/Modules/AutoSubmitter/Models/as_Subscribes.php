@@ -8,13 +8,14 @@
  * @author almaz
  */
 
-class as_Subscribes {
+class as_Subscribes extends Model {
     protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',
         'user_id',
         'name', //название рассылки
-        'form_id', //ссылка на форму
+        'form', //форма в виде xml
+        'date_created', // дата создания рассылки
         'date_begin', //дата начала рассылки
         'date_end', // дата конца рассылки
     );

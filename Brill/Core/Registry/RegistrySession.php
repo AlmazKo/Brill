@@ -25,9 +25,25 @@ class RegistrySession extends Registry{
      */
     protected function __construct(){
         session_start();
-            foreach ($_SESSION as $key => $val) {
-                $this->set(ucfirst(strtolower($key)), $val);
-            }
     }
+
+    public function get($key) {
+        if (isset($_SESSION[$key])) {
+            return $_SESSION[$key];
+        } else {
+            Log::warning("'$key' нет такого свойства");
+        }
+    }
+
+    public function is($key) {
+        if (isset($_SESSION[$key])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+   public function set($key, $value) {
+        $_SESSION[$key] = $value;
+   }
 }
 ?>

@@ -6,9 +6,6 @@
  */
 
 class Log {
-    /**
-     * уровень и тип отладки, должен задаваться один раз и только в начале
-     */
     private static $_debugLevel = null;
     private static $_screen = false;
     private static $_file = false;
@@ -67,7 +64,7 @@ class Log {
      * Вывод серъезных ошибок
      */
     public static function warning($text, $block = true) {
-        $b=debug_backtrace();
+        $b = debug_backtrace();
         $text .= "\n" . $b[1]['file'] . ':' . $b[1]['line'];
         self::inputLog('Warning', $text, $block, 'red', 'error');
         RegistryContext::instance()->set('error', self::viewLog());
@@ -76,22 +73,29 @@ class Log {
     }
 
     protected  static function inputLog($title, $descr, $block = true, $color = '#ff0' , $filename = 'info') {
-        if (self::$_screen) {
-            self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, $block, $color);
-        }
         if (self::$_file) {
             $filename = Helper::logFileWrite($filename, TFormat::txtMessageLog($title, $descr));
+        }
+        if (self::$_screen) {
+            if (!$block) {
+                self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
+            } else {
+                self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
+                return TFormat::htmlMessageLog($title, $descr, $block, $color);
+            }
         }
         return  self::$aLog[self::$i];
     }
 
+    /**
+     * Возврщает все логи в html
+     * @return string
+     */
     public static function viewLog() {
         $html = '';
         foreach (self::$aLog as $key => $value) {
             $html .= str_pad($key, 1, '.', STR_PAD_LEFT) .' - '. $value;
         }
         return $html;
-       
-    }
-
+     }
 }

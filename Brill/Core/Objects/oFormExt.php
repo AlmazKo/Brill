@@ -25,6 +25,73 @@ class oFormExt extends oForm{
      * @param <type> $fileName
      */
     public function save($fileName)  {
+        $data = $this->getXmlAsText();
+        if (!$handle = fopen($fileName, 'w')) {
+            Log::warning("Не могу открыть файл ($fileName)");
+        }
+        if (fwrite($handle, $data) === FALSE) {
+            Log::warning("Не могу произвести запись в файл ($fileName)");
+        }
+        fclose($handle);
+        return true;
+    }
+
+    /**
+     * Load form in string
+     * @param string $fileName
+     * @return oForm
+     */
+    public function loadFromString($string) {
+        $this->fields = array();
+        $sxe = simplexml_load_string($string);
+        $fields = array();
+        foreach ($sxe->field as $key => $value) {
+            $attr = current((array)$value->attributes());
+            $v = (array)$value;
+            $fields[$attr['name']] = $attr;
+            $fields[$attr['name']]['value'] = $v[0];
+        }
+        $this->fields = $fields;
+    }
+    /**
+     * Загрузить форму из xml файла
+     * @return <type>
+     */
+    public function loadFromFile() {
+        $this->fields = array();
+        $sxe = simplexml_load_file($fileName);
+        foreach ($sxe->document->fields as $key => $value) {
+            $this->fields[$value['name']];
+            foreach ($value['parameters'] as $key1 => $value1) {
+
+            }
+        }
+        return $form;
+    }
+
+
+    /**
+     * TODO Возможно вынести в хелпер для работы с хмл
+     * Returned XML as text
+     * @return string
+     */
+    public function getXmlAsText() {
+        $sxe = $this->getXml();
+        // Проводятся манипуляции, чтобы XML была человеческого вида
+        $dom = new DOMDocument('1.0');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadXML($sxe->asXML());
+        $data = $dom->saveXML();
+        return $data;
+    }
+
+     /**
+     * Конвертирует форму в Xml
+     *
+     * @return SimpleXMLElement
+     */
+    public function getXml() {
         $string = '<?xml version="1.0" encoding="UTF-8"?><document></document>';
         $sxe = simplexml_load_string($string);
         foreach ($this->fields as $name => $settings) {
@@ -34,38 +101,9 @@ class oFormExt extends oForm{
                     $field->addAttribute($key, $value);
                 }
             }
+            $field->addAttribute('name', $name);
         }
-
-        $dom = new DOMDocument('1.0');
-        $dom->preserveWhiteSpace = false;
-        $dom->formatOutput = true;
-        $dom->loadXML($sxe->asXML());
-        $data = $dom->saveXML();
-
-        if (!$handle = fopen($fileName, 'a')) {
-            Log::warning("Не могу открыть файл ($fileName)");
-        }
-        if (fwrite($handle, $data) === FALSE) {
-            Log::warning("Не могу произвести запись в файл ($fileName)");
-        }
-        fclose($handle);
-        return true;
-    }
-    /**
-     * Load form in xml file
-     * @param string $fileName
-     * @return oForm
-     */
-    public function load($fileName) {
-        $sxe = simplexml_load_file($fileName);
-
-
-        foreach ($sxe->document->fields as $key => $value) {
-            foreach ($value['parameters'] as $key1 => $value1) {
-
-            }
-        }
-        return $form;
+        return $sxe;
     }
 }
 

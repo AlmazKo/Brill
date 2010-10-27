@@ -288,7 +288,7 @@ class oTable implements ISorting{
         return $html;
     }
 
-    function buildHead (){
+    public function buildHead (){
         $html = '<tr>';
 
         if ($this->viewIterator) {

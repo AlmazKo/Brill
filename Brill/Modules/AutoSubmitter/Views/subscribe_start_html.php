@@ -1,4 +1,5 @@
 <div id="wizzard_subscribe">
+    <h3>Создание новой рассылки</h3>
 <? 
 switch ($t->get('step')):
 case 0: ?>

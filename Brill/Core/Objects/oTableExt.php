@@ -11,10 +11,11 @@ class oTableExt extends oTable {
     /**
      * Строит таблицу
      * @param string $idCss
+     * @param string $clasCss
      * @return string
      */
-    public function buildHtml($idCss = false) {
-        $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" class="tableExt">';
+    public function buildHtml($idCss = false, $classCss = 'table') {
+        $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" class="' . $classCss . '">';
             $html .= '<tr><th class="table_chk"></th>';
             foreach ($this->viewCols as $i => $cell) {
                 $html .= '<th>' . $this->headers[$i] . '</th>';

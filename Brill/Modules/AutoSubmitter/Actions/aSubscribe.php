@@ -7,25 +7,28 @@
  * @author almaz
  */
 require_once AutoSubmitter::$pathModels .'as_Sites.php';
+require_once AutoSubmitter::$pathModels .'as_Subscribes.php';
 require_once AutoSubmitter::$pathViews .'vSubscribe.php';
 require_once MODULES_PATH . AutoSubmitter::$name .'/UserSubscribeForm.php';
 class aSubscribe extends Action{
     protected $defaultAct = 'start';
 
     protected function act_Add($context) {
-        $fields['title'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $rr = RegistryRequest::instance();
+        $rs = RegistrySession::instance();
         $form = new oForm($fields);
         $context->set('form', $form);
-                $context->set('step', 0);
+        $context->set('step', 0);
         if ($rr->is('POST')) {
             $form->fill($rr->get('POST'));
             if ($form->isComplited()) {
+                $subscribe = new as_Subscribes();
+                $subscribe->name = $form->getFieldValue('name');
+                $rs::set('newSubscribe', $subscribe);
                 return true;
             }
         }
-        
-
         $context->set('info_text', '');
     }
 
@@ -35,11 +38,14 @@ class aSubscribe extends Action{
      */
     protected function act_SelectSite($context) {
         $rr = RegistryRequest::instance();
+        $rs = RegistrySession::instance();
+        
         $sites = new as_Sites;
         $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArrayObjects('config_status', 'Yes')));
        // $form = new UserSubscribeForm();
         if ($rr->is('POST')) {
+            $rs->set('newSelectedSites', $rr->get('POST', 'table_chk'));
             return true;
         } else {
             $tbl->viewColumns('host');
@@ -54,17 +60,27 @@ class aSubscribe extends Action{
     }
 
     protected function act_FillForm($context) {
-         $rr = RegistryRequest::instance();
-         $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
-         $context->set('form', $form);
-         $context->set('info_text', 'Внимательно заполните форму');
-         $context->set('step', 2);
+        
+        $rr = RegistryRequest::instance();
+        $rs = RegistrySession::instance();
+
+        $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
+        $context->set('form', $form);
+        $context->set('info_text', 'Внимательно заполните форму');
+        $context->set('step', 2);
         if ($rr->is('POST')) {
             $form->fill($rr->get('POST'));
             if ($form->isComplited()) {
-                $fileName = MODULES_PATH . 'AutoSubmitter/XmlSubscribeForms/0_0.xml';
+                $subscribe = $rs::get('newSubscribe');
+                $subscribe->form = $form->getXmlAsText();
+                $subscribe->user_id = 0;
+                $subscribe->date_created = time();
+               # Log::dump($subscribe);
+                $subscribe->add();
+                
+                //$fileName = MODULES_PATH . 'AutoSubmitter/XmlSubscribeForms/0_0.xml';
                 //сделать как вариант выгрузку в базу
-                $form->save($fileName);
+                //$form->save($fileName);
                 return true;
             }
         }
@@ -79,7 +95,7 @@ class aSubscribe extends Action{
     public function act_Start($context) {
                 $rr = RegistryRequest::instance();
     //    if ($rr->isAjax()) {
-            $context->set('useParentTpl', false);
+        $context->set('useParentTpl', false);
         $context->set('tpl', 'subscribe_start_html.php');
 
 
@@ -159,6 +175,22 @@ class aSubscribe extends Action{
 
     }
 
+    /**
+     * выводит список всех созданных рассылок
+     */
+    public function act_List($context) {
+        $context->set('useParentTpl', false);
+        $context->set('tpl', 'subscribes_html.php');
+
+        $subscribes = new as_Subscribes();
+        $tbl = new oTableExt(array($subscribes->getFields(), $subscribes->getArrayObjects()));
+        $tbl->viewColumns('name', 'date_begin');
+        $tbl->setNamesColumns(array(
+                'name'=>'Название',
+                'date_begin' => 'Статус'));
+         $context->set('tbl', $tbl);
+    }
+    
     /**
      * Работает нпосдредственно со стратегией и рассылкой
      */
