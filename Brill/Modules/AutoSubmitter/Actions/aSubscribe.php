@@ -1,6 +1,6 @@
 <?php
 /**
- * Subscribe
+ * aSubscribe
  *
  * Экшен занимающийся рассылкой
  *
@@ -10,9 +10,16 @@ require_once AutoSubmitter::$pathModels .'as_Sites.php';
 require_once AutoSubmitter::$pathModels .'as_Subscribes.php';
 require_once AutoSubmitter::$pathViews .'vSubscribe.php';
 require_once MODULES_PATH . AutoSubmitter::$name .'/UserSubscribeForm.php';
+
 class aSubscribe extends Action{
     protected $defaultAct = 'start';
 
+    /**
+     * первый экшен в визарде.
+     * добавление названия рассылки. возможно еще каких то параметров
+     * @param RegistryContext $context
+     * @return bool
+     */
     protected function act_Add($context) {
         $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $rr = RegistryRequest::instance();
@@ -33,8 +40,10 @@ class aSubscribe extends Action{
     }
 
     /**
+     * второй экшен в визарде.
      * ВЫБОР САЙтов для рассылки
-     * @param <type> $context
+     * @param RegistryContext $context
+     * @return bool
      */
     protected function act_SelectSite($context) {
         $rr = RegistryRequest::instance();
@@ -43,7 +52,6 @@ class aSubscribe extends Action{
         $sites = new as_Sites;
         $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArrayObjects('config_status', 'Yes')));
-       // $form = new UserSubscribeForm();
         if ($rr->is('POST')) {
             $rs->set('newSelectedSites', $rr->get('POST', 'table_chk'));
             return true;
@@ -59,11 +67,15 @@ class aSubscribe extends Action{
         }
     }
 
+    /**
+     * третий экшен в визарде.
+     * заполнение формы данных для рассылки
+     * @param RegistryContext $context
+     * @return bool
+     */
     protected function act_FillForm($context) {
-        
         $rr = RegistryRequest::instance();
         $rs = RegistrySession::instance();
-
         $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
         $context->set('form', $form);
         $context->set('info_text', 'Внимательно заполните форму');
@@ -75,17 +87,10 @@ class aSubscribe extends Action{
                 $subscribe->form = $form->getXmlAsText();
                 $subscribe->user_id = 0;
                 $subscribe->date_created = time();
-               # Log::dump($subscribe);
                 $subscribe->add();
-                
-                //$fileName = MODULES_PATH . 'AutoSubmitter/XmlSubscribeForms/0_0.xml';
-                //сделать как вариант выгрузку в базу
-                //$form->save($fileName);
                 return true;
             }
         }
-
-         
     }
 
     /**
@@ -93,25 +98,24 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      */
     public function act_Start($context) {
-                $rr = RegistryRequest::instance();
-    //    if ($rr->isAjax()) {
+        $rr = RegistryRequest::instance();
+        //todo сделать только для if ($rr->isAjax()) {
         $context->set('useParentTpl', false);
         $context->set('tpl', 'subscribe_start_html.php');
+        
+        $step = $rr->is('step') ? (int) $rr->get('step') : 0;
 
-
-        if ($rr->is('step')) {
-            $step = (int) $rr->get('step');
-        } else {
-            $step = 0;
-        }
         switch ($step) {
             case 0:
                  if ($this->runAct('add')) {
+                     /*
+                      * Очищаем пост при удачном выполнении,
+                      * чтобы эти данные не попали следующему экшену
+                      */
                      $rr->clean();
                  } else {
                      break;
                  }
-
             case 1:
                 if ($this->runAct('SelectSite')) {
                     $rr->clean();
@@ -127,32 +131,9 @@ class aSubscribe extends Action{
             case 3 :
                  $context->set('step', 3);
         }
+        $context->set('useParentTpl', false);
 
-        
-      //  $sites->getArrayObjects('config_status', 'Yes');
-
-     //   var_dump($sites->getFields());
-
-
-             $context->set('useParentTpl', false);
-
-   //     }
-//        $tbl = new oTableExt(array($sites->getFields(), $sites->getArrayObjects('config_status', 'Yes')));
-//               $userForm = new UserSubscribeForm();
-//        $idSubscribe = '0';
-//        $idUser = '0';
-//        if($rr->is('POST')) {
-//            $userForm->fill($rr->get('POST'));
-//            if ($userForm->isComplited()) {
-//               $file = $idUser . '_' . $idSubscribe . '.xml';
-//               $userForm->save($file);
-               // $context->clean();
-//               $s = new UserSubscribe($idUser, $file);
-//               $sites = new as_Sites();
-//               if ($user->groupIs(array('admin','user')))
-//               $sites->getFree();
-//               $s->id;
-
+        #возможный вариант
             /*
              * Узнаем права
              * Узнаем ид рассылки
@@ -167,11 +148,6 @@ class aSubscribe extends Action{
              * выводим ее результат
              *
              */
- //              $this->act_Next();
-   //         }
- //       }
-       
-        //$context->set('form', $userForm);
 
     }
 
@@ -185,50 +161,13 @@ class aSubscribe extends Action{
         $subscribes = new as_Subscribes();
         $tbl = new oTableExt(array($subscribes->getFields(), $subscribes->getArrayObjects()));
         $tbl->viewColumns('name', 'date_begin');
-        $tbl->setNamesColumns(array(
-                'name'=>'Название',
-                'date_begin' => 'Статус'));
-         $context->set('tbl', $tbl);
-    }
-    
-    /**
-     * Работает нпосдредственно со стратегией и рассылкой
-     */
-     public function act_Next() {
-        $rr = RegistryRequest::instance();
-        /*
-         * должен принимать только аякс запросы
-         * возвращает html блок
-         */
-        if ($rr->isAjax()) {
-            $context = RegistryContext::instance();
-            $context->set('tpl', 'subscribe_next_html.php');
-            $context->set('useParentTpl', false);
-            $context->set('info_text_1', 'РАССЫЛКА');
-            $context->set('form', new oForm());
-            /*
-             * Узнаем права
-             * Узнаем ид рассылки
-             * Узнаем состояние расслыки
-             * если новая
-             * получаем список доступных сайтов
-             * которые может юзать данная категория ( выбор всего 5 из доступных для триала)
-             * выбираем сайты
-             * запускаем
-             *
-             * запрашиваем стратегию
-             * выводим ее результат
-             *
-             */
-        }
-      //  self::run();
+        $tbl->setNamesColumns(array('name'=>'Название',
+                                    'date_begin' => 'Статус'));
+        $context->set('tbl', $tbl);
     }
 
-
+   //todo реализивать общение со стратегией
     public static function run() {
-        //Сделать запрос в queries
-      //  $sites = as_Sites::getOneObject('config_status', 'Yes');
-
         $return = 'ok';//as_Strategy::run($sites[0]->siteHost);
         if ($return == 'ok') {
             // все супер, ставим отметку в базе (as_Subscribes) что прошли эту рассылку
@@ -241,8 +180,7 @@ class aSubscribe extends Action{
            return false;
         }
     }
-
-
+    
     /*
      * Отдаем родителю нашу вьюшку
      */
