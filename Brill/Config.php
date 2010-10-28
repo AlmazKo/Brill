@@ -30,6 +30,8 @@ $dirs [] = CORE_PATH . '/Registry';
 set_include_path(implode(PATH_SEPARATOR, $dirs));
 require_once CORE_PATH . 'Common/General.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
+require_once CORE_PATH . 'Common/Encoding.php';
+require_once CORE_PATH . 'Common/StringUtf8.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';
 require_once 'RegistrySession.php';

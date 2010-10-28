@@ -38,6 +38,9 @@ body {
 
 
 }
+#page_content {
+    padding: 5px;
+}
 
 form p {
     margin: 2px 0;
@@ -139,7 +142,7 @@ form .form_field_error{
 
 
 #wizzard_subscribe {
-    margin: 10px;
+    margin: 0px;
 }
 
 #menu span {
@@ -152,4 +155,17 @@ form .form_field_error{
 
 #menu .yes {
     cursor: pointer;
+}
+
+.text_form td {
+    border: 0;
+}
+
+.header_field {
+    color: #F22;
+    margin-right: 5px;
+}
+
+.form_txt_field {
+    margin:5px 0;
 }

@@ -5,6 +5,21 @@
  * Класс родитель для вех моделей
  */
 
+/*
+ * save()
+ * getCols($aCols)
+ * getFields()
+ * getObject($pk)
+ * getObjects($field)
+ * delete($pk)
+ *
+ * update()
+ * add()
+ *
+ *
+ */
+
+
 abstract class Model {
     protected $tbl_name;
     private $values = null;
@@ -15,29 +30,33 @@ abstract class Model {
     }
 
     /**
-     * Получает значения по полю
+     * Заполняет один объект значениями, полученным по первому полу
      * used for only unique fields
      */
-    function getObject($field, $val) {
+    public function getObject($valPk) {
         // подумать, как от этого избавиться
-        $val = addslashes($val);
-        $values = DBExt::getByField($this->tbl_name, $field, $val);
-        if (empty($values)) return false;
-        $this->values = array();
-        //заполнение полей значениями
-        foreach ($this->fields as $fld) {
-            $this->values[$fld] = $values[$fld];
+        $valPk = addslashes($valPk);
+        $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
+        if ($values) {
+            //заполнение полей значениями
+            foreach ($this->fields as $fld) {
+                $this->values[$fld] = $values[$fld];
+            }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
     /**
-     * Получает значения по полю
+     * Model::getObjects($class, $field, $val)
+     * Возвращает массив объектов
      * used for only unique fields
      */
-    function getOneObject($field, $val) {
+    public static function getObjects($class, $field, $val) {
         // подумать, как от этого избавиться
+        //$class
         $val = addslashes($val);
-        $values = DBExt::getByField($this->tbl_name, $field, $val);
+        $values = DBExt::getRows($this->tbl_name, $field, $val);
         if (empty($values)) return false;
         $this->values = array();
         $this->values[$fld] = $values[$fld];

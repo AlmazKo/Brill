@@ -86,5 +86,44 @@ class TFormat {
         return    $text = '[' . self::time() . '] ' . $title . ': ' . $text;
     }
 
+    /**
+     * Обрезает текст до определенной длины
+     * @param string $str строка
+     * @param int $len сколько текст оставить, не считая строки замены
+     * @param string $symb строка, заменяющая остальной текст
+     */
+    public static function cutCenter($str, $len, $symb = '...') {
+        $halfLen = round($len / 2);
+        if (is_string($str) && StringUtf8::strlen($str) > $len) {
+            $str = StringUtf8::substr($str, 0 , $halfLen) . $symb . StringUtf8::substr($str, -$halfLen);
+        }
+        return $str;
+    }
+
+    /**
+     * Обрезает текст слева до определенной длины
+     * @param string $str строка
+     * @param int $len сколько текст оставить, не считая строки замены
+     * @param string $symb строка, заменяющая остальной текст
+     */
+    public static function cutLeft($str, $len, $symb = '...') {
+        if (is_string($str) && StringUtf8::strlen($str) > $len) {
+            $str =  $symb . StringUtf8::substr($str, -$len);
+        }
+        return $str;
+    }
+    
+    /**
+     * Обрезает текст справа до определенной длины
+     * @param string $str строка
+     * @param int $len сколько текст оставить, не считая строки замены
+     * @param string $symb строка, заменяющая остальной текст
+     */
+    public static function cutRight($str, $len, $symb = '...') {
+        if (is_string($str) && StringUtf8::strlen($str) > $len) {
+            $str = StringUtf8::substr($str, 0 , $len) . $symb;
+        }
+        return $str;
+    }
 }
 ?>

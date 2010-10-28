@@ -41,6 +41,7 @@ class oTable implements ISorting{
     protected $rulesView = null;
     protected $mapsView = null;
     protected $viewIterator = false;
+    protected $viewHead = true;
     protected $typeSelected = false;
     protected $viewSorting = true;
     function __construct($data) {
@@ -181,6 +182,9 @@ class oTable implements ISorting{
         $this->viewIterator = (bool) $view;
     }
 
+    function setViewHead($view = true) {
+        $this->viewHead = (bool) $view;
+    }
     /**
      *
      * @param array $selected
@@ -256,10 +260,40 @@ class oTable implements ISorting{
      * @param string $idCss
      * @return string
      */
-    public function build($idCss = false) {
-        $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" class="table">';
+    public function build($idCss = false, $classCss = false) {
+        $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').($classCss ? 'class="'.$classCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" >';
+        
+        if ($this->viewHead) {
             $html .= $this->buildHead();
-            $idRow = 0;
+        }
+        $html .= $this->buildBody();
+        $html .= '</table>';
+        return $html;
+    }
+
+    public function buildHead (){
+        $html = '<tr>';
+
+        if ($this->viewIterator) {
+            $html .= '<th><a href="'. Routing::constructUrl(array('nav' => array())).'">#</a></th>';
+        }
+        foreach ($this->viewCols as $i => $cell) {
+            if ($this->viewSorting) {
+               
+                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'">' . $this->headers[$i] . '</a></th>';
+            } else {
+                $html .= '<th>' . $this->headers[$i] . '</th>';
+            }
+            
+        }
+        $html .= '</tr>';
+        return $html;
+    }
+
+
+    public function buildBody (){
+        $html = '';
+        $idRow = 0;
         if(empty($this->values)) {
             $html .= '<tr><td colspan="'.count($this->fields).'" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
         } else {
@@ -284,26 +318,7 @@ class oTable implements ISorting{
                 $html .= '</tr>';
             }
         }
-        $html .= '</table>';
         return $html;
     }
 
-    public function buildHead (){
-        $html = '<tr>';
-
-        if ($this->viewIterator) {
-            $html .= '<th><a href="'. Routing::constructUrl(array('nav' => array())).'">#</a></th>';
-        }
-        foreach ($this->viewCols as $i => $cell) {
-            if ($this->viewSorting) {
-               
-                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'">' . $this->headers[$i] . '</a></th>';
-            } else {
-                $html .= '<th>' . $this->headers[$i] . '</th>';
-            }
-            
-        }
-        $html .= '</tr>';
-        return $html;
-    }
 }

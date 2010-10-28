@@ -59,7 +59,36 @@ class DBExt extends DB{
         }
         return $values;
     }
+    /**
+     *Возвращает одну строку.
+     * @param <type> $tblName
+     * @param <type> $pk
+     * @param <type> $field
+     * @return <type>
+     */
+    public static function getOneRow($tblName, $field, $value) {
+        $query = "select * from `$tblName` where $field=$value Limit 1";
 
+        $result = parent::query($query);
+        $values = null;
+        if ($result->num_rows == 1) {
+            $values = $result->fetch_assoc();
+        }
+        return $values;
+    }
+
+    public static function getRows($tblName, $field, $value) {
+        $query = "select * from `$tblName` where $field=$value";
+        $result = parent::query($query);
+        $values = null;
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $values[] = $row;
+            }
+        }
+        return $values;
+    }
+    
     /*
      * Получает значения по полю
      * used for only unique fields

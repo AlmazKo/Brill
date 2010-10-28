@@ -25,7 +25,7 @@ protected $url;
     public function buildHtml($id = 'form',$disable = false) {
         $html = '';
         if ($this->fields) {
-            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->url . '">';
+            $html .= '<form id="' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->url . '">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }
@@ -33,7 +33,18 @@ protected $url;
         }
         return $html;
     }
-    
+
+    /**
+     * строит форму, как текст
+     */
+    public function buildText ($idCss = null, $classCss = 'text_form') {
+        $arr1 = array('title', 'value');
+        $arr2 = $this->getArrayAttr($arr1);
+        $tbl = new oTable(array($arr1, $arr2));
+        $tbl->setViewHead(false);
+        return $tbl->build($idCss, $classCss);
+    }
+
     /**
      * строит html элемент 
      *
@@ -124,7 +135,22 @@ protected $url;
         return $this->fields;
     }
 
-
+    /**
+     * Формирует массив-таблицу из формы, у которой поля - это только те атрибуты, которые есть в $aAttr
+     * @param array $array
+     * @return array
+     */
+    public function getArrayAttr($array) {
+        $aAttr = array();
+        $values = array();
+        foreach ($array as $key => $value) {
+            $aAttr[$value] = $key;
+        }
+        foreach ($this->fields as $name => $settings) {
+            $values[$name] = array_intersect_key($settings, $aAttr);
+        }
+        return $values;
+    }
     /**
      * Возвращает значение указанного поля
      *
