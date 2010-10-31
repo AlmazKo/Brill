@@ -7,8 +7,8 @@
 
 /*
  * save()
- * getCols($aCols)
- * getFields()
+ * getCols($aCols ext
+ * getFields() ext
  * getObject($pk)
  * getObjects($field)
  * delete($pk)
@@ -21,81 +21,30 @@
 
 
 abstract class Model {
+
+    //название таблицы
     protected $tbl_name;
-    private $values = null;
+
+    //поля - должны быть уникальны
     protected $fields = array();
 
-    final function  __construct() {
+    //значения
+    private $values = null;
+    /*
+     * есть ли первичный ключ. им становится первое поле
+     * если он включен, то его создает только БД и менять его нельзя
+     * если отключен - то запрещены все операции обновления и удаления
+     */
+    protected $isPk = false;
 
-    }
+    // контрольная сумма объекта, после заполнения данными из БД
+    private $checkSum = null;
 
     /**
-     * Заполняет один объект значениями, полученным по первому полу
-     * used for only unique fields
+     * Получение значений $this->values
+     * @param string $field
+     * @return 
      */
-    public function getObject($valPk) {
-        // подумать, как от этого избавиться
-        $valPk = addslashes($valPk);
-        $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
-        if ($values) {
-            //заполнение полей значениями
-            foreach ($this->fields as $fld) {
-                $this->values[$fld] = $values[$fld];
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-    /**
-     * Model::getObjects($class, $field, $val)
-     * Возвращает массив объектов
-     * used for only unique fields
-     */
-    public static function getObjects($class, $field, $val) {
-        // подумать, как от этого избавиться
-        //$class
-        $val = addslashes($val);
-        $values = DBExt::getRows($this->tbl_name, $field, $val);
-        if (empty($values)) return false;
-        $this->values = array();
-        $this->values[$fld] = $values[$fld];
-        return true;
-    }
-
-    /**
-     * Получает значения по первому полю
-     * used for only unique fields
-     */
-    function getPkObject($val) {
-
-        // подумать, как от этого избавиться
-    
-        $values = DBExt::getByField($this->tbl_name, $this->fields[0], $val, $this->fields);
-
-        if (empty($values)) return false;
-        $this->values = array();
-        //заполнение полей значениями
-        foreach ($this->fields as $fld) {
-            $this->values[$fld] = $values[$fld];
-        }
-        return true;
-    }
-
-    /**
-     * Получить массив объектов
-     */
-    function getArrayObjects() {
-        return DBExt::select($this->tbl_name);
-    }
-
-    /**
-     * Вставляет данные в базу
-     */
-    function add () {
-        return  DBExt::insert($this->tbl_name, $this->values);
-
-    }
     function  __get($field) {
         if (array_key_exists($field, $this->values)) {
              return $this->values[$field];
@@ -105,34 +54,147 @@ abstract class Model {
 
     }
 
+    /**
+     * Задание значений $this->values
+     * @param string $field
+     * @param object $value
+     */
     function  __set($field, $value) {
         if (in_array($field, $this->fields)) {
+            if ($this->isPk && $field == $this->fields[0]) {
+                Log::warning('Нельзя изменять первичный ключ '.$field);
+            }
             //экранируем все от греха по дельше
             $this->values[$field] = addslashes($value);
         } else {
             Log::warning('Не возможно задать свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
         }
+    }
 
+
+
+    final function  __construct() {
+
+    }
+
+    function  __destruct() {
+        
+    }
+
+
+    /**
+     * Возвращает объект, полученный по первому полю
+     * @param string $valPk значение ключа
+     * @return class
+     */
+    public function getObject($valPk) {
+        // подумать, как от этого избавиться
+        $valPk = addslashes($valPk);
+        $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
+        if ($values) {
+            $this->initData($values);
+            return true;
+        } else {
+            return false;
+        }
     }
     /**
      *
-     * @param string $field обновить только конкретное поле
+     * Возвращает массив объектов $class
+     * @param string $class название класса
+     * @param string $field поле по какому ищем
+     * @param string&int&array $val значение поля
+     * @return array
      */
-
-    //сделать какойто идентификатор id каждому объекту модели
-    function save($field = null) {
-        if ($field) {
-            $value = $this->__get($field);
-            $result = DBExt::update($this->tbl_name, array($field => $value), 'id', $this->id);
+    public static function getObjects($class, $field = null, $val = null) {
+        $colClass = new $class();
+        if (is_subclass_of($colClass, 'Model')) {
+            $values = DBExt::getRows($colClass->tbl_name, $field, $val);
+            $aObjects = array();
+            foreach($values as $row) {
+                $obj = new $class();
+                $this->initData($row);
+                $aObjects[] = $obj;
+            }
+            return $aObjects;
         } else {
-            $result = DBExt::update($this->tbl_name, $this->values, 'id', $this->id);
+            Log::warning('Для получения коллекции объектов ' . $class . ' - должен быть унаследован от Model');
         }
+    }
+
+    /**
+     * удаляет объект, полученный по первому полю
+     * @param string $valPk значение ключа
+     * @return class
+     */
+    public function delete() {
+      DBExt::deleteOneRow($this->tbl_name, $this->fields[0], $this->values[$this->fields[0]]);
+      unset($this->values[$this->fields[0]]);
+      $this->calcCheckSum();
+    }
+
+    /**
+     * Получить массив значений таблицы объекта
+     */
+    function getArray() {
+        return DBExt::getAllRows($this->tbl_name);
+    }
+
+    /**
+     * Вставляет данные в базу
+     */
+    function add () {
+        $this->calcCheckSum();
+        $this->values[$this->fields[0]] = DBExt::insertOne($this->tbl_name, $this->values);
 
     }
-    function update () {}
 
-    function delete() {}
+    /**
+     * Сохрание объекта
+     */
+    //сделать какойто идентификатор id каждому объекту модели
+    public function save() {
+        if ($this->isPk) {
+            if (isset($this->values[$this->fields[0]])) {
+                $this->update();
+            } else {
+                $this->add();
+            }
+        } else {
+            Log::warning('Объекты, которые не поддеживают первичный ключ - изменять нельзя');
+        }
+        
+    }
 
+    /**
+     * Обновление объекта
+     */
+    protected function update () {
+        //изменения вносим в базу только если изменилась контрольная сумма
+        if ($this->checkSum != $this->calcCheckSum()) {
+            $newValues = $this->values;
+            $valPk = array_shift($newValues);
+            $result = DBExt::updateOne($this->tbl_name, $newValues, $this->fields[0], $valPk);
+        }
+     }
+
+    /**
+     * инициализирует данные полученные из БД
+     * а также создает контрольную сумму значений
+     * @param array $values
+     */
+    protected function initData($values) {
+        //заполнение полей значениями
+        foreach ($this->fields as $fld) {
+            $this->values[$fld] = $values[$fld];
+        }
+        $this->calcCheckSum();
+    }
+
+    protected function calcCheckSum() {
+       $this->checkSum = crc32(implode($this->values));
+       return $this->checkSum;
+    }
     public function getValues() {
         return $this->values;
     }

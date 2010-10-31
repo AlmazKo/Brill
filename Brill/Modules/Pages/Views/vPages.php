@@ -1,14 +1,11 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of as_subscribe
+ * Description of 
  *
  * @author almaz
  */
+
+
 
 class vPages extends View {
      protected $defaultParent = 'pages_parent_html.php';
@@ -16,22 +13,18 @@ class vPages extends View {
      protected $aHeaders = array();
      protected $context;
 
-         // выводит хидеры
+    // выводит хидеры
     function inputHeaders ($status = '200') {
 
     }
 
     public function  __construct(RegistryContext $context) {
-        $this->context = &$context;
-        if (!$context->get('useParentTpl')) {
-            $this->useParent = false;
-            $this->defaultParent = $context->get('tpl');
-        }
+        $this->defaultParentTpl = General::$loadedModules['Pages']->pathViews . 'pages_parent_html.php';
+        parent::__construct('Pages', $context);
     }
 
     function  input() {
-    //    parent::input();
         $t = $this->context;
-        include(Pages::$pathViews . $this->defaultParent);
+        include( $this->defaultParent);
     }
 }

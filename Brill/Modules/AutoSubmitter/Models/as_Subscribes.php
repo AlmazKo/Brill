@@ -10,6 +10,7 @@
 
 class as_Subscribes extends Model {
     protected $tbl_name = __CLASS__;
+    protected $isPk = true;
     protected $fields = array (
         'id',
         'user_id',

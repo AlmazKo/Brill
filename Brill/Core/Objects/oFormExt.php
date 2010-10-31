@@ -42,14 +42,16 @@ class oFormExt extends oForm{
      * @return oForm
      */
     public function loadFromString($string) {
-        $this->fields = array();
+        $this->fields = $fields = array();
         $sxe = simplexml_load_string($string);
-        $fields = array();
-        foreach ($sxe->field as $key => $value) {
-            $attr = current((array)$value->attributes());
-            $v = (array)$value;
-            $fields[$attr['name']] = $attr;
-            $fields[$attr['name']]['value'] = $v[0];
+        if ($sxe) {
+            
+            foreach ($sxe->field as $key => $value) {
+                $attr = current((array)$value->attributes());
+                $v = (array)$value;
+                $fields[$attr['name']] = $attr;
+                $fields[$attr['name']]['value'] = isset($v[0]) ? $v[0] : '<i>NULL</i>' ;
+            }
         }
         $this->fields = $fields;
     }

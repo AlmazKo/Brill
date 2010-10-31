@@ -1,11 +1,7 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
- * Description of DBExt
+ * DBExt класс автоматизирующий некоторые действия с базой
  *
  * @author almaz
  */
@@ -20,11 +16,13 @@ class DBExt extends DB{
      * @param string $type  ignored / duplicated false
      * @return $int Количество вставленных(изменных) записей
      */
-    static function insert($tblName, $values, $type = null) {
+    static function insertOne($tblName, $values) {
+        
         $aValues = self::parseValues($values);
         $aFields = self::parseFields(array_keys($values));
         $query = "insert IGNORE into `$tblName` (" . $aFields . ") "
-                   . "values (" . $aValues . ") ";
+                   . "values (" . $aValues . ")";
+
         parent::query($query);
         return parent::$lnk->insert_id;
     }
@@ -61,14 +59,13 @@ class DBExt extends DB{
     }
     /**
      *Возвращает одну строку.
-     * @param <type> $tblName
-     * @param <type> $pk
-     * @param <type> $field
-     * @return <type>
+     * @param string $tblName
+     * @param field $pk имя ключа
+     * @param string/int $value
+     * @return array
      */
     public static function getOneRow($tblName, $field, $value) {
         $query = "select * from `$tblName` where $field=$value Limit 1";
-
         $result = parent::query($query);
         $values = null;
         if ($result->num_rows == 1) {
@@ -76,9 +73,16 @@ class DBExt extends DB{
         }
         return $values;
     }
-
-    public static function getRows($tblName, $field, $value) {
-        $query = "select * from `$tblName` where $field=$value";
+    /**
+     * Возвращает массив строк
+     * @param string $tblName
+     * @param string $field
+     * @param int/array/string $value
+     * @return array
+     */
+    public static function getRows($tblName, $field = null, $value = null) {
+        $where = self::simpleWhere($field, $value);
+        $query = "select * from `$tblName`".$where;
         $result = parent::query($query);
         $values = null;
         if ($result->num_rows > 0) {
@@ -89,14 +93,17 @@ class DBExt extends DB{
         return $values;
     }
     
-    /*
-     * Получает значения по полю
-     * used for only unique fields
+    /**
+     *
+     * @param string $tblName
+     * @param string $order
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
      */
-    static function select($tblName) {
-
+    static function getAllRows($tblName, $order = null, $limit = null, $offset = null) {
         $query = "select * from `$tblName`";
-
         $result = parent::query($query);
         $values = array();
         if ($result->num_rows > 0) {
@@ -134,7 +141,7 @@ class DBExt extends DB{
      * @param string $sql Query
      * @return array
      */
-    function selectToArray($query) {
+    function selectToList($query) {
         $result = parent::query($query);
         $values = array();
         if ($result->num_rows > 0) {
@@ -146,19 +153,36 @@ class DBExt extends DB{
     }
 
     /**
-     *
+     * Функция обновляет данные
      * @param string $tblName
      * @param string $values
      * @param string $fields
      * @param string $type  ignored duplicated false
+     * @return int количество затронутых строк
      */
-    function update ($tblName, $values, $field, $value) {
-        $value = is_string($value) ? "'".$value."'" : (string) $value;
+    function updateOne($tblName, $values, $field, $val) {
+         
+        $where = self::simpleWhere($field, $val);
         $aSets = self::parseValuesWithFields($values);
-        $query = "update `$tblName` set " . $aSets . " where $field=$value";
+        $query = "update `$tblName` set " . $aSets . $where . " limit 1";
         parent::query($query);
         return parent::$lnk->affected_rows;
+    }
 
+
+
+    /**
+     * Удаляет одну строку
+     * @param string $tblName
+     * @param field $pk имя ключа
+     * @param string/int $value
+     * @return array
+     */
+    public static function deleteOneRow($tblName, $field, $value) {
+        $query = "delete from `$tblName` where $field=$value Limit 1";
+        Log::dump($query);
+       # $result = parent::query($query);
+       # return parent::$lnk->affected_rows;
     }
 
     /**
@@ -190,8 +214,12 @@ class DBExt extends DB{
        return implode(", ", $newValues);
    }
 
-
-      static  function parseValuesWithFields($values) {
+    /**
+     * Подготаливает ассоциативный массив для update или insert запроса
+     * @param array $values ассоциативный массив, у которого ключи это поля
+     * @return string подготовленная строка
+     */
+    static  function parseValuesWithFields($values) {
        foreach ($values as $key => $value) {
            if (isset($value)) {
                $newValues[] ='`'.$key.'` = ' . (is_string($value) ? "'".$value."'" : (string) $value);
@@ -199,6 +227,24 @@ class DBExt extends DB{
        }
        return implode(", ", $newValues);
    }
-
-
+   /**
+    * Формирует простой where
+    * @param string $field
+    * @param int/string/array $value
+    * @return string
+    */
+   protected static function simpleWhere($field = null, $value = null) {
+        $where = '';
+        if (isset($field) && isset($value)) {
+            if (is_array($value)) {
+                $sqlValue = ' IN (' . implode(',', $value) . ')';
+            } else if (is_int($value)) {
+                $sqlValue = '='.$value;
+            } else {
+                $sqlValue = "='$value'";
+            }
+            $where = " where `$field`".$sqlValue;
+        }
+        return $where;
+   }
 }

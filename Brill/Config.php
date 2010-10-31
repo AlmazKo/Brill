@@ -77,3 +77,7 @@ require CORE_PATH . 'Objects/oTableExt.php';
 require CORE_PATH . 'Objects/oForm.php';
 require CORE_PATH . 'Objects/oFormExt.php';
 require CORE_PATH . 'Objects/oTree.php';
+
+//Установка дефолтного модуля
+General::$defaultModule = 'Pages';
+

@@ -40,6 +40,7 @@ class Log {
         ob_start();
         var_dump($obj);
         $descr = ob_get_clean ();
+        $descr = TFormat::highlight($descr);
         echo self::inputLog($title, $descr, true, $color);
     }
 

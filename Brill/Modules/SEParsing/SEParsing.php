@@ -6,19 +6,22 @@
  */
 
 class SEParsing extends Modules {
-    static $version = 1;
-    static $prefix = "sep_";
-    static $name = __CLASS__;
-    static $defaultAction = 'aKeywords';
-    static $pathModels = null;
-    static $pathActions = null;
-    static $pathViews = null;
-    //static $requiredModules = array ('Pages');
+    protected static $instance = null;
+    protected $version = 1;
+    protected $prefix = "sep_";
+    protected $name = __CLASS__;
+    protected $defaultAction = 'aKeywords';
+    protected $pathModels = null;
+    protected $pathActions = null;
+    protected $pathViews = null;
 
-    protected function configure() {
-        self::$pathModels = MODULES_PATH . self::$name . '/Models/';
-        self::$pathActions = MODULES_PATH . self::$name . '/Actions/';
-        self::$pathViews = MODULES_PATH . self::$name . '/Views/';
+    protected function configure() {}
 
+    public  static function instance() {
+        if (self::$instance === null) {
+           self::$instance = new self();
+        }
+        return self::$instance;
     }
+
 }

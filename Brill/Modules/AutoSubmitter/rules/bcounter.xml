@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Press_Release.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : lubyagin sergey
+    Description:
+        Purpose of the document follows.
+-->
+
+<root>
+    <rule url="http://www.bcounter.ru/00/">
+        <action isajax="true" url="http://www.bcounter.ru/00/" />
+        <parameters_for_get>
+            <field htmlname='add[author]' htmltype='text' required='true'>
+                <userdataproject name='Fam' /><userdataproject name='name' /><userdataproject name='otch' />
+            </field>
+            <field htmlname='add[org]' htmltype='text' required='true'>
+                <userdataproject name='firma' />
+            </field>
+        </parameters_for_get>
+
+        <response url="http://www.bcounter.ru/00/" value="form enctype=" />
+    </rule>
+    <rule url="http://www.bcounter.ru/00/">
+        <action isajax="true" url="http://www.bcounter.ru/00/" />
+        <parameters_for_post>
+            <field htmlname='add[author]' htmltype='text' required='true'>
+                <userdataproject name='Fam' /><userdataproject name='name' /><userdataproject name='otch' />
+            </field>>
+            <field htmlname='add[org]' htmltype='text' required='true'>
+                <userdataproject name='firma' />
+            </field>
+        </parameters_for_post>
+
+        <response url="http://www.bcounter.ru/00/" value="form enctype=" />
+    </rule>
+</root>

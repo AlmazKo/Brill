@@ -10,21 +10,31 @@
  * @author Alexander
  */
 abstract class Action {
+    //ссылка на родительскую конфигурацию
+    public $module;
     protected $defaultAct;
     protected $request;
     protected $act = null;
+    //внутренний вызов экшена?
+    protected $isInternal;
     public $search = null;
+    public $route;
 
-
-    public function execute () {                 
+    /*
+     * Запускаем экт и выводим вьюшку
+     * @param bool $view - выводить ли вью
+     */
+    public function execute ($view = true) {
         if($this->act) {
             $this->runAct($this->act);
         } else {
             $this->runAct($this->defaultAct);
         }
-        $this->view = $this->initView();
-        $this->input();
 
+        if ($view) {
+            $this->view = $this->initView();
+            $this->input();
+        }
     }
 
     /**
@@ -46,12 +56,16 @@ abstract class Action {
         }
 
     }
+    abstract protected function configure();
 
-    public function  __construct($act = '', $queryString = null, $nav = null, $search = null) {
+    public function  __construct($module, $act, $isInternal = false) {
+        $this->module = $module;
         $this->act = $act;
-        $this->nav = $nav;
+        $this->isInternal = $isInternal;
         $this->request = RegistryRequest::instance();
-
+        $this->context = RegistryContext::instance();
+        $this->session = RegistrySession::instance();
+        $this->configure();
     }
 
     public function input() {

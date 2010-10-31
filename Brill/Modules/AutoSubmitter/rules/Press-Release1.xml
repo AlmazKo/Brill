@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Press_Release.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : lubyagin sergey
+    Description:
+        Purpose of the document follows.
+-->
+
+<root>
+    <rule url="http://www.press-release.ru/" xxxx="adfasdf">
+        <action isajax="true" url="http://www.press-release.ru/" />
+        <parameters_for_post>
+            <field htmlname='login' htmltype='text' required='false'></field>
+            <field htmlname='password' htmltype='password' required='false'></field>
+        </parameters_for_post>
+        <headers>
+            <header name="Content-Type" value="application/x-www-form-urlencoded; charset=UTF-8;" />
+            <header name="X-Requested-With" value="XMLHttpRequest" />
+        </headers>
+
+        <response url="http://www.press-release.ru/" value="При использовании материалов ссылка на сайт обязательна" />
+    </rule>
+
+    <rule url="http://www.press-release.ru/add/">
+        <action isajax="false" url="http://www.press-release.ru/add/" />
+        <parameters_for_get>
+            <field htmlname='login' htmltype='text' required='false'><userdataproject name='Fam' /></field>
+        </parameters_for_get>
+        <parameters_for_post>
+            <field htmlname='add[author]' htmltype='text' required='true'>
+                <userdataproject name='Fam' /><userdataproject name='name' /><userdataproject name='otch' />
+            </field>>
+            <field htmlname='add[org]' htmltype='text' required='true'>
+                <userdataproject name='firma' />
+            </field>
+            <field htmlname='add[contacts]' htmltype='text' required='false'>
+                <userdataproject name='address' />
+            </field>
+            <field htmlname='add[email]' htmltype='text' required='false'>
+                <userdataproject name='email' />
+            </field>
+            <field htmlname='add[title]' htmltype='text' required='true'>
+                <userdataproject name='title' />
+            </field>
+            <field htmlname='add[annot]' htmltype='textarea' maxsize='250' required='false'>
+                <userdataproject name='annotation' />
+            </field>
+            <field htmlname='add[bodytext]' htmltype='textarea' required='true'>
+                <userdataproject name='text' />
+            </field>
+            <field htmlname='add[keywords]' htmltype='textarea' maxsize='250' required='true'>
+                <userdataproject name='keywords' />
+            </field>
+            <field htmlname='add[url]' htmltype='text' required='false'>
+                <userdataproject name='link' />
+            </field>
+            <field htmlname='add[url_name]' htmltype='text' required='false'>
+                <userdataproject name='anchor' />
+            </field>            
+            <field htmlname='section' htmltype='select' required='true' visible='select:name=section'></field>
+            <field htmlname='code' htmltype='text' required='true' visible='img:src=/misc/code.php?id=40133'></field>
+        </parameters_for_post>
+        <headers>
+        </headers>
+        <response url="http://www.press-release.ru/add/status_ok/" value="Материал будет опубликован после проверки модератором" />
+    </rule>
+
+    <rule url="http://www.press-release.ru/">
+        <action isajax="false" url="http://www.press-release.ru/index.php?asfa=df" />
+        <parameters_for_get>
+        </parameters_for_get>
+        <parameters_for_post>
+            <field htmlname='logo' htmltype='file' required='false'><userdataproject name='annotation' /></field>
+        </parameters_for_post>
+        <response url="http://www.press-release.ru/" value="Файл загружен" />
+    </rule>
+
+</root>

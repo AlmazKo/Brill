@@ -16,24 +16,10 @@ class vKeywords extends View{
     }
 
     public function  __construct(RegistryContext $context) {
-        var_dump(Pages);
-        die();
-        $this->defaultParentTpl = Pages::$pathViews . 'pages_parent_html.php';
-        var_dump($this->defaultParentTpl);
-        $this->context = $context;
-        if ($context->is('useParentTpl')) {
-            if ($context->is('parentTpl')) {
-                $this->parentTpl = $this->get('parentTpl');
-            } else {
-               $this->parentTpl = SEParsing::$pathViews . $this->defaultParentTpl;
-            }
-        } else  {
-            if ($context->is('tpl')) {
-                $this->parentTpl = $this->get('tpl');
-            } else {
-               $this->parentTpl = SEParsing::$pathViews . $this->defaultTpl;
-            }
-        }
+        // используем шаблон из модуля Pages
+        $this->defaultParentTpl = General::$loadedModules['Pages']->pathViews . 'pages_parent_html.php';
+        //Log::dump('SEParsing', $context);
+        parent::__construct('SEParsing', $context);
     }
 
     function  input() {

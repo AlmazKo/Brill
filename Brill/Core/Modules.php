@@ -9,15 +9,15 @@
  * @author almaz
  */
 abstract class Modules {
-    static private $instance = null;
-    static $version = 0;
-    static $prefix = "";
-    static $name = "Undefined";
-    static $defaultAction = null;
-    static $pathModels = null;
-    static $pathActions = null;
-    static $pathViews = null;
-    static $requiredModules = array ();
+    protected $version = 0;
+    protected $prefix = "";
+    protected $name = null;
+    protected $defaultAction = null;
+    protected $pathModule;
+    protected $pathModels = null;
+    protected $pathActions = null;
+    protected $pathViews = null;
+    protected $requiredModules = array ();
 
     public static function init() {
         if (self::$instance === null) {
@@ -30,17 +30,31 @@ abstract class Modules {
 
     abstract protected function configure();
     
+    abstract public static function instance();
+    
     function  __construct() {
+        $this->pathModule = MODULES_PATH . $this->name . '/';
+        $this->pathModels = $this->pathModule . General::NAME_DIR_MODELS.'/';
+        $this->pathActions = $this->pathModule . General::NAME_DIR_ACTIONS.'/';
+        $this->pathViews = $this->pathModule . General::NAME_DIR_VIEWS.'/';
         $this->configure();
-        foreach (self::$requiredModules as $module) {
-           $needs = array_diff($Modules, General::$loadedModules);
-           if (!$needs) {
-               Log::warning('Модулю ' . self::$name . ' требуются модули: '.
-                       imlode(', ', $needs));
-           }
-
-        }
     }
 
-    
+
+    /**
+     * Получение значений 
+     * @param string $field
+     * @return
+     */
+    function  __get($field) {
+        return $this->$field;
+    }
+
+    /**
+     * Задание значений $this->values
+     * @param string $field
+     */
+    function  __set($field, $value) {
+        Log::warning('Read only. Задавать значения может только сам класс '.__CLASS__);
+    }
 }

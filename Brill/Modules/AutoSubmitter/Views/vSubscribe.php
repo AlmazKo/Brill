@@ -21,22 +21,8 @@ class vSubscribe extends View {
     }
 
     public function  __construct(RegistryContext $context) {
-        $this->defaultParentTpl = AutoSubmitter::$pathViews . 'subscribe_start_html.php';
-        $this->context = $context;
-        if ($context->is('useParentTpl') && $context->get('useParentTpl')) {
-            if ($context->is('parentTpl')) {
-                $this->parentTpl = $this->get('parentTpl');
-            } else {
-                $this->parentTpl = SEParsing::$pathViews . $this->defaultParentTpl;
-            }
-        } else  {
-            if ($context->is('tpl')) {
-                $this->parentTpl = $context->get('tpl');
-            } else {
-               $this->parentTpl = SEParsing::$pathViews . $this->defaultTpl;
-            }
-        }
-        
+        $this->defaultParentTpl = General::$loadedModules['AutoSubmitter']->pathViews . 'subscribe_start_html.php';
+        parent::__construct('AutoSubmitter', $context);
     }
 
     function  input() {

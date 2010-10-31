@@ -7,19 +7,22 @@
 require_once CORE_PATH . 'Modules.php';
 
 class Auth extends Modules {
-    static $version = 1;
-    static $prefix = "au_";
-    static $name = __CLASS__;
-    static $defaultAction = 'Auth';
-    static $pathModels = null;
-    static $pathActions = null;
-    static $pathViews = null;
+    protected static $instance = null;
+    protected $version = 1;
+    protected $prefix = "au_";
+    protected $name = __CLASS__;
+    protected $defaultAction = 'Auth';
+    protected $pathModels = null;
+    protected $pathActions = null;
+    protected $pathViews = null;
 
-    protected function configure() {
-        self::$pathModels = MODULES_PATH . self::$name . '/Models/';
-        self::$pathActions = MODULES_PATH . self::$name . '/Actions/';
-        self::$pathViews = MODULES_PATH . self::$name . '/Views/';
+    protected function configure() {}
 
+    public  static function instance() {
+        if (self::$instance === null) {
+           self::$instance = new self();
+        }
+        return self::$instance;
     }
 }
 

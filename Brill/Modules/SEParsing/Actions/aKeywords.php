@@ -4,16 +4,31 @@
  *
  * @author almaz
  */
-require_once MODULES_PATH . 'SEParsing/Views/vKeywords.php';
-require_once MODULES_PATH . 'SEParsing/DB/Stmt.php';
+
 
 class aKeywords extends Action {
     protected $defaultAct = 'view';
 
+    protected function configure() {
+        require_once $this->module->pathViews . 'vKeywords.php';
+        require_once MODULES_PATH . 'SEParsing/DB/Stmt.php';
+    }
     public function act_Add($context) {}
 
 
     public function act_View($context) {
+
+
+        $route = new SimpleRouter();
+        $route->module = 'Pages';
+        $route->action = 'Pages';
+        $route->act = 'view';
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($route);
+        $act->execute(false);
+       // Log::dump($this->context);
+        //die('020202');
+        
        // $nav = $request->getNav();
 
        // обработка данных

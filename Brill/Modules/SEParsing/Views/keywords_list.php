@@ -1,3 +1,3 @@
 <?php
-echo $t->get('table')->build('keywords');
+echo $t->get('table')->build('keywords', 'table');
 ?>

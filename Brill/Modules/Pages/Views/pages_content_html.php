@@ -1,0 +1,2 @@
+mfmsdbkfsbfksndf
+<?=$t->get('content')?>

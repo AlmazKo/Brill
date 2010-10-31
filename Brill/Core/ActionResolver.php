@@ -6,10 +6,9 @@
  */
 require_once CORE_PATH . 'Actions/Action.php';
 require_once CORE_PATH . 'Routing.php';
+require_once CORE_PATH . 'SimpleRouter.php';
+
 class ActionResolver {
-    private static $defaultModule = 'Pages';
-
-
 
     /**
      * Найти и вернуть экшен
@@ -17,52 +16,87 @@ class ActionResolver {
      * @return Action
      */
     public function getAction (RegistryRequest $request) {
+
+        /*
+         * парсим строку
+         * узнаем есть ли модуль
+         * узнаем есть ли экшен
+         * узнаем есть ли акт
+         *
+         */
         $route = Routing::instance();
         $route->parse();
         $sep = '/';
+
+        // если не указан в запросе модуль, берем дефолтный
         if (!$route->module) {
-            $route->set('module', self::$defaultModule);
+            $route->set('module', General::$defaultModule);
         }
 
-        $module = $route->module;
+        //узнаем загружен ли модуль (конфиг модуля)
+        if (!isset(General::$loadedModules[$route->module])) {
+            Log::warning('Конфигурация модуля ' .$route->module .' не загружена в систему');
+        }
+        // получаем экземляр класса
+        $module = General::$loadedModules[$route->module];
+
+        // указан ли в запросе экшен, если нет - берется дефолтный для текущего модуля
         if ($route->action) {
             $classAction = 'a' . $route->action;
         } else {
-            $classAction = $module::$defaultAction;
+            $classAction = $module->defaultAction;
         }
 
-        $filePathModule = MODULES_PATH . $module . $sep . $module . '.php';
-
-        if (file_exists($filePathModule)) {
-            require_once $filePathModule;
-        }else {
-            Log::warning('Не найден файл: '.$filePathModule);
-        }
-
-       
-        General::$route = $route;
-
-        $filePath = MODULES_PATH . $module . $sep . 'Actions' . $sep . $classAction . '.php';
-
+        $filePath = MODULES_PATH . $route->module . $sep . General::NAME_DIR_ACTIONS . $sep . $classAction . '.php';
         if (file_exists($filePath)) {
-            //иницилизируем настройки модуля
-            $gModule = new $module();
-
-       //     $module::init();
             require_once $filePath;
             if (class_exists($classAction)) {
-            $action = new $classAction($route->act);
-            $action->nav = $route->nav;
-            $action->search = $route->search;
-
-                //ADD проверка subclass От Actions
+                $action = new $classAction($module, $route->act);
+                $action->nav = $route->nav;
+                $action->search = $route->search;
+                $action->route = $route;
+                //TODO проверка subclass От Actions
                 return $action;
-                
+            } else {
+                 Log::warning('Не найден класс '.$classAction);
             }
         } else {
             Log::warning('Не найден файл: '.$filePath);
         }
+    }
 
+    /**
+     * Метод получает экшен
+     * для внутренней работы между модулями
+     *
+     * @param SimpleRouter $route
+     * @return classAction
+     */
+    public function getInternalAction(SimpleRouter $route) {
+        $sep = '/';
+        //узнаем загружен ли модуль (конфиг модуля)
+        if (!isset(General::$loadedModules[$route->module])) {
+            Log::warning('Конфигурация модуля ' .$route->module .' не загружена в систему');
+        }
+        // получаем экземляр класса
+        $module = General::$loadedModules[$route->module];
+        $classAction = 'a' . $route->action;
+        $filePath = MODULES_PATH . $route->module . $sep . General::NAME_DIR_ACTIONS . $sep . $classAction . '.php';
+        if (file_exists($filePath)) {
+            require_once $filePath;
+            if (class_exists($classAction)) {
+                $action = new $classAction($module, $route->act, true);
+                $action->nav = $route->nav;
+                $action->search = $route->search;
+                $action->route = $route;
+                //TODO проверка subclass От Actions
+                return $action;
+            } else {
+                 Log::warning('Не найден класс '.$classAction);
+            }
+        } else {
+            Log::warning('Не найден файл: '.$filePath);
+        }
     }
 
     function  __construct() {

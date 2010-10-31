@@ -125,5 +125,24 @@ class TFormat {
         }
         return $str;
     }
+
+    public static function highlight($code)  {
+       ini_set('highlight.string', '#DD0000');
+       ini_set('highlight.comment', '#BCBCBC');
+       ini_set('highlight.keyword', '#00AF49');
+       ini_set('highlight.bg', '#FFFFFF');
+       ini_set('highlight.default', '#006F49');
+       ini_set('highlight.html', '#000000');
+
+      $code = stripslashes($code);
+      if(!strpos($code,"<?") && StringUtf8::substr($code,0,2)!="<?") {
+
+        $code="<?php\n".trim($code)."\n?>";
+
+      }
+      $code = highlight_string(trim($code),true);
+      return $code;
+    }
+
 }
-?>
+

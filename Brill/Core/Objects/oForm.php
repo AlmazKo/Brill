@@ -111,7 +111,7 @@ protected $url;
         $result = true;
         foreach ($this->fields as $name => $settings) {
             if (isset($settings['requried'])) {
-                if($settings['requried'] && empty($settings['value'])) {
+                if($settings['requried'] && !isset($settings['value'])) {
                     $this->fields[$name]['error'] = 'Поле обязательно для заполнения';
                     $result = false;
                 }

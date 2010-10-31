@@ -29,13 +29,13 @@ class Front {
      */
     private function init() {
 
-        self::loadModules();
-        self::CheckingDependency();
-        self::$defaultAction = 'Welcome';
+        self::loadModules(); 
+        self::CheckingDependency(); 
+ #       self::$defaultAction = 'Welcome';
     }
 
     /**
-     * Проверяет все модули и подгружает их файлы
+     * Загрузка конфигураций всех модулей
      */
     private static function loadModules() {
         $dirsModules = scandir(MODULES_PATH);
@@ -44,7 +44,7 @@ class Front {
                 $pathModule = MODULES_PATH.$nameModule . '/' . $nameModule . '.php';
                 if (file_exists($pathModule)) {
                     require_once $pathModule;
-                    General::$loadedModules[$nameModule]['required'] = $nameModule::$requiredModules;
+                    General::$loadedModules[$nameModule] = $nameModule::instance();
                 }else {
                    Log::warning('Не найден модуль: '.$nameModule);
                 }
@@ -57,27 +57,28 @@ class Front {
      */
     private static function CheckingDependency() {
         if (General::$loadedModules) {
-            foreach (General::$loadedModules as $module => $settings) {
-                if (is_array($settings['required'])) {
-                    foreach ($settings['required'] as $requireModule){
-                        if ($requireModule) {
-                            if (!isset(General::$loadedModules[$requireModule])) {
-                                Log::warning('Модулю '.$module.' требуется модуль '.$requireModule);
-                            }
+            foreach (General::$loadedModules as $nameModule => $module) {
+                foreach ($module->requiredModules as $requireModule){
+                    if ($requireModule) {
+                        if (!isset(General::$loadedModules[$requireModule])) {
+                            Log::warning('Модулю '.$nameModule.' требуется модуль '.$requireModule);
                         }
-
                     }
                 }
             }
+        } else {
+            Log::warning('Не найдено не одно модуля');
         }
     }
 
+    /**
+     * Запускает экшен
+     */
     private function handleRequest() {
         $request = RegistryRequest::instance();
         $context = RegistryContext::instance();
         $actR = new ActionResolver(); 
         $act = $actR->getAction($request);
-
         $act->execute($context);
     }
 }
