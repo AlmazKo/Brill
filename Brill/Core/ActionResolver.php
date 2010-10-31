@@ -101,7 +101,5 @@ class ActionResolver {
 
     function  __construct() {
         //наверно пусть делает запрос на кэш
-        //задаючтся еще дефолтные экшены (из ядра)
-        //self::$defaultAction = new
     }
 }
