@@ -65,7 +65,7 @@ Class DB {
         }else{
 
             LogMysql::errorQuery($sql . ' / ' .$lnk->error);
-            die('бля...');
+            die();
         }
         return $result;
     }

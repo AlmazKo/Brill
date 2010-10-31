@@ -44,7 +44,12 @@ class Front {
                 $pathModule = MODULES_PATH.$nameModule . '/' . $nameModule . '.php';
                 if (file_exists($pathModule)) {
                     require_once $pathModule;
-                    General::$loadedModules[$nameModule] = $nameModule::instance();
+                    // working in php >= 5.2.x
+                    General::$loadedModules[$nameModule] = call_user_func(array($nameModule, 'instance'));
+                    /*
+                     * TODO более простой код, но только для php >=5.3.x
+                     * General::$loadedModules[$nameModule] = $nameModule::instance();
+                     */
                 }else {
                    Log::warning('Не найден модуль: '.$nameModule);
                 }

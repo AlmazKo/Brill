@@ -64,8 +64,8 @@ abstract class Action {
         $this->isInternal = $isInternal;
         $this->request = RegistryRequest::instance();
         $this->context = RegistryContext::instance();
-        $this->session = RegistrySession::instance();
         $this->configure();
+        $this->session = RegistrySession::instance();
     }
 
     public function input() {

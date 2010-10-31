@@ -12,7 +12,7 @@ class aSubscribe extends Action{
 
     protected function configure() {
         require_once $this->module->pathModels . 'as_Sites.php';
-        require_once $this->module->pathModels . 'as_Subscribes.php';
+        include_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
     }

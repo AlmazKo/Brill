@@ -35,7 +35,7 @@ abstract class Model {
      * если он включен, то его создает только БД и менять его нельзя
      * если отключен - то запрещены все операции обновления и удаления
      */
-    protected $isPk = false;
+    protected $isPk = true;
 
     // контрольная сумма объекта, после заполнения данными из БД
     private $checkSum = null;
@@ -93,9 +93,8 @@ abstract class Model {
         $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
         if ($values) {
             $this->initData($values);
-            return true;
         } else {
-            return false;
+            Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->fields[0] . '=' . $valPk);
         }
     }
     /**

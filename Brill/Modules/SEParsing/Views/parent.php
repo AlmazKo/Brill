@@ -3,9 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
-<link href="/ba/Brill/css/page.css" type="text/css" rel=stylesheet />
-<script type="text/javascript" src="/ba/Brill/js/jquery-1.4.3.min.js"></script>
-<script type="text/javascript" src="/ba/Brill/js/jquery.form"></script>
+<link href="<?=WEB_PREFIX?>Brill/css/page.css" type="text/css" rel=stylesheet />
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form"></script>
 </head>
 <body>
 

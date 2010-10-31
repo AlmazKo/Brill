@@ -22,6 +22,14 @@ class Pages extends Modules {
         }
         return self::$instance;
     }
+    /**
+     * Заготовка для будущих инсталяций
+     */
+    protected function install () {
+        //        $page->name = 'Главная страница';
+        //        $page->content = 'Контент для главной страницы';
+        //        $page->save();
+    }
     
 }
 

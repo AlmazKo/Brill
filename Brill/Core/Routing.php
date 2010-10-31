@@ -60,8 +60,13 @@ class Routing {
          */
         $searchStrategy = '(?:search(&[a-zA-Z0-9_-]+\=[^\/]*)+\/)?';
         $navStrategy = '(?:nav(?:&([a-z]+\=[^\/]*))+\/)?';
-        $stdRule = '/\/(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
-        if (preg_match($stdRule, $uri, $m)) {
+        
+        if (WEB_PREFIX == '/') {
+            $stdRule = '/(\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
+        } else {
+            $stdRule = '/\/(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
+        }
+         if (preg_match($stdRule, $uri, $m)) {
             $this->site = $_SERVER['HTTP_HOST'];
             $this->core = isset($m[1]) ? $m[1] : '';
             $this->module = isset($m[2]) ? $m[2] : '';
@@ -96,7 +101,12 @@ class Routing {
          $route = self::instance();
         if ($parts) {
             $url  = '/';
-            $url .= $route->core ? $route->core . '/' : '';
+            if ($route->core == '/') {
+                $url .= '';
+            } else {
+                $url .= $route->core ? $route->core . '/' : '';
+            }
+           
             $url .= isset($parts['module']) ? $parts['module'] . '/' : $route->module ? $route->module . '/' : '';
             $url .= isset($parts['action']) ? $parts['action'] . '/' : $route->action ? $route->action . '/' : '';
             $url .= isset($parts['act']) ? $parts['act'] . '/' : $route->act ? $route->act . '/' : '';

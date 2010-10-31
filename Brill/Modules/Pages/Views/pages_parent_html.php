@@ -3,13 +3,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
-<link href="/ba/Brill/css/page.css" type="text/css" rel=stylesheet />
-<script type="text/javascript" src="/ba/Brill/js/jquery-1.4.3.min.js"></script>
-<script type="text/javascript" src="/ba/Brill/js/jquery.form"></script>
+<link href="Brill/css/page.css" type="text/css" rel=stylesheet />
+<script type="text/javascript" src="Brill/js/jquery-1.4.3.min.js"></script>
+<script type="text/javascript" src="Brill/js/jquery.form.js"></script>
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
-        <tr id="page_head"><td class="first_col"><img src="/ba/Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
+        <tr id="page_head"><td class="first_col"><img src="Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
          <tr id="page_body"><td id="page_menu">
                  
             <ul id="menu">
@@ -37,10 +37,10 @@
 <script type="text/javascript">
 $(document).ready(function(){
     $('#startSubscribe').click(function() {
-         $("#page_content").load("/ba/AutoSubmitter/Subscribe/Start/");
+         $("#page_content").load("<?=WEB_PREFIX?>AutoSubmitter/Subscribe/Start/");
     });
     $('#subscribes').click(function() {
-         $("#page_content").load("/ba/AutoSubmitter/Subscribe/List/");
+         $("#page_content").load("<?=WEB_PREFIX?>AutoSubmitter/Subscribe/List/");
     });
 
     $('.yes').hover(function(e) {
