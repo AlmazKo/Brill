@@ -25,7 +25,7 @@
             <li class="yes"> <span>Написать сообщение</span> </li>
             </ul>
              <td id="page_content">
-               <? include_once ($t->get('tpl'))?>
+               <?php include_once ($t->get('tpl'))?>
                  <br />
                  
 

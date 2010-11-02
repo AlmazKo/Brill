@@ -1,14 +1,14 @@
 <h3>Список всех рассылок</h3>
 <table border="0" cellpadding="0" cellspacing="0" class="table">
     <?=$t->get('tbl')->buildHead()?>
-<? $form = new oFormExt();
+<?php $form = new oFormExt();
 
 foreach($t->get('tbl')->getValues() as $row) : 
     $form->loadFromString($row['form']);
     $valuesForm = $form->getFields(); ?>
         <tr>
             <td><?=$row['name']?></td>
-            <td><?
+            <td><?php
 
         $aForm = $form->getArrayAttr(array('title', 'value'));
         foreach ($aForm as $value) {
@@ -18,5 +18,5 @@ foreach($t->get('tbl')->getValues() as $row) :
         ?>
             </td>
         </tr>
-<? endforeach;?>
+<?php endforeach;?>
 </table>
