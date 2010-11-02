@@ -19,15 +19,23 @@ function cmp($a, $b) {
 
 class oTable implements ISorting{
     protected
+        //текущая страница
         $page = 1,
+        // строка для поиска
         $search = '',
+        // в каких столбцах искать, по умолчанию - во всех
+        $searchFields = array(),
+        // по какому столбцу сортировка, по умолчанию - без сортировки
         $sort = null,
+        // направление сортировки
         $directSort = 'ASC',
         $altWhere = '',
+        // название/заголовок таблицы, по умолчанию - нет
         $name = null,
         //отображаемое название полей
         $headers = array(),
         $htmlHeaders = array(),
+        // значения таблицы
         $values = array(),
         //названия полей
         $fields = array(),

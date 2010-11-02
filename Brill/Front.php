@@ -84,6 +84,10 @@ class Front {
         $context = RegistryContext::instance();
         $actR = new ActionResolver(); 
         $act = $actR->getAction($request);
+        if (General::$loadedModules['Auth']) {
+            $auth = ne;
+        }
+
         $act->execute($context);
     }
 }
