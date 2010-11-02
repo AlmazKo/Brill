@@ -7,9 +7,12 @@
  */
 class oForm {
 protected $fields = array();
-protected $url;
+//TODO сделать как роутинг ссылку на экшен. а в верстке делать конструкУРл
+protected $action;
+protected $method = 'POST';
+protected $enctype = 'multipart/form-data';
     function __construct(array $fields = array(), $url = null) {
-        $this->url = Routing::constructUrl($url);
+        $this->action = Routing::constructUrl($url);
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););
 
@@ -25,7 +28,7 @@ protected $url;
     public function buildHtml($id = 'form',$disable = false) {
         $html = '';
         if ($this->fields) {
-            $html .= '<form id="' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->url . '">';
+            $html .= '<form id="' . $id . '" enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }
@@ -46,14 +49,14 @@ protected $url;
     }
 
     /**
-     * строит html элемент 
+     * строит html элемент
      *
      * @param <type> $name
      * @param <type> $settings \
      */
     private static function buildFieldHtml($name, $settings) {
         $html = '<p>';
-        switch ($settings['type']) { 
+        switch ($settings['type']) {
             case 'text':
                 $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
                 break;
@@ -95,7 +98,7 @@ protected $url;
 
     /**
      * Заполняет форму данными
-     * @param <type> $data 
+     * @param <type> $data
      */
     public function fill($data) {
         foreach ($this->fields as $name => $settings) {
@@ -111,7 +114,7 @@ protected $url;
         $result = true;
         foreach ($this->fields as $name => $settings) {
             if (isset($settings['requried'])) {
-                if($settings['requried'] && !isset($settings['value'])) {
+                if($settings['requried'] && $settings['value'] === '') {
                     $this->fields[$name]['error'] = 'Поле обязательно для заполнения';
                     $result = false;
                 }
@@ -162,4 +165,3 @@ protected $url;
         return $values[$fieldName];
     }
 }
-

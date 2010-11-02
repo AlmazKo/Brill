@@ -28,7 +28,7 @@ class aKeywords extends Action {
         $act->execute(false);
        // Log::dump($this->context);
         //die('020202');
-        
+
        // $nav = $request->getNav();
 
        // обработка данных
@@ -71,7 +71,7 @@ class aKeywords extends Action {
             $tbl->sort(Navigation::get('field'), Navigation::get('order'));
             $tbl->setViewIterator(true);
             $tbl->addRulesView('thematic', '<a href="newindex.php?view=keywords&thematic_id=#t_id#">#thematic#</a>');
-            
+
             $context->set('h1', 'Все ключевые слова');
             $context->set('title', 'Ключевики');
 

@@ -8,13 +8,13 @@ class oFormExt extends oForm{
 
     /**
      * form wrapper
-     * @param <type> $id
-     * @param <type> $content
+     * @param string $id
+     * @param string $content
      * @return string
      */
     function buildFree($id, $content) {
             $html = '';
-            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->url .'">';
+            $html .= '<form id = "' . $id . '" enctype="multipart/form-data" method="post" action="' . $this->action .'">';
             $html .= $content;
             $html .='<input type="submit"></form>';
             return $html;
@@ -26,6 +26,7 @@ class oFormExt extends oForm{
      */
     public function save($fileName)  {
         $data = $this->getXmlAsText();
+        //TODO вынести отсюда  работу с файлами
         if (!$handle = fopen($fileName, 'w')) {
             Log::warning("Не могу открыть файл ($fileName)");
         }
@@ -45,7 +46,6 @@ class oFormExt extends oForm{
         $this->fields = $fields = array();
         $sxe = simplexml_load_string($string);
         if ($sxe) {
-            
             foreach ($sxe->field as $key => $value) {
                 $attr = current((array)$value->attributes());
                 $v = (array)$value;
@@ -90,7 +90,7 @@ class oFormExt extends oForm{
 
      /**
      * Конвертирует форму в Xml
-     *
+     * TODO convertToXml()
      * @return SimpleXMLElement
      */
     public function getXml() {

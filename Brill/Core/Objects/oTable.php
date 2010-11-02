@@ -18,54 +18,46 @@ function cmp($a, $b) {
 
 
 class oTable implements ISorting{
-    protected $page = 1;
-    protected $search = '';
-    protected $sort = null;
-    protected $directSort = 'ASC';
-    protected $altWhere = '';
-    protected $name = null;
-    //отображаемое название полей
-    public $headers = array();
-    protected $htmlHeaders = array();
-    protected $values = array();
-    //названия полей
-    protected $fields = array();
-    //масссив отображаемых полей
-    protected $view_cols = array();
-    //количество строк
-    protected $count = 0;
+    protected
+        $page = 1,
+        $search = '',
+        $sort = null,
+        $directSort = 'ASC',
+        $altWhere = '',
+        $name = null,
+        //отображаемое название полей
+        $headers = array(),
+        $htmlHeaders = array(),
+        $values = array(),
+        //названия полей
+        $fields = array(),
+        //масссив отображаемых полей
+        $view_cols = array(),
+        //количество строк
+        $count = 0,
+        $separator = false,
+        $separatorValue = null,
+        $separatorHeader = null,
+        $rulesView = null,
+        $mapsView = null,
+        $viewIterator = false,
+        $viewHead = true,
+        $typeSelected = false,
+        $viewSorting = true;
 
-    protected $separator = false;
-    protected $separatorValue = null;
-    protected $separatorHeader = null;
-    protected $rulesView = null;
-    protected $mapsView = null;
-    protected $viewIterator = false;
-    protected $viewHead = true;
-    protected $typeSelected = false;
-    protected $viewSorting = true;
     function __construct($data) {
-        if(is_object($data)) {
-            if (is_subclass_of($tbl, 'Model')) {
-                $this->fields = $this->headers = $this->viewCols = $data->getFields();
-                $this->values = $data->getValues();
-            } else {
-                Log::warning('Переданы, не поддерживемые ' .__CLASS__ . ' данные');
-            }
-
-        } else if (is_array ($data)) {
+        if (is_array($data)) {
             $this->fields = $this->headers = $this->viewCols = $data[0];
             $this->values = $data[1];
         } else {
-            Log::warning('Переданы, не поддерживемые ' .__CLASS__ . ' данные');
+            Log::warning('Переданы, не поддерживаемые ' .__CLASS__ . ' данные');
         }
-
         $this->count = count($this->values);
-
     }
 
     /**
      * добавляет правила для отображения полей
+     *
      * @param string $field
      * @param string $rule
      */
@@ -85,7 +77,7 @@ class oTable implements ISorting{
     }
     /**
      * Разделитель таблицы
-     * @param string $nameSep какое поле должно измениться, чтобы сработало разделитель
+     * @param string $nameSep какое поле должно измениться, чтобы сработал разделитель
      */
     function separator($nameSep, $headerSep = null) {
         if (isset($this->values[0][$nameSep])) {
@@ -103,7 +95,7 @@ class oTable implements ISorting{
      * @param string $cell
      * @param string $field
      * @param string $row
-     * @return <type>
+     * @return string
      */
     protected function buildTd($cell, $field, $row) {
         $str = $cell;
@@ -151,7 +143,7 @@ class oTable implements ISorting{
     }
     /**
      * Возвращает 2х мерный массив значений
-     * если надо сделать специфический вывод
+     * если надо сделать специфическую обработку
      * @return array
      */
     public function getValues() {
@@ -169,19 +161,25 @@ class oTable implements ISorting{
     /**
      * Существует ли это поле
      * @param string $field
+     * @return bool
      */
     public function isField($field) {
         return in_array($field, $this->fields);
     }
 
     /**
-     * выводить столбец с нумерацией
+     * выводить ли таблицу с нумерацией
      * @param bool $view
      */
     function setViewIterator($view = false) {
         $this->viewIterator = (bool) $view;
     }
 
+
+    /**
+     * Выводить ли шапку таблицы
+     * @param bool $view
+     */
     function setViewHead($view = true) {
         $this->viewHead = (bool) $view;
     }
@@ -196,6 +194,9 @@ class oTable implements ISorting{
 
     }
 
+    /**
+     * Поддержка интерфейса ISorting
+     */
     function  sort($field, $direction = null) {
         if ($this->isField($field)) {
             if($this->values) {
@@ -218,8 +219,9 @@ class oTable implements ISorting{
             return false;
         }
     }
+
     /**
-     * выводить столбец с нумерацией
+     * выводить ли столбец с нумерацией
      * @param bool $view
      */
     function setViewSorting($view = false) {
@@ -227,7 +229,7 @@ class oTable implements ISorting{
     }
 
     /**
-     * Возвращает столбец таблицы
+     * Возвращает столбец таблицы, учитывая сортировку
      *
      * @param string $field
      * @return array, в случае осутствия столбца - false
@@ -244,10 +246,17 @@ class oTable implements ISorting{
         }
     }
 
+    /**
+     * Задать столбец в таблице
+     * если уже есть с таким именем - обновит текущей столбец
+     * @param string $field название столбца
+     * @param array $col массив значений столбца
+     * @return bool  вернет false, если размеры столбцов не совпадают
+     */
     public function setCol($field, $col) {
         if (count($col) == count($this->values)) {
             foreach ($this->values as $key => $row) {
-                
+
                 $this->values[$key][$field] = $col[$key];
             }
             return true;
@@ -255,6 +264,7 @@ class oTable implements ISorting{
             return false;
         }
     }
+
     /**
      * Строит таблицу
      * @param string $idCss
@@ -262,7 +272,7 @@ class oTable implements ISorting{
      */
     public function build($idCss = false, $classCss = false) {
         $html = '<table '.($idCss ? 'id="'.$idCss.'" ' : '').($classCss ? 'class="'.$classCss.'" ' : '').'border="0" cellpadding="0" cellspacing="0" >';
-        
+
         if ($this->viewHead) {
             $html .= $this->buildHead();
         }
@@ -271,6 +281,10 @@ class oTable implements ISorting{
         return $html;
     }
 
+    /**
+     * Строит шапку таблицы
+     * @return string верстка щапки
+     */
     public function buildHead (){
         $html = '<tr>';
 
@@ -279,18 +293,20 @@ class oTable implements ISorting{
         }
         foreach ($this->viewCols as $i => $cell) {
             if ($this->viewSorting) {
-               
+
                 $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'">' . $this->headers[$i] . '</a></th>';
             } else {
                 $html .= '<th>' . $this->headers[$i] . '</th>';
             }
-            
         }
         $html .= '</tr>';
         return $html;
     }
 
-
+    /**
+     * Строит тело таблицы
+     * @return string верстка тела таблицы
+     */
     public function buildBody (){
         $html = '';
         $idRow = 0;
