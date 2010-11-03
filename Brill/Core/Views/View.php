@@ -10,12 +10,15 @@
  * @author almaz
  */
 abstract class View {
-    protected $parentTpl;
-    protected $tpl;
-    protected $aHeaders = array();
-    protected $httpStatus = '200';
-    protected $context;
-    
+    protected
+        // фактически обозначает родительский шаблон по умолчанию. т.к. внутренние дожны задаваться в экшене
+        $defaulTpl,
+        $tpl,
+        $aHeaders = array(),
+        $httpStatus = '200',
+        $context,
+        $useParentTpl = true;
+
     public function  input ($context) {
          if($context->is('error_page')) {
             $this->httpStatus = '404';
@@ -26,27 +29,29 @@ abstract class View {
          }
         //здесь уже можно делать вывод
         //$this->inputHeaders();
-
     }
 
     public function __construct($nameModule, RegistryContext $context) {
         $this->context = $context;
-        if ($context->is('useParentTpl')  && $context->get('useParentTpl')) {
+        if ($context->is('useParentTpl')) {
+            $this->useParentTpl = $context->get('useParentTpl');
+        } 
+        if ($this->useParentTpl) {
             if ($context->is('parentTpl')) {
-                $this->parentTpl = $this->get('parentTpl');
-                
+                $this->tpl = $this->get('parentTpl');
+                $this->tpl = General::$loadedModules[$nameModule]->pathViews . $this->tpl;
             } else {
-               $this->parentTpl = $this->defaultParentTpl;
+                $this->tpl = $this->defaultTpl;
             }
-            $context->set('tpl', General::$loadedModules[$nameModule]->pathViews . $context->get('tpl'));
-        } else  {
+        } else  { echo '-----';Log::dump($context->getTpl('tpl'));
             if ($context->is('tpl')) {
-                $this->parentTpl = $context->get('tpl');
-                $context->set('tpl', General::$loadedModules[$nameModule]->pathViews . $context->get('tpl'));
+                $this->tpl = $context->getTpl('tpl');
+
             } else {
-               $this->parentTpl = General::$loadedModules[$nameModule]->pathViews . $this->defaultTpl;
+                $this->tpl = $this->defaultTpl;
             }
         }
+
     }
 }
 

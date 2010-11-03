@@ -85,7 +85,7 @@ class Front {
         $actR = new ActionResolver(); 
         $act = $actR->getAction($request);
         if (General::$loadedModules['Auth']) {
-            $auth = ne;
+            //$auth = ne;
         }
 
         $act->execute($context);
