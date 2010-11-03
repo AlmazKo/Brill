@@ -11,6 +11,7 @@ class as_Sites extends Model {
         'host',
         'date',
         'config_status', //статус конфига enum ('None', 'Yes', 'Edit') есть/нет/есть но не работоспособен
+        'rule'
     );
 }
 

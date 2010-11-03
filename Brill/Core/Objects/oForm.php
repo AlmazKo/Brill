@@ -143,7 +143,7 @@ protected $enctype = 'multipart/form-data';
      * @param array $array
      * @return array
      */
-    public function getArrayAttr($array) {
+    public function getArrayAttr($array = array('title', 'value')) {
         $aAttr = array();
         $values = array();
         foreach ($array as $key => $value) {

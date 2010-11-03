@@ -12,6 +12,7 @@
 
 require_once 'Registry.php';
 class RegistryContext extends Registry {
+    protected $tpls = array();
     protected static $instance = null;
     final public  static function instance() {
         if (self::$instance === null) {
@@ -43,4 +44,35 @@ class RegistryContext extends Registry {
         }
 
     }
+
+
+
+   public function getTpl($key) {
+        if (isset($this->tpls[$key])) {
+            return $this->tpls[$key];
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Ищет шаблон в указанном модуле, создает ему абсолютный путь и сохраняет
+     * @param string $key
+     * @param string $nameTpl
+     * @param string $module
+     */
+    public function setTpl($key, $nameTpl, $module = false) {
+        if ($module) {
+            $pathTpl = General::$loadedModules[$module]->pathViews . $nameTpl . '.php';
+        } else {
+            // если модуль не указан, берем текущий
+            $route = Routing::instance();
+            $pathTpl = General::$loadedModules[$route->module]->pathViews . $nameTpl . '.php';
+        }
+        if (file_exists($pathTpl)) {
+            $this->tpls[$key] = $pathTpl;
+        } else {
+            Log::warning("Шаблон '$nameTpl' не найден по адресу: $pathTpl");
+        }
+   }
 }

@@ -3,9 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
-<link href="Brill/css/page.css" type="text/css" rel=stylesheet />
-<script type="text/javascript" src="Brill/js/jquery-1.4.3.min.js"></script>
-<script type="text/javascript" src="Brill/js/jquery.form.js"></script>
+<link href="<?=WEB_PREFIX?>Brill/css/page.css" type="text/css" rel=stylesheet />
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form.js"></script>
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
@@ -21,11 +21,18 @@
             <li id="startSubscribe" class="yes">Начать новую</li>
             </ul>
             </li>
+            <li> <span>Сайты</span>
+            <ul>
+            <li class="yes" id="listSites">Сконфигурированные</li>
+            <li class="yes" id="addSites">Добавить</li>
+            </ul>
+
+            </li>
             <li class="yes"> <span>Новости</span> </li>
             <li class="yes"> <span>Написать сообщение</span> </li>
             </ul>
              <td id="page_content">
-               <?php include_once ($t->get('tpl'))?>
+               <?php include_once ($t->getTpl('tpl'))?>
                  <br />
                  
 
@@ -42,7 +49,12 @@ $(document).ready(function(){
     $('#subscribes').click(function() {
          $("#page_content").load("<?=WEB_PREFIX?>AutoSubmitter/Subscribe/List/");
     });
-
+    $('#listSites').click(function() {
+         $("#page_content").load("<?=WEB_PREFIX?>AutoSubmitter/Sites/List/");
+    });
+    $('#addSites').click(function() {
+         $("#page_content").load("<?=WEB_PREFIX?>AutoSubmitter/Sites/Add/");
+    });
     $('.yes').hover(function(e) {
         $(this).css({'color':'green'})
     },function() {

@@ -21,7 +21,7 @@ class aPages extends Action {
     public function act_View() {
         
         $this->context->set('useParentTpl', true);
-        $this->context->set('tpl', 'pages_content_html.php');
+        $this->context->setTpl('tpl', 'pages_content_html', 'Pages');
         $this->context->set('title', 'Рассылка');
 
         $page = new mPages();
