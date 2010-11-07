@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Класс
  */
 
@@ -29,8 +29,8 @@ class Front {
      */
     private function init() {
 
-        self::loadModules(); 
-        self::CheckingDependency(); 
+        self::loadModules();
+        self::CheckingDependency();
  #       self::$defaultAction = 'Welcome';
     }
 
@@ -81,13 +81,13 @@ class Front {
      */
     private function handleRequest() {
         $request = RegistryRequest::instance();
-        $context = RegistryContext::instance();
-        $actR = new ActionResolver(); 
+//        $context = RegistryContext::instance();
+        $actR = new ActionResolver();
         $act = $actR->getAction($request);
         if (General::$loadedModules['Auth']) {
             //$auth = ne;
         }
 
-        $act->execute($context);
+        $act->execute();
     }
 }

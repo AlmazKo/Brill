@@ -28,7 +28,7 @@ protected $enctype = 'multipart/form-data';
     public function buildHtml($id = 'form',$disable = false) {
         $html = '';
         if ($this->fields) {
-            $html .= '<form id="' . $id . '" enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
+            $html .= '<form id="' . $id . '" enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '?ajax=1">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }

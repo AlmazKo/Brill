@@ -15,10 +15,11 @@ ini_set('display_errors', 1);
  */
 header('Content-type: text/html; charset=utf-8');
 define ('DIR_PATH', str_replace("\\", "/", realpath (dirname (__FILE__))));
-define ('CORE_PATH',DIR_PATH . '/Core/');
-define ('MODULES_PATH',DIR_PATH . '/Modules/');
+define ('CORE_PATH', DIR_PATH . '/Core/');
+define ('MODULES_PATH', DIR_PATH . '/Modules/');
 //префикс домена, где он лежит. если прмо в корне. тут должен быть только слэш
 define ('WEB_PREFIX', '/ba/');
+define ('USE_CACHE', false);
 $dirs [] = '.';
 $dirs [] = DIR_PATH . '/Common';
 //$dirs [] = DIR_PATH . '/DB';

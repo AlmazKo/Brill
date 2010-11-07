@@ -22,9 +22,4 @@ class vPages extends View {
         $this->defaultParentTpl = General::$loadedModules['Pages']->pathViews . 'pages_parent_html.php';
         parent::__construct('Pages', $context);
     }
-
-    function  input() {
-        $t = $this->context;
-        include( $this->defaultParent);
-    }
 }

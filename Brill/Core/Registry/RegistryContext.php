@@ -13,6 +13,7 @@
 require_once 'Registry.php';
 class RegistryContext extends Registry {
     protected $tpls = array();
+    protected $_topTpl;
     protected static $instance = null;
     final public  static function instance() {
         if (self::$instance === null) {
@@ -74,5 +75,33 @@ class RegistryContext extends Registry {
         } else {
             Log::warning("Шаблон '$nameTpl' не найден по адресу: $pathTpl");
         }
+   }
+
+   /**
+    * Задаает головной щаблон
+    * @param <type> $nameTpl
+    * @param <type> $module
+    */
+   public function setTopTpl($nameTpl, $module = false) {
+      
+        if ($module) {
+            $pathTpl = General::$loadedModules[$module]->pathViews . $nameTpl . '.php';
+        } else {
+            // если модуль не указан, берем текущий
+            $route = Routing::instance();
+            $pathTpl = General::$loadedModules[$route->module]->pathViews . $nameTpl . '.php';
+        }
+        // Log::dump($pathTpl);
+        if (file_exists($pathTpl)) {
+            $this->_topTpl = $pathTpl;
+        } else {
+            Log::warning("Шаблон '$nameTpl' не найден по адресу: $pathTpl");
+        }
+   }
+
+
+
+   public function getTopTpl(){
+       return $this->_topTpl;
    }
 }

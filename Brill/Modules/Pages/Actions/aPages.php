@@ -12,16 +12,15 @@ class aPages extends Action {
 
     protected function configure() {
         require_once $this->module->pathModels .'mPages.php';
-        require_once $this->module->pathViews .'vPages.php';
+        require_once $this->module->pathViews .'vPages.php'; 
+        $this->_parent();
     }
     
     /**
      * Основаная вьюшка
      */
     public function act_View() {
-        
-        $this->context->set('useParentTpl', true);
-        $this->context->setTpl('tpl', 'pages_content_html', 'Pages');
+
         $this->context->set('title', 'Рассылка');
 
         $page = new mPages();
@@ -31,11 +30,6 @@ class aPages extends Action {
             $idPage = 0;
         }
         $page->getObject($idPage);
-
-        $fields['login'] = array('title' => 'Логин', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $auth = new oForm($fields);
-        $this->context->set('auth', $auth);
 
         if ($this->isInternal) {
             //пока костыль. чтобы этот экшен могли юзать другие
@@ -55,7 +49,16 @@ class aPages extends Action {
 
 
 
+    function _parent(InternalRoute $iRoute = null) {
+        $this->context->setTopTpl('pages_parent_html', 'Pages');
+        $this->context->setTpl('content', 'pages_content_html', 'Pages');
 
+        $fields['login'] = array('title' => 'Логин', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $auth = new oForm($fields);
+        $this->context->set('auth', $auth);
+
+    }
 
     /*
      * Отдаем родителю нашу вьюшку

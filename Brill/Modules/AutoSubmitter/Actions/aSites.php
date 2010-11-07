@@ -10,39 +10,26 @@ class aSites extends Action {
     protected function configure() {
         require_once $this->module->pathModels . 'as_Sites.php';
         require_once $this->module->pathViews . 'vSubscribe.php';
-        $this->context->set('title', 'Сайты');
-        //$this->context->set('parentTpl', View::setTpl('sites_html.php'));
-
-                        $route = new SimpleRouter();
-        $route->module = 'Pages';
-        $route->action = 'Pages';
-        $route->act = 'view';
-        $actR = new ActionResolver();
-        $act = $actR->getInternalAction($route);
-        $act->execute(false);
+      //  $this->context->setTopTpl('sites_html');
     }
 
     /**setTpl
      * выводит список всех сайтов
      */
     public function act_List($context) {
-
-        $route = new SimpleRouter();
-        $route->module = 'Pages';
-        $route->action = 'Pages';
-        $route->act = 'view';
-        $actR = new ActionResolver();
-        $act = $actR->getInternalAction($route);
-        $act->execute(false);
-
-
-        $this->context->set('useParentTpl', !$this->request->isAjax());
-        $this->context->setTpl('tpl', 'sites_html');
+        if ($this->request->isAjax()) {
+           $this->context->setTopTpl('sites_html');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'sites_html');
+        }
+        
         $sites = new as_Sites();
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArray()));
         $tbl->viewColumns('host', 'config_status');
         $tbl->setNamesColumns(array('name'=>'Хост',
                                     'config_status' => 'Статус'));
+         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
     }
 
@@ -51,10 +38,13 @@ class aSites extends Action {
      * выводит список всех сайтов
      */
     public function act_Add($context) {
-
-
-        $this->context->set('useParentTpl', !$this->request->isAjax());
-        $this->context->setTpl('tpl', 'site_add_html');
+        if ($this->request->isAjax()) {
+            $this->context->setTopTpl('site_add_html');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'site_add_html');
+        }
+        
         $fields['host'] = array('title' => 'хост', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['rule'] = array('title' => 'Конфиг(XML)', 'value'=>'', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $form = new oForm($fields);
@@ -71,8 +61,25 @@ class aSites extends Action {
         $this->context->set('info_text', 'Создание нового сайта...');
     }
 
+    /**
+     * Функция-обвертка, модули уровнем выще. для отображения
+     * @param InternalRoute $iRoute
+     */
+    function _parent(InternalRoute $iRoute = null) {
+        $this->context->set('title', 'Сайты');
 
-        /*
+        if (!$iRoute) {
+            $iRoute = new InternalRoute();
+            $iRoute->module = 'Pages';
+            $iRoute->action = 'Pages';
+
+        }
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($iRoute); 
+        $act->runParentAct();
+    }
+    
+    /*
      * Отдаем родителю нашу вьюшку
      */
     protected function initView() {

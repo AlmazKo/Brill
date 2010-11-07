@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -19,39 +19,23 @@ abstract class View {
         $context,
         $useParentTpl = true;
 
-    public function  input ($context) {
-         if($context->is('error_page')) {
+    public function  input ($context) { 
+        if($context->is('error_page')) {
             $this->httpStatus = '404';
-         }
-         $this->inputHeaders();
-         if ($context->get('useParentTpl')) {
-             @include $this->dirTemplates . $defaultParent;
-         }
+        }
+
+
+       // $this->inputHeaders();
+
+        $t = $this->context;
+        include $this->context->getTopTpl();
+         
         //здесь уже можно делать вывод
         //$this->inputHeaders();
     }
 
     public function __construct($nameModule, RegistryContext $context) {
         $this->context = $context;
-        if ($context->is('useParentTpl')) {
-            $this->useParentTpl = $context->get('useParentTpl');
-        } 
-        if ($this->useParentTpl) {
-            if ($context->is('parentTpl')) {
-                $this->tpl = $this->get('parentTpl');
-                $this->tpl = General::$loadedModules[$nameModule]->pathViews . $this->tpl;
-            } else {
-                $this->tpl = $this->defaultTpl;
-            }
-        } else  { echo '-----';Log::dump($context->getTpl('tpl'));
-            if ($context->is('tpl')) {
-                $this->tpl = $context->getTpl('tpl');
-
-            } else {
-                $this->tpl = $this->defaultTpl;
-            }
-        }
-
     }
 }
 

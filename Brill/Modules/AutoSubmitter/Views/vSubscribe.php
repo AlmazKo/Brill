@@ -22,9 +22,5 @@ class vSubscribe extends View {
         parent::__construct('AutoSubmitter', $context);
     }
 
-    function  input() {
-        $t = $this->context;
-        include($this->tpl);
-    }
 }
 

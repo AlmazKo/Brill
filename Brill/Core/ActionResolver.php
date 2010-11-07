@@ -6,7 +6,7 @@
  */
 require_once CORE_PATH . 'Actions/Action.php';
 require_once CORE_PATH . 'Routing.php';
-require_once CORE_PATH . 'SimpleRouter.php';
+require_once CORE_PATH . 'InternalRoute.php';
 
 class ActionResolver {
 
@@ -72,10 +72,10 @@ class ActionResolver {
      * Метод получает экшен
      * для внутренней работы между модулями
      *
-     * @param SimpleRouter $route
+     * @param InternalRouter $route
      * @return classAction
      */
-    public function getInternalAction(SimpleRouter $route) {
+    public function getInternalAction(InternalRoute $route) {
         $sep = '/';
         //узнаем загружен ли модуль (конфиг модуля)
         if (!isset(General::$loadedModules[$route->module])) {
@@ -92,6 +92,7 @@ class ActionResolver {
                 $action->nav = $route->nav;
                 $action->search = $route->search;
                 $action->route = $route;
+                        
                 //TODO проверка subclass От Actions
                 return $action;
             } else {
@@ -100,6 +101,7 @@ class ActionResolver {
         } else {
             Log::warning('Не найден файл: '.$filePath);
         }
+       
     }
 
     function  __construct() {

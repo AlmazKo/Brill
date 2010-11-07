@@ -25,7 +25,7 @@ abstract class Action {
      * @param bool $view - выводить ли вью
      */
     public function execute ($view = true) {
-        if($this->act) {
+        if ($this->act) {
             $this->runAct($this->act);
         } else {
             $this->runAct($this->defaultAct);
@@ -37,28 +37,43 @@ abstract class Action {
         }
     }
 
+    public function runParentAct() {
+
+        $parentAct = '_parent';
+      //  Log::dump($parentAct);
+        if (method_exists ($this, $parentAct)) {
+            return $this->$parentAct();
+        } else {
+            Log::warning('В экшене  "' . __CLASS__ . '" не реализован метод: '.$parentAct);
+            return false;
+        }
+    }
+
     /**
      * Запустить акт
      * @param string $nameAct Имя акта
      * @param array $settings Массив, мозможных настроек, если вызывается другим актом
      */
     final function runAct($nameAct =  null, $settings = array()) {
-        if (empty($nameAct)) {
+        if (!$nameAct) {
             $nameAct = $this->defaultAct;
         }
-        $nameAct = ucfirst($nameAct);
         $act = 'act_' . ucfirst($nameAct);
         if (method_exists ($this, $act)) {
             return $this->$act(RegistryContext::instance());
         } else {
-            Log::warning('In action  "' . __CLASS__ . '" not implement Act: ' . $nameAct);
+            Log::warning('В экшене  "' . __CLASS__ . '" не реализован метод: ' . $act);
             return false;
         }
 
     }
+    /**
+     * Конфигурация Экшена
+     */
     abstract protected function configure();
 
     public function  __construct($module, $act, $isInternal = false) {
+        
         $this->module = $module;
         $this->act = $act;
         $this->isInternal = $isInternal;
@@ -66,6 +81,10 @@ abstract class Action {
         $this->context = RegistryContext::instance();
         $this->configure();
         $this->session = RegistrySession::instance();
+
+        /**
+         * СДелать! Проверка подсасывающихся модулей, и их запуск
+         */
     }
 
     public function input() {
@@ -83,4 +102,6 @@ abstract class Action {
     function changeSorting($field, $sort) {
 
     }
+
+
 }

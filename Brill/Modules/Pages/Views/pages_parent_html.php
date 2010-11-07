@@ -4,14 +4,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
 <link href="<?=WEB_PREFIX?>Brill/css/page.css" type="text/css" rel=stylesheet />
-<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js"></script>
-<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form.js"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js<?=USE_CACHE ? '' : '?uid='.  uniqid() ?>"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form.js<?=USE_CACHE ? '' : '?uid='.  uniqid() ?>"></script>
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
         <tr id="page_head"><td class="first_col"><img src="Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
          <tr id="page_body"><td id="page_menu">
-                 
+
             <ul id="menu">
                 <li> <span>Рассылки</span>
             <ul>
@@ -32,9 +32,9 @@
             <li class="yes"> <span>Написать сообщение</span> </li>
             </ul>
              <td id="page_content">
-               <?php include_once ($t->getTpl('tpl'))?>
+               <?php include_once ($t->getTpl('content'))?>
                  <br />
-                 
+
 
              </td>
              <td>Полезная инфа</td></tr>
