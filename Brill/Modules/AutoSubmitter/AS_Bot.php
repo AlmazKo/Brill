@@ -43,7 +43,7 @@ class AS_Bot extends Curl{
     public $send_param_post = null;
     public $send_headers = null;
 
-    public function RUN($action_url = null, $send_param_get = null, $send_param_post = null, $send_headers = null){
+    public function run($action_url = null, $send_param_get = null, $send_param_post = null, $send_headers = null){
         $this->action_url = $action_url;
         $this->send_param_get = $send_param_get;
         $this->send_param_post = $send_param_post;
@@ -61,8 +61,9 @@ class AS_Bot extends Curl{
                 //если не переданы пост параметры, то метод ГЕТ
                 $this->Curl_GET_send();
             }
-            return true;
+            
         }
+        return $this->response;
     }
 
     public function Curl_POST_send() {

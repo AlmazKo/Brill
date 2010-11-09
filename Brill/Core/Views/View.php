@@ -9,7 +9,7 @@
  *
  * @author almaz
  */
-abstract class View {
+class View {
     protected
         // фактически обозначает родительский шаблон по умолчанию. т.к. внутренние дожны задаваться в экшене
         $defaulTpl,
@@ -28,13 +28,20 @@ abstract class View {
        // $this->inputHeaders();
 
         $t = $this->context;
+        RunTimer::addTimer('Viewing');
+        RunTimer::addPoint('Viewing');
         include $this->context->getTopTpl();
-         
+        RunTimer::endPoint('Viewing');
+         $r = RegistryRequest::instance();
+
+         if ($r->isAjax()) {
+             echo '<br />' . Log::viewLog();
+         }
         //здесь уже можно делать вывод
         //$this->inputHeaders();
     }
 
-    public function __construct($nameModule, RegistryContext $context) {
+    public function __construct(RegistryContext $context) {
         $this->context = $context;
     }
 }

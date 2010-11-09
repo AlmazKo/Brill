@@ -72,7 +72,7 @@ abstract class Action {
      */
     abstract protected function configure();
 
-    public function  __construct($module, $act, $isInternal = false) {
+    final public function  __construct($module, $act, $isInternal = false) {
         
         $this->module = $module;
         $this->act = $act;
@@ -95,7 +95,7 @@ abstract class Action {
      * factory method
      */
     protected function initView() {
-       Log::warning('Не определен метод: ' . get_class($this) .'->initView()');
+        return new View($this->context);
     }
 
 

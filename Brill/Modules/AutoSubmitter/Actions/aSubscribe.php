@@ -15,6 +15,7 @@ class aSubscribe extends Action{
         include_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
+        $this->context->setTopTpl('subscribe_start_html');
     }
     /**
      * первый экшен в визарде.
@@ -95,9 +96,12 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      */
     public function act_Start($context) {
-        //todo сделать только для if ($this->request->isAjax()) {
-        $this->context->set('useParentTpl', false);
-        $this->context->set('tpl', 'subscribe_start_html.php');
+        if ($this->request->isAjax()) {
+           $this->context->setTopTpl('subscribe_start_html');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'subscribe_start_html');
+        }
         $step = $this->request->is('step') ? (int) $this->request->get('step') : 0;
 
         switch ($step) {
@@ -126,15 +130,19 @@ class aSubscribe extends Action{
             case 3 :
                  $this->context->set('step', 3);
         }
-        $this->context->set('useParentTpl', false);
     }
 
     /**
      * выводит список всех созданных рассылок
      */
     public function act_List($context) {
-        $this->context->set('useParentTpl', false);
-        $this->context->set('tpl', 'subscribes_html.php');
+
+        if ($this->request->isAjax()) {
+           $this->context->setTopTpl('subscribes_html');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'subscribes_html');
+        }
         $subscribes = new as_Subscribes();
         $tbl = new oTableExt(array($subscribes->getFields(), $subscribes->getArray()));
         $tbl->viewColumns('name', 'date_begin');
@@ -158,7 +166,7 @@ class aSubscribe extends Action{
 //        }
 //    }
 
-    
+
     /*
      * Твой экшен
      * поправил только подключение файлов
@@ -172,73 +180,111 @@ class aSubscribe extends Action{
      * все делай через аякс, по аналогии с другими методами
      *
      * все пути и другие статичные вещи сохрани или в константы или в свойства какого нить класса
-     * 
+     *
      * приведи все к зендовским стандартам. тяжело читать
      */
 
-     
-    
-    public function act_Run() {
-        include_once $this->module->pathModule. 'AS_site.php';
-        include_once $this->module->pathModule. 'UserData.php';
-        include_once $this->module->pathModule. 'UserDataProject.php';
-        include_once $this->module->pathModule. 'AS_xmlMapper.php';
-        include_once $this->module->pathModule. 'AS_Bot.php';
-        include_once $this->module->pathModule. 'Strategy.php';
-        include_once $this->module->pathModule. 'View.php';
 
-        $obj_AS_Site = new AS_site();
 
-        $obj_UserDataProject = new UserDataProject();
+//    public function act_Run() {
+//        $site = new as_Sites();
+//        $site->getObject($this->request->get('id'));
+//        $strategy = new Strategy($site, $user);
+//        $strategy->run();
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//        include_once $this->module->pathModule. 'AS_site.php';
+//        include_once $this->module->pathModule. 'UserData.php';
+//        include_once $this->module->pathModule. 'UserDataProject.php';
+//        include_once $this->module->pathModule. 'AS_xmlMapper.php';
+//        include_once $this->module->pathModule. 'AS_Bot.php';
+//        include_once $this->module->pathModule. 'Strategy.php';
+//        include_once $this->module->pathModule. 'View.php';
+//
+//
+//
+//        if ($isForm){
+//            // input view
+//        }
+//        $obj_AS_Site = new AS_site();
+//
+//        $obj_UserDataProject = new UserDataProject();
+//
+//        $obj_Strategy = new Strategy($obj_UserDataProject, $obj_AS_Site);
+//
+//        $obj_View = new View();
+//
+//        $k = 0;
+//
+////        $this->user_send = $_POST;//для заполнения что пользователь прислал, напишем. Этот кал нужно убрать потом
+//
+////        $obj_UserDataProject->setData($this->user_send);
+//
+//        while (($obj_Strategy->end == 'NO')||(empty($obj_Strategy->end))){
+//            //если мы имеем что-то присланное от пользователя, то смотрим что имеем, пишем
+///*
+//            if ($this->user_send){
+//                $this->data = $this->user_send;
+//            }
+// *
+// */
+//            //нам нужно общаться со стратегией сообщая заполненные пользователем нулевые поля
+//            $this->data = $obj_Strategy->work($this->data);
+//            //если у нас есть что-то для отображения, то отображаем, если нет, то пусть дальше работает
+//            if ($this->data){
+//                $obj_View->stek .= $this->data;
+//                //$obj_View->Print_RData($this->data);
+//                //$obj_View->UserFormProject();
+//                //die();
+//                //echo $this->data . "<br />";
+//            };
+//            if ($obj_Strategy->end == 'NO'){
+//                //если правило которое мы выполняли - с ошибкой,то нужно предложить пользователю попробывать снова
+//                //или отказаться
+//                //die('pravilo vipolneno s oshibkoi');
+//                $obj_View->FormRepeat();
+//                break;
+//            }
+//
+//            if ($k == 10){
+//                die('diiiiieeeee LIMIT 10');
+//            };
+//            $k++;
+//        }
+//        $obj_View->PrintData();
+//    }
 
-        $obj_Strategy = new Strategy($obj_UserDataProject, $obj_AS_Site);
 
-        $obj_View = new View();
 
-        $k = 0;
 
-//        $this->user_send = $_POST;//для заполнения что пользователь прислал, напишем. Этот кал нужно убрать потом
-
-//        $obj_UserDataProject->setData($this->user_send);
-
-        while (($obj_Strategy->end == 'NO')||(empty($obj_Strategy->end))){
-            //если мы имеем что-то присланное от пользователя, то смотрим что имеем, пишем
-/*
-            if ($this->user_send){
-                $this->data = $this->user_send;
-            }
- *
- */
-            //нам нужно общаться со стратегией сообщая заполненные пользователем нулевые поля
-            $this->data = $obj_Strategy->work($this->data);
-            //если у нас есть что-то для отображения, то отображаем, если нет, то пусть дальше работает
-            if ($this->data){
-                $obj_View->stek .= $this->data;
-                //$obj_View->Print_RData($this->data);
-                //$obj_View->UserFormProject();
-                //die();
-                //echo $this->data . "<br />";
-            };
-            if ($obj_Strategy->end == 'NO'){
-                //если правило которое мы выполняли - с ошибкой,то нужно предложить пользователю попробывать снова
-                //или отказаться
-                //die('pravilo vipolneno s oshibkoi');
-                $obj_View->FormRepeat();
-                break;
-            }
-
-            if ($k == 10){
-                die('diiiiieeeee LIMIT 10');
-            };
-            $k++;
-        }
-        $obj_View->PrintData();
-    }
-    
-    /*
-     * Отдаем родителю нашу вьюшку
+        /**
+     * Функция-обвертка, модули уровнем выще. для отображения
+     * @param InternalRoute $iRoute
      */
-    protected function initView() {
-        return new vSubscribe(RegistryContext::instance());
-     }
+    function _parent(InternalRoute $iRoute = null) {
+        $this->context->set('title', 'Сайты');
+
+        if (!$iRoute) {
+            $iRoute = new InternalRoute();
+            $iRoute->module = 'Pages';
+            $iRoute->action = 'Pages';
+
+        }
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($iRoute);
+        $act->runParentAct();
+    }
+
 }

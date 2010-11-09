@@ -93,6 +93,7 @@ class Log {
      * @return string
      */
     public static function viewLog() {
+        RunTimer::destruct();
         $html = '';
         foreach (self::$aLog as $key => $value) {
             $html .= str_pad($key, 1, '.', STR_PAD_LEFT) .' - '. $value;

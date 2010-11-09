@@ -23,7 +23,7 @@ class aSites extends Action {
             $this->_parent();
             $this->context->setTpl('content', 'sites_html');
         }
-        
+
         $sites = new as_Sites();
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArray()));
         $tbl->viewColumns('host', 'config_status');
@@ -44,7 +44,7 @@ class aSites extends Action {
             $this->_parent();
             $this->context->setTpl('content', 'site_add_html');
         }
-        
+
         $fields['host'] = array('title' => 'хост', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['rule'] = array('title' => 'Конфиг(XML)', 'value'=>'', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $form = new oForm($fields);
@@ -75,14 +75,9 @@ class aSites extends Action {
 
         }
         $actR = new ActionResolver();
-        $act = $actR->getInternalAction($iRoute); 
+        $act = $actR->getInternalAction($iRoute);
         $act->runParentAct();
     }
-    
-    /*
-     * Отдаем родителю нашу вьюшку
-     */
-    protected function initView() {
-        return new vSubscribe(RegistryContext::instance());
-     }
+
+
 }

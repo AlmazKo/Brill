@@ -17,15 +17,13 @@ class aKeywords extends Action {
 
 
     public function act_View($context) {
+        if ($this->request->isAjax()) {
+            $this->context->setTopTpl('keywords_list');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'keywords_list');
+        }
 
-
-        $route = new SimpleRouter();
-        $route->module = 'Pages';
-        $route->action = 'Pages';
-        $route->act = 'view';
-        $actR = new ActionResolver();
-        $act = $actR->getInternalAction($route);
-        $act->execute(false);
        // Log::dump($this->context);
         //die('020202');
 
@@ -84,24 +82,19 @@ class aKeywords extends Action {
             $tbl->addRulesView('name', '<a href="newindex.php?view=sites&keyword_id=#id#">#name#</a>');
             $tbl->addRulesView('set', '<a href="newindex.php?view=sites&set_id=#s_id#">#set#</a>');
         }
-
-
-
-
-
         $context->set('table', $tbl);
-        $context->set('tpl', 'keywords_list.php');
-
     }
 
+    function _parent(InternalRoute $iRoute = null) {
+        if (!$iRoute) {
+            $iRoute = new InternalRoute();
+            $iRoute->module = 'Pages';
+            $iRoute->action = 'Pages';
 
-
-    /*
-     * Отдаем родителю нашу вьюшку
-     */
-    protected function initView() {
-
-        return new vKeywords(RegistryContext::instance());
-     }
+        }
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($iRoute);
+        $act->runParentAct();
+    }
 
 }

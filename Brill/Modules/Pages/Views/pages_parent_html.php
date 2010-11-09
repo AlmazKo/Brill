@@ -9,7 +9,7 @@
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
-        <tr id="page_head"><td class="first_col"><img src="Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
+        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">

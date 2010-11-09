@@ -1,28 +1,24 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-require_once 'AS_xmlMapper.php';
-
 class as_Strategy {
-    private $currentRule;
+    private $xml;
+    private $_currentRule = 0;
     private $instruct;
-    
+    private $user;
+    private $site;
+
     /**
      *
-     * @param <type> $site_id 
+     * @param <type> $site_id
      * @return AS_xmlMapper
      */
 function getInstruct($site_id) {}
     private $status = true;
     private $firstRule = 'Auth';
 
-    public function  __construct() {
-        if (empty($this->currentRule)) {
-            $this->currentRule = $this->firstRule;;
-
-        }
+    public function  __construct(as_Sites $site, $user) {
+       $this->xml = new as_XmlMapper($site->rule);
+       $this->user = $user;
+       $this->site = $site;
     }
     /**
      * Формирует строку гет запроса
@@ -61,16 +57,47 @@ function getInstruct($site_id) {}
      * @param string $siteHost если надо взять определенный сайт
      * @param string $rule  если надо выполнить только одно, конкретное правилоо
      */
-    public static function run($siteHost, $rule = null) {
-
-        if ($rule) {
-            $this->currentRule = $rule;
+    public function run($ruleId = 0) {
+        if (!$ruleId) {
+            $ruleId = $this->_currentRule;
         }
-        $this->instruct = $this->getInstruct($siteHost);
-        $rule = $this->instruct->getRule($this->currentRule);
+        $headers = $this->xml->getHeadersRule($ruleId);
 
+        if($this->xml->isAjaxRule($ruleId)){
+            //если аякс
+            if (is_array($headers)){
+                //если массив заголовков
+                if (!key_exists('content-type', $headers)){
+                    $headers['content-type'] = "application/x-www-form-urlencoded; charset=UTF-8;";
+                }
+                if (!key_exists('x-requested-with', $headers)){
+                    $headers['x-requested-with'] = "XMLHttpRequest";
+                }
+            }else{
+                $headers['content-type'] = "application/x-www-form-urlencoded; charset=UTF-8;";
+                $headers['x-requested-with'] = "XMLHttpRequest";
+            }
+        }
+
+        if ($this->xml->getDynamicFields($ruleId)) {
+            Bot::run(
+                $this->xml->getActionRule($ruleId),
+                $this->xml->getGetRule($ruleId),
+                $this->xml->getPostRule($ruleId),
+                $headers
+            );
+        }
+            $aGet = $xml->getGet($ruleId);
+            $aHeaders = $xml->getHeaders($ruleId);
+            $response = as_Bot::run($aHeaders, $aGet, null, false);
+            $dynFields = array();
+            foreach ($xml->getDynamicFields as $field) {
+                $dynFields[] = findDynamicField($response);
+
+            }
         // если есть данные требующие заполнения пользователем и форма пользователя имеет пустые required поля
-           if ($this->insturct->getDynamicFields && !$userForms->isComplited) {
+           if ($xml->getDynamicFields($ruleId)) {
+
 //метод должен получить данные и вывести страницу пользователю
 //должен быть счетчик попыток
 
@@ -94,7 +121,7 @@ function getInstruct($site_id) {}
 
                // если все ок ставим что руле прошли в базе
            }
-           
+
     }
-    
+
 }

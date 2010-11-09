@@ -3,7 +3,7 @@
     <?=$t->get('tbl')->buildHead()?>
 <?php $form = new oFormExt();
 
-foreach($t->get('tbl')->getValues() as $row) : 
+foreach($t->get('tbl')->getValues() as $row) :
     $form->loadFromString($row['form']);
     $valuesForm = $form->getFields(); ?>
         <tr>
@@ -14,7 +14,7 @@ foreach($t->get('tbl')->getValues() as $row) :
         foreach ($aForm as $value) {
           echo '<p class="form_txt_field"><b class="header_field">' . $value['title'] . ':</b> '.  TFormat::cutRight($value['value'], 500).'</p>';
         }
-        
+
         ?>
             </td>
         </tr>
