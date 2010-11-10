@@ -13,8 +13,8 @@ class Strategy {
     private $obj_AS_xmlMapper = null;
     private $obj_AS_Bot = null;
 
-    function  __construct(UserDataProject $obj_UserDataProject, AS_site $obj_AS_site) {
-        $this->obj_AS_xmlMapper = new AS_xmlMapper($obj_UserDataProject, $obj_AS_site);
+    function  __construct(UserDataProject $obj_UserDataProject, $pathFileRule = null) {
+        $this->obj_AS_xmlMapper = new AS_xmlMapper($obj_UserDataProject, $pathFileRule);
         $this->obj_AS_Bot = new AS_Bot();
         //print_r($this->obj_AS_xmlMapper->getPostRule(2));
         //print_r($this->obj_AS_xmlMapper->getGetRule(2));

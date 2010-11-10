@@ -1,0 +1,2 @@
+sdfasdfasdfasdf
+<?=$t->content?>

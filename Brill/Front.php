@@ -10,7 +10,6 @@
  * @author almaz
  */
 
-usleep(400000);
 require 'Config.php';
 
 

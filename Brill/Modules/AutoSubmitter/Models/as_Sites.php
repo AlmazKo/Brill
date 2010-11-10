@@ -25,3 +25,20 @@ CREATE TABLE `as_Sites` (
   UNIQUE KEY `host_UNIQUE` (`host`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
  */
+
+/*
+<?php
+
+class AS_Site{
+    public $host = null;
+    public $rulefilexml = null;
+    public $currentRule = null;
+
+    public function   __construct() {
+        $this->host = 'www.bcounter.ru';
+        $this->rulefilexml = './SITE_RULES/bcounter.xml';
+        $this->currentRule = $_SESSION['currentRule'];
+    }
+}
+ *
+ */

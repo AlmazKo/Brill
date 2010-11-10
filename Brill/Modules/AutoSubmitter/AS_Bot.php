@@ -12,7 +12,7 @@ class Curl{
     protected $response = null;
 
     protected function CurlExt(array $curl_setopt = array()){
-print_r($curl_setopt);
+//print_r($curl_setopt);
 //die();
         $curl_setopt[CURLOPT_RETURNTRANSFER] = 1;
         $curl_setopt[CURLOPT_BINARYTRANSFER] = 1;
@@ -31,7 +31,7 @@ print_r($curl_setopt);
             $this->getInfo = curl_getinfo($this->curl);
             curl_close($this->curl);
         }
-        echo $this->response;
+//        echo $this->response;
         return true;
     }
 }

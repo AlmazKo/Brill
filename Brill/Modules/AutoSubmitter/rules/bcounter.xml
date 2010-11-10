@@ -33,6 +33,6 @@
             </field>
         </parameters_for_post>
 
-        <response url="http://www.bcounter.ru/00/" value="form enctype=" />
+        <response url="http://www.bcounter.ru/00/" value="dform enctype=" />
     </rule>
 </root>
