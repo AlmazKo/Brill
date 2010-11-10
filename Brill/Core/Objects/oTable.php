@@ -254,6 +254,9 @@ class oTable implements ISorting{
         }
     }
 
+    function addCol($field) {
+        $this->fields[] = $this->headers[] = $this->viewCols[] = $field;
+    }
     /**
      * Задать столбец в таблице
      * если уже есть с таким именем - обновит текущей столбец

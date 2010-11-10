@@ -6,6 +6,9 @@ body {
     padding: 0;
 
 }
+h1 {
+    font-size: 1.2em;
+}
 #page {
     width: 100%;
     height: 100%;
@@ -129,7 +132,7 @@ form .form_field_error{
     text-align: center;
     padding: 10px 0;
     font-style: italic;
-    font-size: 1.1 em;
+    font-size: 1.1em;
 }
 
 .separator_table {
@@ -168,4 +171,33 @@ form .form_field_error{
 
 .form_txt_field {
     margin:5px 0;
+}
+
+#logs_bottom {
+    padding: 3px;
+    border-top:1px dotted #AAA;
+}
+
+#loading {
+    position: absolute;
+    background: #FFF;
+    display: none;
+}
+
+
+
+#page_menu a {
+    color: #0771be;
+    text-decoration: underline;
+}
+#page_menu a:hover {
+    color: #0771be;
+}
+
+#page_menu a:visited {
+    color: #0771be;
+}
+
+#page_menu a:link {
+   color: #0771be;
 }

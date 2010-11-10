@@ -60,7 +60,7 @@ abstract class Action {
         }
         $act = 'act_' . ucfirst($nameAct);
         if (method_exists ($this, $act)) {
-            return $this->$act(RegistryContext::instance());
+            return $this->$act();
         } else {
             Log::warning('В экшене  "' . __CLASS__ . '" не реализован метод: ' . $act);
             return false;

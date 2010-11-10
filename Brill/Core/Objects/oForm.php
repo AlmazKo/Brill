@@ -76,6 +76,8 @@ protected $enctype = 'multipart/form-data';
                 }
                 break;
             case 'select':
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label>';
+                $html .= $settings['value']->buildHtmlSelect($name);
                 break;
             case 'multiSelect':
                 break;

@@ -23,7 +23,7 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_Add($context) {
+    protected function act_Add() {
         $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $form = new oForm($fields);
         $this->context->set('form', $form);
@@ -46,7 +46,7 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_SelectSite($context) {
+    protected function act_SelectSite() {
         $sites = new as_Sites;
         $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArray('config_status', 'Yes')));
@@ -73,7 +73,7 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_FillForm($context) {
+    protected function act_FillForm() {
         $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
         $this->context->set('form', $form);
         $this->context->set('info_text', 'Внимательно заполните форму');
@@ -95,7 +95,7 @@ class aSubscribe extends Action{
      * Wizzard создания новой рассылки
      * @param RegistryContext $context
      */
-    public function act_Start($context) {
+    public function act_Start() {
         if ($this->request->isAjax()) {
            $this->context->setTopTpl('subscribe_start_html');
         } else {
@@ -135,7 +135,7 @@ class aSubscribe extends Action{
     /**
      * выводит список всех созданных рассылок
      */
-    public function act_List($context) {
+    public function act_List() {
 
         if ($this->request->isAjax()) {
            $this->context->setTopTpl('subscribes_html');
@@ -148,6 +148,7 @@ class aSubscribe extends Action{
         $tbl->viewColumns('name', 'date_begin');
         $tbl->setNamesColumns(array('name'=>'Название',
                                     'date_begin' => 'Статус'));
+        $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
     }
 

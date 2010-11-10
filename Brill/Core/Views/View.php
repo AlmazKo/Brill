@@ -28,11 +28,15 @@ class View {
        // $this->inputHeaders();
 
         $t = $this->context;
-        RunTimer::addTimer('Viewing');
-        RunTimer::addPoint('Viewing');
-        include $this->context->getTopTpl();
-        RunTimer::endPoint('Viewing');
-         $r = RegistryRequest::instance();
+        RunTimer::addTimer('Input');
+        RunTimer::addPoint('Input');
+        if (file_exists($this->context->getTopTpl())) {
+            include $this->context->getTopTpl();
+        } else {
+            Log::warning('Не найден файл шаблона ' . $this->context->getTopTpl());
+        }
+        
+        $r = RegistryRequest::instance();
 
          if ($r->isAjax()) {
              echo '<br />' . Log::viewLog();

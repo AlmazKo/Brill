@@ -22,11 +22,15 @@ class oList implements ISorting {
     public function setSelected ($array = array()) {
         $this->selected = $array;
     }
-    function __construct(array $data) {
+    function __construct(array $data, array $default = array()) {
         $list = array();
-         foreach ($data as $value) {
+        foreach ($data as $value) {
             $list[$value[0]] = $value[1];
         }
+        if ($default) {
+            $list[key($default)] = current($default);
+        }
+        asort($list);
         $this->values = $list;
     }
     public function getArray () {
@@ -48,7 +52,8 @@ class oList implements ISorting {
         }
     }
 
-    public function BuildHtmlSelect ($html = "<select>") {
+    public function buildHtmlSelect ($idCss = false, $classCss = false) {
+        $html = '<select ' . ($idCss ? 'name="'.$idCss.'" id="'.$idCss.'" ' : '').($classCss ? 'class="'.$classCss.'" ' : '').'>';
         foreach ($this->values as $key => $value) {
             $selected = "";
             if (in_array($key, $this->selected)) {

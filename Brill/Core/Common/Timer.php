@@ -23,7 +23,7 @@ class Timer {
             $this->_datepoint = microtime(true);
             return true;
         } else {
-            Log::notice('Для таймера ' . $nameTimer . ' уже создана начальная точка');
+            Log::notice('Для таймера  уже создана начальная точка');
             return;
         }
     }
@@ -34,7 +34,7 @@ class Timer {
      */
     public  function endPoint(){
         if ($this->_datepoint === null) {
-            Log::warning('Для таймера ' . $nameTimer . ' не была создана начальная точка');
+            Log::warning('Для таймера  не была создана начальная точка');
             return 0;
         } else {
             $current_runtime = microtime(true) - $this->_datepoint;
