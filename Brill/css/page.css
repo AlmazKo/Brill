@@ -201,3 +201,14 @@ form .form_field_error{
 #page_menu a:link {
    color: #0771be;
 }
+
+#page_menu li b {
+    display: none;
+    position: absolute;
+}
+#page_menu li b img {
+    margin-top: 2px;
+    margin-left: 5px;
+    border:0;
+}
+

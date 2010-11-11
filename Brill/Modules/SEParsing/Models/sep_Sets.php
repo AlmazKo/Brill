@@ -4,7 +4,7 @@
  *
  */
 class sep_Sets extends Model {
-    protected $tbl_name = 'sep_sets';
+    protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',
         'name',

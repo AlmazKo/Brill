@@ -99,27 +99,35 @@ class RegistryRequest extends Registry{
            $this->_requestUri = $string;
         }
     }
-    /**
-     * расширенная версия get. позволяющая работать с массивами
-     * @param <type> $key
-     * @param <type> $key2
-     * @return <type>
-     */
-    public function get($key, $key2 = null) {
-        if (isset($this->values[$key])) {
-            if ($key2 !== null) {
-                if (isset($this->values[$key][$key2])) {
-                    return $this->values[$key][$key2];
-                } else {
-                     Log::warning("[$key]['$key2'] нет такого свойства");
-                }
+//    /**
+//     * расширенная версия get. позволяющая работать с массивами
+//     * @param <type> $key
+//     * @param <type> $key2
+//     * @return <type>
+//     */
+//    public function get($key, $key2 = null) {
+//        if (isset($this->values[$key])) {
+//            if ($key2 !== null) {
+//                if (isset($this->values[$key][$key2])) {
+//                    return $this->values[$key][$key2];
+//                } else {
+//                     Log::warning("[$key]['$key2'] нет такого свойства");
+//                }
+//
+//            } else {
+//                return $this->values[$key];
+//            }
+//
+//        } else {
+//            Log::warning("'$key' нет такого свойства");
+//        }
+//    }
 
-            } else {
-                return $this->values[$key];
-            }
-            
+    public function get($key, $defaultValue = null) {
+        if (isset($this->values[$key])) {
+            return $this->values[$key];
         } else {
-            Log::warning("'$key' нет такого свойства");
+            return $defaultValue;
         }
     }
 
