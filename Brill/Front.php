@@ -10,7 +10,6 @@
  * @author almaz
  */
 
-
 require 'Config.php';
 
 

@@ -17,6 +17,7 @@ abstract class Modules {
     protected $pathModels = null;
     protected $pathActions = null;
     protected $pathViews = null;
+    protected $pathLibs = null;
     protected $requiredModules = array ();
 
     public static function init() {
@@ -37,6 +38,7 @@ abstract class Modules {
         $this->pathModels = $this->pathModule . General::NAME_DIR_MODELS.'/';
         $this->pathActions = $this->pathModule . General::NAME_DIR_ACTIONS.'/';
         $this->pathViews = $this->pathModule . General::NAME_DIR_VIEWS.'/';
+        $this->pathLibs = $this->pathModule . General::NAME_DIR_LIBS.'/';
         $this->configure();
     }
 

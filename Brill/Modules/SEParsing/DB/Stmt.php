@@ -24,9 +24,9 @@ left join `sep_thematics` as t on (t.id=k.thematic_id)
 left join `sep_sets` as s on (s.id=k.set_id)";
 
 // получить все ключевики кокретной тематики
-const ALL_KEYWORDS_THEMATIC = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `Keywords` as k
-left join Thematics as t on (t.id=k.thematic_id)
-left join `Sets` as s on (s.id=k.set_id)
+const ALL_KEYWORDS_THEMATIC = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `sep_keywords` as k
+left join `sep_thematics` as t on (t.id=k.thematic_id)
+left join `sep_sets` as s on (s.id=k.set_id)
 where t.id=#t_id#";
 
 const URLS_AND_POS_FOR_SET = "SELECT k.id AS k_id, k.name as k_name, st.id as set_id, s.id AS site_id, s.name, p.pos, u.url, p.pos_dot
@@ -46,7 +46,7 @@ join sep_urls as u on (u.id=p.url_id)
 WHERE keyword_id=#keyword_id#"; // and to_days(p.date) = to_days(now())-1
 
 // получить все тематики
-const ALL_THEMATICS = "SELECT id, name FROM `Thematics`";
+const ALL_THEMATICS = "SELECT id, name FROM `sep_thematics`";
 
 // получить все сеты
 const ALL_SETS = "SELECT id, name FROM `Sets`";

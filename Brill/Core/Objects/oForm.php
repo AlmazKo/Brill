@@ -76,6 +76,9 @@ protected $enctype = 'multipart/form-data';
                 }
                 break;
             case 'select':
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label>';
+                $settings['data']->setChecking((array)$settings['value']);
+                $html .= $settings['data']->buildHtmlSelect($name);
                 break;
             case 'multiSelect':
                 break;
@@ -101,6 +104,7 @@ protected $enctype = 'multipart/form-data';
      * @param <type> $data
      */
     public function fill($data) {
+        Log::dump($data);
         foreach ($this->fields as $name => $settings) {
             if (isset($data[$name])) {
                 $this->fields[$name]['value'] = $data[$name];

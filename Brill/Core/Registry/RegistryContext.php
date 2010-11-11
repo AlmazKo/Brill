@@ -46,7 +46,11 @@ class RegistryContext extends Registry {
 
     }
 
-
+    public function del($field) {
+        if (self::is($field)) {
+            unset($this->values[$field]);
+        }
+    }
 
    public function getTpl($key) {
         if (isset($this->tpls[$key])) {

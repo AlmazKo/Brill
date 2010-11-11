@@ -12,9 +12,24 @@ class aSubscribe extends Action{
 
     protected function configure() {
         require_once $this->module->pathModels . 'as_Sites.php';
-        include_once $this->module->pathModels . 'as_Subscribes.php';
+        require_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
+
+
+        require_once $this->module->pathLibs . 'AS_xmlMapper.php';
+        require_once $this->module->pathModule . 'UserData.php';
+        require_once $this->module->pathModule . 'UserDataProject.php';
+        require_once $this->module->pathModule . 'Strategy.php';
+        require_once $this->module->pathModule . 'AS_Bot.php';
+
+
+
+
+
+
+
+
         $this->context->setTopTpl('subscribe_start_html');
     }
     /**
@@ -23,7 +38,7 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_Add($context) {
+    protected function act_Add() {
         $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $form = new oForm($fields);
         $this->context->set('form', $form);
@@ -46,7 +61,7 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_SelectSite($context) {
+    protected function act_SelectSite() {
         $sites = new as_Sites;
         $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArray('config_status', 'Yes')));
@@ -73,7 +88,7 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_FillForm($context) {
+    protected function act_FillForm() {
         $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
         $this->context->set('form', $form);
         $this->context->set('info_text', 'Внимательно заполните форму');
@@ -95,13 +110,15 @@ class aSubscribe extends Action{
      * Wizzard создания новой рассылки
      * @param RegistryContext $context
      */
-    public function act_Start($context) {
-        if ($this->request->isAjax()) {
-           $this->context->setTopTpl('subscribe_start_html');
-        } else {
-            $this->_parent();
-            $this->context->setTpl('content', 'subscribe_start_html');
-        }
+    public function act_Start() {
+//        if ($this->request->isAjax()) {
+//           $this->context->setTopTpl('subscribe_start_html');
+//        } else {
+//            $this->_parent();
+//            $this->context->setTpl('content', 'subscribe_start_html');
+//        }
+
+         $this->context->setTopTpl('subscribe_start_html');
         $step = $this->request->is('step') ? (int) $this->request->get('step') : 0;
 
         switch ($step) {
@@ -135,7 +152,7 @@ class aSubscribe extends Action{
     /**
      * выводит список всех созданных рассылок
      */
-    public function act_List($context) {
+    public function act_List() {
 
         if ($this->request->isAjax()) {
            $this->context->setTopTpl('subscribes_html');
@@ -148,6 +165,7 @@ class aSubscribe extends Action{
         $tbl->viewColumns('name', 'date_begin');
         $tbl->setNamesColumns(array('name'=>'Название',
                                     'date_begin' => 'Статус'));
+        $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
     }
 
@@ -186,7 +204,68 @@ class aSubscribe extends Action{
 
 
 
-//    public function act_Run() {
+    public function act_Run() {
+        if ($this->request->isAjax()) {
+           $this->context->setTopTpl('run_html');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'run_html');
+        }
+
+
+        //$this->context->set('h1','123123');
+        $site = new as_Sites();
+        $site->getObject(26);
+        //Log::dump($site);
+        $pathFileRule = $this->module->pathModule . "rules/" . preg_replace('|^(.+)\.[a-zA-Z0-9\-_]+$|Uis','$1',$site->host) . '.xml';
+//        $this->context->set('content', $content);
+
+
+        $obj_UserDataProject = new UserDataProject();
+
+        $obj_Strategy = new Strategy($obj_UserDataProject, $pathFileRule);
+
+        $content = '';
+        $k = 0;
+        while (($obj_Strategy->end == 'NO')||(empty($obj_Strategy->end))){
+            //если мы имеем что-то присланное от пользователя, то смотрим что имеем, пишем
+/*
+            if ($this->user_send){
+                $this->data = $this->user_send;
+            }
+ *
+ */
+            //нам нужно общаться со стратегией сообщая заполненные пользователем нулевые поля
+            $content = $obj_Strategy->work($content);
+            //если у нас есть что-то для отображения, то отображаем, если нет, то пусть дальше работает
+            if ($content){
+                //$content = $this->data;
+                //$obj_View->Print_RData($this->data);
+                //$obj_View->UserFormProject();
+                //die();
+                //echo $this->data . "<br />";
+            };
+            if ($obj_Strategy->end == 'NO'){
+                //если правило которое мы выполняли - с ошибкой,то нужно предложить пользователю попробывать снова
+                //или отказаться
+                //die('pravilo vipolneno s oshibkoi');
+                //$obj_View->FormRepeat();
+                $content = 'типа хуй';
+                break;
+            }
+
+            if ($k == 10){
+                die('diiiiieeeee LIMIT 10');
+            };
+            $k++;
+        }
+       $this->context->set('content', $content);
+
+
+
+
+
+
 //        $site = new as_Sites();
 //        $site->getObject($this->request->get('id'));
 //        $strategy = new Strategy($site, $user);
@@ -264,7 +343,8 @@ class aSubscribe extends Action{
 //            $k++;
 //        }
 //        $obj_View->PrintData();
-//    }
+
+    }
 
 
 

@@ -1,3 +1,2 @@
-<?php
-echo $t->get('table')->build('keywords', 'table');
-?>
+<h1><?=$t->h1?></h1>
+<?=$t->get('tbl')->build('keywords', 'table');?>

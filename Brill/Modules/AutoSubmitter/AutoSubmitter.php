@@ -12,6 +12,7 @@ class AutoSubmitter extends Modules {
     protected $pathModels = null;
     protected $pathActions = null;
     protected $pathViews = null;
+    protected $pathLib = null;
 
     protected function configure() {}
 
