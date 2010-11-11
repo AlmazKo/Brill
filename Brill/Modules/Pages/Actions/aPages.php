@@ -12,7 +12,7 @@ class aPages extends Action {
 
     protected function configure() {
         require_once $this->module->pathModels .'mPages.php';
-        require_once $this->module->pathViews .'vPages.php'; 
+      #  require_once $this->module->pathViews .'vPages.php';
         $this->_parent();
     }
     
@@ -60,10 +60,4 @@ class aPages extends Action {
 
     }
 
-    /*
-     * Отдаем родителю нашу вьюшку
-     */
-    protected function initView() {
-        return new vPages(RegistryContext::instance());
-     }
 }

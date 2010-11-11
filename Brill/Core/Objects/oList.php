@@ -52,6 +52,23 @@ class oList implements ISorting {
         }
     }
 
+    /**
+     * Задаем массив значений значения
+     * @param array $value 
+     */
+    public function setChecking(array $value) {
+        $this->selected = $value;
+        if (count($this->selected) > 1) {
+            $this->multi = true;
+        }
+    }
+    /**
+     * Возвращает отмеченные значения
+     * @return <type>
+     */
+    public function getChecking() {
+        return $this->selected;
+    }
     public function buildHtmlSelect ($idCss = false, $classCss = false) {
         $html = '<select ' . ($idCss ? 'name="'.$idCss.'" id="'.$idCss.'" ' : '').($classCss ? 'class="'.$classCss.'" ' : '').'>';
         foreach ($this->values as $key => $value) {

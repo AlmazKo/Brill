@@ -111,12 +111,14 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      */
     public function act_Start() {
-        if ($this->request->isAjax()) {
-           $this->context->setTopTpl('subscribe_start_html');
-        } else {
-            $this->_parent();
-            $this->context->setTpl('content', 'subscribe_start_html');
-        }
+//        if ($this->request->isAjax()) {
+//           $this->context->setTopTpl('subscribe_start_html');
+//        } else {
+//            $this->_parent();
+//            $this->context->setTpl('content', 'subscribe_start_html');
+//        }
+
+         $this->context->setTopTpl('subscribe_start_html');
         $step = $this->request->is('step') ? (int) $this->request->get('step') : 0;
 
         switch ($step) {

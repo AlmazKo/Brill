@@ -12,6 +12,7 @@ class aKeywords extends Action {
     protected function configure() {
         require_once $this->module->pathModels . 'sep_Keywords.php';
         require_once $this->module->pathModels . 'sep_Thematics.php';
+        require_once $this->module->pathModels . 'sep_Sets.php';
         require_once MODULES_PATH . 'SEParsing/DB/Stmt.php';
     }
 
@@ -125,7 +126,7 @@ class aKeywords extends Action {
         ));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
         $tbl->addRulesView('set', '<a href="newindex.php?view=sites&set_id=#s_id#">#set#</a>');
-        $this->context->set('table', $tbl);
+        $this->context->set('tbl', $tbl);
     }
     public function act_View() {
         if ($this->request->isAjax()) {
@@ -170,37 +171,43 @@ class aKeywords extends Action {
         $sqlT = Stmt::getSql('ALL_THEMATICS');
         $listThematics = new oList(DBExt::selectToList($sqlT. ' order by name ASC'), array(0 => ''));
 
-        $fields['thematics'] = array('title' => 'Тематика', 'value' => $listThematics, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['thematics'] = array('title' => 'Тематика', 'value' => '', 'data' => $listThematics, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['set'] = array('title' => 'Сет', 'value' => '', 'type'=>'textarea', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['keywords'] = array('title' => 'Ключевик(и)', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => 'rows="10"', $checked = array());
         $form = new oForm($fields);
         $this->context->set('form', $form);
-        if ($this->request->is('keywords')) {
+        if ($this->request->is('POST')) {
             $form->fill($this->request->get('POST'));
             if ($form->isComplited()) {
 
-                $kw = explode("\n", $request->get('keywords_text'));
+                $kw = explode("\n", $this->request->get('keywords'));
                 $k = new sep_Keywords();
 
-                if ($request->is('thematic_id')) {
-                    $k->thematic_id = (int) $this->request->get('thematic_id');
+                if ($this->request->is('thematic')) {
+                    $thematic = new sep_Thematics();
+                    $thematic->getObject((int)$this->request->get('thematic'));
+                    $k->thematic_id = $thematic->id;
                 }
-                if ($request->is('name_set') && trim($request->get('name_set'))) {
-                    $set = new Sets();
-                    if (!$set->getObject($request->get('name_set'))) {
-                       $set->name = $request->get('name_set');
-                       $set->id = $set->add();
+                if ($this->request->is('set') && trim($this->request->get('set'))) {
+                    $row = DBExt::getOneRow('sep_sets', 'name', trim($this->request->is('set')));
+                    if (isset($row)) {
+                        $k->set_id = $row['id'];
+                    } else {
+                        $set = new sep_Sets();
+                        $set->name = trim($this->request->is('set'));
+                        $set->save();
+                        $k_set_id = $set->id;
                     }
-                    $k->set_id = $set->id;
                 }
                 $k->region_id = 213;
                 foreach ($kw as $v) {
                     if(trim($v)) {
                      $k->name = trim($v);
-                     $k->add();
+                     $k->save();
                     }
                 }
-                $context->set('result', "Чтото добавляется");
-                $context->set('form', false);
+                $this->context->set('result', "Чтото добавляется");
+                $this->context->set('form', null);
 
             }
 
