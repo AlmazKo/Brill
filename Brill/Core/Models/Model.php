@@ -93,7 +93,7 @@ abstract class Model {
         // подумать, как от этого избавиться
         $valPk = addslashes($valPk);
         $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
-        if ($values) {
+        if (isset($values)) {
             $this->initData($values);
         } else {
             Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->fields[0] . '=' . $valPk);

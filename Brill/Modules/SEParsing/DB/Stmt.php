@@ -31,9 +31,10 @@ left join `sep_Thematics` as t on (t.id=k.thematic_id)
 left join `sep_Sets` as s on (s.id=k.set_id)
 where t.id=#t_id#";
 
-const ALL_KEYWORDS_SET = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `sep_Keywords` as k
+const ALL_KEYWORDS_SET = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set`, uk.url as k_url, uk.id as uk_id FROM `sep_Keywords` as k
 left join `sep_Sets` as s on (s.id=k.set_id)
 left join `sep_Thematics` as t on (t.id=k.thematic_id)
+left join `sep_UrlKeywords` as uk on (uk.id=k.url_id)
 where s.id=#s_id#";
 
 const URLS_AND_POS_FOR_SET = "SELECT k.id AS k_id, k.name as k_name, st.id as set_id, s.id AS site_id, s.name, p.pos, u.url, p.pos_dot

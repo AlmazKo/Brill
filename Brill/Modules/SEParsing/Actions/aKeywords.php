@@ -14,6 +14,7 @@ class aKeywords extends Action {
         require_once $this->module->pathModels . 'sep_Thematics.php';
         require_once $this->module->pathModels . 'sep_Sets.php';
         require_once $this->module->pathModels . 'sep_Regions.php';
+        require_once $this->module->pathModels . 'sep_UrlKeywords.php';
 
         require_once MODULES_PATH . 'SEParsing/DB/Stmt.php';
     }
@@ -58,7 +59,7 @@ class aKeywords extends Action {
         
         $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS_SET, array('s_id' => $id));
         $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
-        $tbl->viewColumns('name', 'thematic');
+        $tbl->viewColumns('name', 'thematic', 'k_url');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->setViewIterator(true);
         $this->context->set('h1', 'Все ключевые слова');
@@ -67,6 +68,7 @@ class aKeywords extends Action {
         $tbl->setNamesColumns(array(
             'name'=>'Ключевое слово',
             'thematic'=>'Тематика',
+            'k_url'=>'URL',
         ));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
         $tbl->addRulesView('thematic', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#t_id#">#thematic#</a>');
@@ -197,10 +199,11 @@ class aKeywords extends Action {
         $listRegions = new oList(DBExt::selectToList($sqlR. ' order by name ASC'));
 
         $fields['thematics'] = array('title' => 'Тематика', 'value' => '', 'data' => $listThematics, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['region'] = array('title' => 'Регион', 'value' => '', 'data' => $listRegions, 'type'=>'select', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['set'] = array('title' => 'Название сета', 'value' => '', 'type'=>'text', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['keywords'] = array('title' => 'Ключевик(и)', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => 'rows="10"', $checked = array());
         $fields['url'] = array('title' => 'Url', 'value' => '', 'type'=>'text', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['region'] = array('title' => 'Регион', 'value' => '', 'data' => $listRegions, 'type'=>'select', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        
         $form = new oForm($fields);
         $this->context->set('form', $form);
         if ($this->request->is('POST')) {
@@ -224,9 +227,18 @@ class aKeywords extends Action {
                         $k->set_id = $set->id;
                     }
                 }
-
+                if ($this->request->is('url') && trim($this->request->get('url'))) {
+                    $row = DBExt::getOneRow('sep_UrlKeywords', 'url', trim($this->request->get('url')));
+                    if (isset($row)) {
+                        $k->url_id = $row['id'];
+                    } else {
+                        $url = new sep_UrlKeywords();
+                        $url->url = trim($this->request->get('url'));
+                        $url->save();
+                        $k->url_id = $set->id;
+                    }
+                }
                 $k->region_id = $this->request->get('region', sep_Regions::ID_YANDEX_MOSCOW);
-                $k->url = $this->request->get('url', '');
                 foreach ($kw as $v) {
                     if(trim($v)) {
                         $k->name = trim($v);

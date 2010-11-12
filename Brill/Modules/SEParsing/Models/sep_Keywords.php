@@ -13,7 +13,7 @@ class sep_Keywords extends Model {
         'region_id',
         'set_id',
         'thematic_id',
-        'url',
+        'url_id',
         'yandex',
         'google',
         'rambler'
