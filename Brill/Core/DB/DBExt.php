@@ -65,7 +65,8 @@ class DBExt extends DB{
      * @return array
      */
     public static function getOneRow($tblName, $field, $value) {
-        $query = "select * from `$tblName` where $field=$value Limit 1";
+        $where = self::simpleWhere($field, $value);
+        $query = "select * from `$tblName` $where Limit 1";
         $result = parent::query($query);
         $values = null;
         if ($result->num_rows == 1) {

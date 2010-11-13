@@ -1,13 +1,15 @@
 <?php
 /**
- * Sites
+ * Urls
  *
  */
-class sep_Thematics extends Model {
+
+class sep_Urls extends Model {
     protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',
-        'name',
+        'url',
+        'site_id',
         'date',
     );
 }

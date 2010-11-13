@@ -35,7 +35,7 @@
             <ul>
             <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a></li>
             <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a></li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a><b><a href="<?=WEB_PREFIX?>SEParsing/Keywords/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b></li>
             </ul>
 
             </li>
@@ -52,9 +52,11 @@
 <script type="text/javascript">
 $(document).ready(function(){
     $('.yes').hover(function(e) {
-        $(this).css({'color':'red'})
+        $(this).css({'color':'red'});
+        $(this).children('b').css({'display': 'inline'});
     },function() {
-        $(this).css({'color':'#333'})
+        $(this).css({'color':'#333'});
+        $(this).children('b').hide();
     });
 
     $('#page_menu a').click(function() {

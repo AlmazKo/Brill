@@ -73,8 +73,10 @@ abstract class Model {
 
 
 
-    final function  __construct() {
-
+    final function  __construct($pk = null) {
+        if (isset($pk)) {
+            return $this->getObject($pk);
+        }
     }
 
     function  __destruct() {
@@ -91,7 +93,7 @@ abstract class Model {
         // подумать, как от этого избавиться
         $valPk = addslashes($valPk);
         $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
-        if ($values) {
+        if (isset($values)) {
             $this->initData($values);
         } else {
             Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->fields[0] . '=' . $valPk);
@@ -131,7 +133,16 @@ abstract class Model {
       unset($this->values[$this->fields[0]]);
       $this->calcCheckSum();
     }
-
+    
+    /**
+     * Сбрасывает у объекта его idшник
+     * следующий save добавит в базу новую запись
+     */
+    public function reset() {
+        if ($this->isPk) {
+            $this->values[$this->fields[0]] = null;
+        }
+    }
     /**
      * Получить массив значений таблицы объекта
      */
@@ -162,7 +173,7 @@ abstract class Model {
         } else {
             Log::warning('Объекты, которые не поддеживают первичный ключ - изменять нельзя');
         }
-        
+        return $this;
     }
 
     /**
@@ -185,7 +196,11 @@ abstract class Model {
     protected function initData($values) {
         //заполнение полей значениями
         foreach ($this->fields as $fld) {
-            $this->values[$fld] = $values[$fld];
+            if (isset($values[$fld])) {
+               $this->values[$fld] = $values[$fld];
+            } else {
+                Log::warning('Не найдено соответствие в базе полю ' .$fld );
+            }
         }
         $this->calcCheckSum();
     }

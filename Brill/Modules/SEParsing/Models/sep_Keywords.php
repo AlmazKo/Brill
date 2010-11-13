@@ -6,13 +6,14 @@
  */
 
 class sep_Keywords extends Model {
-    protected $tbl_name = 'sep_keywords';
+    protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',
         'name',
         'region_id',
         'set_id',
         'thematic_id',
+        'url_id',
         'yandex',
         'google',
         'rambler'

@@ -58,10 +58,10 @@ protected $enctype = 'multipart/form-data';
         $html = '<p>';
         switch ($settings['type']) {
             case 'text':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['requried'] ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
                 break;
             case 'textarea':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['requried'] ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';
                 break;
             case 'enum':
                 $html .= '<span>' . $settings['title'] . '</span>';
@@ -76,7 +76,7 @@ protected $enctype = 'multipart/form-data';
                 }
                 break;
             case 'select':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['requried']) ? '*' : '') . ': </label>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['requried'] ? '*' : '') . ': </label>';
                 $settings['data']->setChecking((array)$settings['value']);
                 $html .= $settings['data']->buildHtmlSelect($name);
                 break;
@@ -104,7 +104,6 @@ protected $enctype = 'multipart/form-data';
      * @param <type> $data
      */
     public function fill($data) {
-        Log::dump($data);
         foreach ($this->fields as $name => $settings) {
             if (isset($data[$name])) {
                 $this->fields[$name]['value'] = $data[$name];

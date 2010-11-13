@@ -68,7 +68,8 @@ class Log {
         $b = debug_backtrace();
         $text .= "\n" . $b[1]['file'] . ':' . $b[1]['line'];
         self::inputLog('Warning', $text, $block, 'red', 'error');
-        RegistryContext::instance()->set('error', self::viewLog());
+       ## TODO  должна обрабатываться или та строка или нижняя
+       //  RegistryContext::instance()->set('error', self::viewLog());
         echo self::viewLog();
         die();
     }

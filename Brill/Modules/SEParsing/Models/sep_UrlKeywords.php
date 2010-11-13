@@ -1,13 +1,15 @@
 <?php
 /**
- * Sites
+ * Urls
  *
  */
-class sep_Thematics extends Model {
+
+class sep_UrlKeywords extends Model {
     protected $tbl_name = __CLASS__;
     protected $fields = array (
         'id',
-        'name',
+        'url',
+        'keyword_id',
         'date',
     );
 }

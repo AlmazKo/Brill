@@ -13,13 +13,16 @@ class aKeywords extends Action {
         require_once $this->module->pathModels . 'sep_Keywords.php';
         require_once $this->module->pathModels . 'sep_Thematics.php';
         require_once $this->module->pathModels . 'sep_Sets.php';
+        require_once $this->module->pathModels . 'sep_Regions.php';
+        require_once $this->module->pathModels . 'sep_UrlKeywords.php';
+
         require_once MODULES_PATH . 'SEParsing/DB/Stmt.php';
     }
 
     protected function act_Thematic () {
         $this->context->setTpl('content', 'keywords_thematic_html');
         $id = (int) $this->request->get('thematic_id');
-        $sql = Stmt::getSql('ALL_KEYWORDS_THEMATIC', array('t_id' => $id));
+        $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS_THEMATIC, array('t_id' => $id));
         $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
         $tbl->viewColumns('name', 'set');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
@@ -32,7 +35,7 @@ class aKeywords extends Action {
             'set'=>'Сет слов',
         ));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
-        $tbl->addRulesView('set', '<a href="newindex.php?view=sites&set_id=#s_id#">#set#</a>');
+        $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#">#set#</a>');
         $this->context->set('h1', 'Ключевики по тематике');
         $thematic = new sep_Thematics();
         $thematic->getObject($id);
@@ -51,12 +54,34 @@ class aKeywords extends Action {
  *
  */
     protected function act_Set () {
-        #$setId = $this->request->
+        $this->context->setTpl('content', 'keywords_set_html');
+        $id = (int) $this->request->get('set_id');
+        
+        $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS_SET, array('s_id' => $id));
+        $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
+        $tbl->viewColumns('name', 'thematic', 'k_url');
+        $tbl->sort(Navigation::get('field'), Navigation::get('order'));
+        $tbl->setViewIterator(true);
+        $this->context->set('h1', 'Все ключевые слова');
+        $this->context->set('title', 'Ключевики');
+
+        $tbl->setNamesColumns(array(
+            'name'=>'Ключевое слово',
+            'thematic'=>'Тематика',
+            'k_url'=>'URL',
+        ));
+        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
+        $tbl->addRulesView('thematic', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#t_id#">#thematic#</a>');
+        $this->context->set('h1', 'Ключевики сета');
+        $set = new sep_Sets($id);
+        $this->context->set('set', $set->name);
+        $this->context->set('table', $tbl);
+        $this->context->set('title', 'Ключевики');
     }
     protected function act_Pos () {
         $this->context->setTpl('content', 'keywords_pos_html');
         $id = (int) $this->request->get('id');
-        $sql = Stmt::getSql('URLS_AND_POS_FOR_KEYWORD', array('keyword_id' => $id));
+        $sql = Stmt::prepareSql(Stmt::URLS_AND_POS_FOR_KEYWORD, array('keyword_id' => $id));
 
         $tbl = new oTable(DBExt::selectToTable($sql. ' order by pos_dot DESC'));
         $tbl->addCol('newCol');
@@ -108,7 +133,7 @@ class aKeywords extends Action {
 
 
     protected function act_All () {
-        $sql = Stmt::getSql('ALL_KEYWORDS');
+        $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS);
         $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
         $tbl->viewColumns('name', 'yandex', 'set', 'thematic');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
@@ -125,7 +150,7 @@ class aKeywords extends Action {
             'thematic'=>'Тематика',
         ));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
-        $tbl->addRulesView('set', '<a href="newindex.php?view=sites&set_id=#s_id#">#set#</a>');
+        $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#">#set#</a>');
         $this->context->set('tbl', $tbl);
     }
     public function act_View() {
@@ -168,12 +193,17 @@ class aKeywords extends Action {
             $this->context->setTpl('content', 'keywords_add');
         }
 
-        $sqlT = Stmt::getSql('ALL_THEMATICS');
-        $listThematics = new oList(DBExt::selectToList($sqlT. ' order by name ASC'), array(0 => ''));
+        $sqlT = Stmt::prepareSql(Stmt::ALL_THEMATICS);
+        $sqlR = Stmt::prepareSql(Stmt::ALL_REGIONS);
+        $listThematics = new oList(DBExt::selectToList($sqlT. ' order by name ASC'));
+        $listRegions = new oList(DBExt::selectToList($sqlR. ' order by name ASC'));
 
         $fields['thematics'] = array('title' => 'Тематика', 'value' => '', 'data' => $listThematics, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['set'] = array('title' => 'Сет', 'value' => '', 'type'=>'textarea', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['region'] = array('title' => 'Регион', 'value' => '', 'data' => $listRegions, 'type'=>'select', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['set'] = array('title' => 'Название сета', 'value' => '', 'type'=>'text', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['keywords'] = array('title' => 'Ключевик(и)', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => 'rows="10"', $checked = array());
+        $fields['url'] = array('title' => 'Url', 'value' => '', 'type'=>'text', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        
         $form = new oForm($fields);
         $this->context->set('form', $form);
         if ($this->request->is('POST')) {
@@ -182,37 +212,43 @@ class aKeywords extends Action {
 
                 $kw = explode("\n", $this->request->get('keywords'));
                 $k = new sep_Keywords();
-
                 if ($this->request->is('thematic')) {
-                    $thematic = new sep_Thematics();
-                    $thematic->getObject((int)$this->request->get('thematic'));
+                    $thematic = new sep_Thematics((int)$this->request->get('thematic'));
                     $k->thematic_id = $thematic->id;
                 }
                 if ($this->request->is('set') && trim($this->request->get('set'))) {
-                    $row = DBExt::getOneRow('sep_sets', 'name', trim($this->request->is('set')));
+                    $row = DBExt::getOneRow('sep_Sets', 'name', trim($this->request->get('set')));
                     if (isset($row)) {
                         $k->set_id = $row['id'];
                     } else {
                         $set = new sep_Sets();
-                        $set->name = trim($this->request->is('set'));
+                        $set->name = trim($this->request->get('set'));
                         $set->save();
-                        $k_set_id = $set->id;
+                        $k->set_id = $set->id;
                     }
                 }
-                $k->region_id = 213;
+                if ($this->request->is('url') && trim($this->request->get('url'))) {
+                    $row = DBExt::getOneRow('sep_UrlKeywords', 'url', trim($this->request->get('url')));
+                    if (isset($row)) {
+                        $k->url_id = $row['id'];
+                    } else {
+                        $url = new sep_UrlKeywords();
+                        $url->url = trim($this->request->get('url'));
+                        $url->save();
+                        $k->url_id = $set->id;
+                    }
+                }
+                $k->region_id = $this->request->get('region', sep_Regions::ID_YANDEX_MOSCOW);
                 foreach ($kw as $v) {
                     if(trim($v)) {
-                     $k->name = trim($v);
-                     $k->save();
+                        $k->name = trim($v);
+                        $k->save()->reset();
                     }
                 }
                 $this->context->set('result', "Чтото добавляется");
                 $this->context->set('form', null);
-
             }
-
         }
-
         $this->context->set('tpl', 'Keywords_add.tpl');
         $this->context->set('h1', 'Добавление ключевых слов');
         $this->context->set('title', 'Добавление ключевых слов');
