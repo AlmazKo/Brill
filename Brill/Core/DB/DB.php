@@ -17,13 +17,13 @@ Class DB {
     final private static function connector($config){
         $lnk = null;
         $lnk = @new mysqli($config[0], $config[1], $config[2], $config[3]);
-        if ($lnk->connect_errno) {
-            LogMysql::errorQuery("Подключение к серверу MySQL невозможно / ".$lnk->connect_error);
+        if (mysqli_connect_errno()) {
+            LogMysql::errorQuery("Подключение к серверу MySQL невозможно / " . mysqli_connect_error());
             $lnk = null;
             die();
         }
         if (!$lnk->set_charset('utf8')) {
-            Log::warning("Error loading character set utf8: %s", $lnk->error);
+            Log::warning("Error loading character set utf8: %s", mysqli_connect_error());
         }
         return $lnk;
     }

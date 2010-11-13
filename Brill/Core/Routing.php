@@ -64,7 +64,7 @@ class Routing {
         if (WEB_PREFIX == '/') {
             $stdRule = '/(\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
         } else {
-            $stdRule = '/\/(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
+            $stdRule = '/\/(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
         }
          if (preg_match($stdRule, $uri, $m)) {
             $this->site = $_SERVER['HTTP_HOST'];
