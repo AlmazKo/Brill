@@ -153,7 +153,7 @@ abstract class Model {
     /**
      * Вставляет данные в базу
      */
-    function add () {
+    protected function add () {
         $this->calcCheckSum();
         $this->values[$this->fields[0]] = DBExt::insertOne($this->tbl_name, $this->values);
 
