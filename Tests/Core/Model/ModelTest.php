@@ -16,7 +16,6 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 //     * dataProvider providerInitData
 //     */
 //    public function testInitData($data) {
-//
 //    }
 
 
