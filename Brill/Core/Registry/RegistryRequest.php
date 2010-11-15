@@ -9,7 +9,6 @@
  *
  * @author asuslov
  */
-require_once 'Registry.php';
 
 class RegistryRequest extends Registry{
     protected $_isAjax = null;

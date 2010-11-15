@@ -9,7 +9,6 @@
  *
  * @author asuslov
  */
-require_once 'Registry.php';
 
 class RegistrySession extends Registry{
 

@@ -11,12 +11,12 @@ class Auth extends Modules {
     protected $version = 1;
     protected $prefix = "au_";
     protected $name = __CLASS__;
-    protected $defaultAction = 'Auth';
-    protected $pathModels = null;
-    protected $pathActions = null;
-    protected $pathViews = null;
+    protected $defaultAction = 'Registration';
 
-    protected function configure() {}
+    protected function configure() {
+        require_once $this->pathLibs . 'UserLib.php';
+        General::$libs['UserLib'] = new UserLib();
+    }
 
     public  static function instance() {
         if (self::$instance === null) {
@@ -25,5 +25,3 @@ class Auth extends Modules {
         return self::$instance;
     }
 }
-
-

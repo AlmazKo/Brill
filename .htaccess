@@ -1,6 +1,7 @@
 RewriteEngine on
-RewriteCond %{REQUEST_URI} !^/serp_parser/index.php
-RewriteCond %{REQUEST_URI} !^/serp_parser/Brill/css
-RewriteCond %{REQUEST_URI} !^/serp_parser/Brill/img
-RewriteCond %{REQUEST_URI} !^/serp_parser/Brill/js
-RewriteRule ^(.*)$ /serp_parser/index.php [L]
+RewriteCond %{REQUEST_URI} !^/ba/Brill/static
+RewriteCond %{REQUEST_URI} !^/ba/index.php
+RewriteCond %{REQUEST_URI} !^/ba/Brill/css
+RewriteCond %{REQUEST_URI} !^/ba/Brill/img
+RewriteCond %{REQUEST_URI} !^/ba/Brill/js
+RewriteRule ^(.*)$ /ba/index.php [L]

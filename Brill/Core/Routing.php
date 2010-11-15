@@ -151,7 +151,7 @@ class Routing {
         if (is_array($url)) {
             $url = self::constructUrl($url);
         }
-        header('Location: ' . $url);
+        header('Location: ' . WEB_PREFIX . $url);
         die();
     }
 }

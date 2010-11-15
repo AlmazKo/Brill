@@ -10,19 +10,19 @@
  * @author almaz
  */
 
-require_once 'Registry.php';
 class RegistryContext extends Registry {
     protected $tpls = array();
     protected $_topTpl;
     protected static $instance = null;
-    final public  static function instance() {
+
+    public  static function instance() {
         if (self::$instance === null) {
            self::$instance = new self();
         }
         return self::$instance;
     }
 
-    function  __construct() {
+    protected function  __construct() {
 
     }
 
@@ -37,18 +37,18 @@ class RegistryContext extends Registry {
         }
     }
 
-    function  __get($field) {
-        if (array_key_exists($field, $this->values)) {
-             return $this->values[$field];
+    function  __get($key) {
+        if (array_key_exists($key, $this->values)) {
+             return $this->values[$key];
         } else {
-            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
+            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $key . ' - не определено');
         }
 
     }
 
-    public function del($field) {
-        if (self::is($field)) {
-            unset($this->values[$field]);
+    public function del($key) {
+        if (self::is($key)) {
+            unset($this->values[$key]);
         }
     }
 

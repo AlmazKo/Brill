@@ -9,6 +9,8 @@
  *
  * @author Alexander
  */
+include_once 'ActionWrapContext.php';
+
 abstract class Action {
     //ссылка на родительскую конфигурацию
     public $module;
@@ -73,18 +75,18 @@ abstract class Action {
     abstract protected function configure();
 
     final public function  __construct($module, $act, $isInternal = false) {
-        
+
         $this->module = $module;
         $this->act = $act;
         $this->isInternal = $isInternal;
         $this->request = RegistryRequest::instance();
         $this->context = RegistryContext::instance();
+
         $this->configure();
         $this->session = RegistrySession::instance();
 
-        /**
-         * СДелать! Проверка подсасывающихся модулей, и их запуск
-         */
+        //срабатывание эвента EVENT_INIT_ACTION
+        General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION);
     }
 
     public function input() {

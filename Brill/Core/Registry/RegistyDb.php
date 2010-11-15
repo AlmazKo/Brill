@@ -10,7 +10,6 @@
  * @author almaz
  */
 
-require_once 'Registry.php';
 class RegistryDb extends Registry {
 
     protected static $instance = null;

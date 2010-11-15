@@ -9,7 +9,6 @@
  *
  * @author asuslov
  */
-require_once 'Registry.php';
 
 class RegistryParser extends Registry{
 
@@ -21,10 +20,10 @@ class RegistryParser extends Registry{
         return self::$instance;
     }
     protected function  __construct() {
-        $this->set('ip', null); //текущий значит
+        $this->set('ip', null); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         $this->set('path_to_cookies', DIR_PATH . '/tmp/cookies');
         $this->set('_get', '');
-        $this->set('_post', null); //post не отправляется
+        $this->set('_post', null); //post пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
 
 

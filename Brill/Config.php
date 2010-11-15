@@ -37,11 +37,13 @@ require_once CORE_PATH . 'Common/Encoding.php';
 require_once CORE_PATH . 'Common/StringUtf8.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';
+require_once 'Registry.php';
 require_once 'RegistrySession.php';
 require_once 'RegistryRequest.php';
 require_once 'RegistryContext.php';
 require_once 'RegistryDb.php';
 require_once CORE_PATH . 'DB/DBExt.php';
+require_once CORE_PATH . 'Lib.php';
 require_once CORE_PATH . 'Actions/Action.php';
 require_once CORE_PATH . 'Models/Model.php';
 require_once CORE_PATH . 'Views/View.php';
@@ -62,7 +64,7 @@ require_once 'DBCheckingInterface.php';
 require_once 'Front.php';
 require_once 'DB.php';
 require_once DIR_PATH . '/Lang/ru/texts.php';
- * 
+ *
  */
 
 require_once 'RegistryRequest.php';
@@ -86,4 +88,3 @@ General::$defaultModule = 'Pages';
 
 
 #DB::query("");
-
