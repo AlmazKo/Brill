@@ -10,8 +10,8 @@
  * @author almaz
  */
 
-require 'Config.php';
-
+require 'сonfig.php';
+require 'Init.php';
 
 class Front {
 
