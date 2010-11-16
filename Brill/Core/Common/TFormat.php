@@ -144,5 +144,9 @@ class TFormat {
       return $code;
     }
 
+    public static function winTextToLinux($text, $charset = ENCODING_CODE) {
+        return str_replace("\r\n", "\n", $text);
+    }
+
 }
 

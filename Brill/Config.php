@@ -22,6 +22,7 @@ define ('WEB_PREFIX', '/ba/');
 define ('USE_CACHE', false);
 $dirs [] = '.';
 $dirs [] = DIR_PATH . '/Common';
+define  ('ENCODING_CODE', 'utf-8');
 //$dirs [] = DIR_PATH . '/DB';
 //$dirs [] = DIR_PATH . '/Interfaces';
 //$dirs [] = DIR_PATH . '/Commands';

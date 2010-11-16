@@ -17,6 +17,7 @@ class RegistryRequest extends Registry{
     protected $_requestUriWithoutModule;
     protected $nav = array();
     protected $search = array();
+    protected $_isConsole = null;
 
     protected static $instance = null;
     final public  static function instance() {
@@ -30,6 +31,7 @@ class RegistryRequest extends Registry{
      */
     protected function __construct() {
         if (isset($_SERVER['REQUEST_METHOD'])) {
+            $this->_isConsole = false;
             foreach ($_REQUEST as $key => $val) {
 
             $this->set($key, $val);
@@ -57,6 +59,7 @@ class RegistryRequest extends Registry{
             $this->HTTP_X_REQUESTED_WITH = isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? $_SERVER['HTTP_X_REQUESTED_WITH'] : null;
 
         } else if(isset($_SERVER['argv'])) {
+            $this->_isConsole = true;
             foreach ($_SERVER['argv'] as $arg) {
                 if (strpos($arg, '=')) {
                     list($key, $val) = explode("=", $arg);
@@ -64,6 +67,14 @@ class RegistryRequest extends Registry{
                 }
             }
         }
+    }
+
+    /**
+     * возвращает истину, если было вызвано из консоли
+     * @return bool
+     */
+    public function isConsole() {
+        return $this->_isConsole;
     }
 
     /*

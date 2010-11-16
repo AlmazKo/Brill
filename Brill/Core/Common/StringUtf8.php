@@ -304,5 +304,20 @@ class StringUtf8 {
         }
         return Encoding::utf8_from_unicode($uni);
     }
+
+
+    /**
+     * UTF-8 aware substr_replace.
+     * Note: requires utf8_substr to be loaded
+     */
+    function substr_replace($str, $repl, $start , $length = NULL ) {
+        preg_match_all('/./us', $str, $ar);
+        preg_match_all('/./us', $repl, $rar);
+        if (NULL === $length) {
+            $length = self::strlen($str);
+        }
+        array_splice($ar[0], $start, $length, $rar[0]);
+        return implode('', $ar[0]);
+    }
  }
 
