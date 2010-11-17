@@ -4,6 +4,6 @@
  *
  */
 
-require 'Brill/FrontDeamon.php';
+require 'Brill/FrontDaemon.php';
 
 FrontDeamon::run();

@@ -35,10 +35,11 @@ abstract class Modules {
     
     function  __construct() {
         $this->pathModule = MODULES_PATH . $this->name . '/';
-        $this->pathModels = $this->pathModule . General::NAME_DIR_MODELS.'/';
-        $this->pathActions = $this->pathModule . General::NAME_DIR_ACTIONS.'/';
-        $this->pathViews = $this->pathModule . General::NAME_DIR_VIEWS.'/';
-        $this->pathLibs = $this->pathModule . General::NAME_DIR_LIBS.'/';
+        $this->pathModels = $this->pathModule . General::NAME_DIR_MODELS .'/';
+        $this->pathActions = $this->pathModule . General::NAME_DIR_ACTIONS . '/';
+        $this->pathViews = $this->pathModule . General::NAME_DIR_VIEWS . '/';
+        $this->pathLib = $this->pathModule . General::NAME_DIR_LIB . '/';
+        $this->pathD = $this->pathD . General::NAME_DIR_DAEMONS . '/';
         $this->configure();
     }
 

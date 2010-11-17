@@ -13,7 +13,8 @@ class General {
         NAME_DIR_ACTIONS = 'Actions',
         NAME_DIR_VIEWS = 'Views',
         NAME_DIR_MODELS = 'Models',
-        NAME_DIR_LIBS = 'Libs',
+        NAME_DIR_LIB = 'Lib',
+        NAME_DIR_DAEMONS = 'Daemons',
         SITE_NAME = '';
 
     public static

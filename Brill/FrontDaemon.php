@@ -15,9 +15,16 @@
      *
      *
      */
+
+
+//Framework Initilization
+require 'Core/InitDaemon.php';
+//Current project settings
+require 'Config.php';
+
 class FrontDeamon {
     static function run() {
-        $instance = new Front();
+        $instance = new self();
         $instance->init();
         $instance->handleRequest();
     }
@@ -46,8 +53,8 @@ class FrontDeamon {
         
 //      $context = RegistryContext::instance();
         // фабрика демонов
-        $deamonR = new Underworld();
-        $deamon = $deamonR->summonDeamon($request);
-        $act->start();
+        $daemonR = new Underworld();
+        $daemon = $daemonR->summon();
+        $daemon->start();
     }
 }

@@ -17,7 +17,7 @@ class aSubscribe extends Action{
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
 
 
-        require_once $this->module->pathLibs . 'AS_xmlMapper.php';
+        require_once $this->module->pathLib . 'AS_xmlMapper.php';
         require_once $this->module->pathModule . 'UserData.php';
         require_once $this->module->pathModule . 'UserDataProject.php';
         require_once $this->module->pathModule . 'Strategy.php';

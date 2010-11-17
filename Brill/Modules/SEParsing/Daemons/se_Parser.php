@@ -5,15 +5,13 @@
  * @author almaz
  */
 
-abstract class se_Parser extends Daemons
+abstract class se_Parser extends Daemon
 {
-    protected $curl;
-    protected $curl_opt = array();
-    protected $count_request;
+    protected 
+        $_curl,
+        $_countRequests;
 
-    public function  __construct($settings) {
-        RunTimer::addTimer('Curl');
-    }
+    public function  __construct() {}
     /**
      *
      * Посылает запросы и по циклу проходит страницы
@@ -56,20 +54,19 @@ abstract class se_Parser extends Daemons
     }
 
     final protected function initCurl(){
-        $this->curl = curl_init ();
-        $this->curl_opt[CURLOPT_HEADER] = false;
-        $this->curl_opt[CURLOPT_RETURNTRANSFER] = true;
-        $this->curl_opt[CURLOPT_FOLLOWLOCATION] = false;
-        $this->curl_opt[CURLOPT_TIMEOUT] = 30;
+        $this->curl = new Curl();
+        $opt[CURLOPT_HEADER] = false;
+        $opt[CURLOPT_RETURNTRANSFER] = true;
+        $opt[CURLOPT_FOLLOWLOCATION] = false;
+        $opt[CURLOPT_TIMEOUT] = 30;
+        $this->curl->setOptArray($opt);
     }
 
 
     final function  __destruct() {
-            if($this->curl) curl_close ($this->curl);
-
-
+        if($this->curl) {
+            $this->curl->close();
+        }
     }
-
-    abstract public function start(RegistryParser $config);
 
 }

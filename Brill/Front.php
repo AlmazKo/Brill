@@ -10,8 +10,10 @@
  * @author almaz
  */
 
-require 'сonfig.php';
-require 'Init.php';
+//Framework Initilization
+require 'Core/Init.php';
+//Current project settings
+require 'Config.php';
 
 class Front {
 

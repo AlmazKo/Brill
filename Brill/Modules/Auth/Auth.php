@@ -14,7 +14,7 @@ class Auth extends Modules {
     protected $defaultAction = 'Registration';
 
     protected function configure() {
-        require_once $this->pathLibs . 'UserLib.php';
+        require_once $this->pathLib . 'UserLib.php';
         General::$libs['UserLib'] = new UserLib();
     }
 

@@ -4,6 +4,7 @@ require_once CORE_PATH . 'Common/LogMysql.php';
 require_once 'mysqliHelper.php';
 
 Class DB {
+    const DEFAULT_LNK = 'default';
     protected static $lnk = null;
 
     /**
@@ -31,7 +32,7 @@ Class DB {
     public static function connect($nameConfig = null) {
         if (!$nameConfig) {
             if (self::$lnk == null) {
-                self::$lnk = self::connector(RegistryDb::instance()->get('default'));
+                self::$lnk = self::connector(RegistryDb::instance()->get(self::DEFAULT_LNK));
                 RunTimer::addTimer('Mysql');
             }
             return self::$lnk;

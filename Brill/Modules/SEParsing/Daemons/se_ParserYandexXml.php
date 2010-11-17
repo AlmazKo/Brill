@@ -6,14 +6,40 @@
  * Парсит Yandex.Xml
  * @author almaz
  */
-require_once 'Parser.php';
-require_once DIR_PATH . '/Models/Keywords.php';
-require_once DIR_PATH . '/Models/Sites.php';
-require_once DIR_PATH . '/Models/Urls.php';
-require_once DIR_PATH . '/Models/Positions.php';
-class ParserYandexXml extends se_Parser{
+require_once MODULES_PATH .'SEParsing/Daemons/se_Parser.php';
+//require_once DIR_PATH . '/Models/Keywords.php';
+//require_once DIR_PATH . '/Models/Sites.php';
+//require_once DIR_PATH . '/Models/Urls.php';
+//require_once DIR_PATH . '/Models/Positions.php';
+class se_ParserYandexXml extends se_Parser{
+    const TBL_IP = 'z_routeip';
+    protected
+        $_db,
+        $_dbAcc;
+
+    public function  __construct() {
+        parent::__construct();
+        RegistryDb::instance()->setSettings(DB::DEFAULT_LNK, array('localhost', 'root', '12345', 'brill'));
+        DB::connect();
+        //RegistryDb::instance()->setSettings('account', array('localhost', 'webexpert_acc', '3k8GnrcM', 'webexpert_acc'));
+        RegistryDb::instance()->setSettings('account', array('localhost', 'root', '12345', 'brill'));
+        $this->_dbAcc = DB::connect('account');
+    }
+
+    /**
+     * Получить Ip
+     * @return string
+     */
     protected function  getIp() {
-        return $this->db->getIp();
+        $sql = Stmt::prepareSql(se_StmtDeamon::GET_IP);
+        $result = DB::query($sql, self::$lnk2);
+        if ($result->num_rows > 0){
+            $row = $result->fetch_assoc();
+            DB::query('UPDATE ' . self::TBL_IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
+            return $row['ri_ip'];
+        } else {
+            Log::warning('Закончились IP');
+        }
     }
 
     /**
@@ -134,7 +160,7 @@ class ParserYandexXml extends se_Parser{
         return $pos;
     }
 
-    public function run(RegistryParser $config){
+    public function start() {
         $this->initCurl();
         $keywords = array();
         $this->db = $config->get('db');

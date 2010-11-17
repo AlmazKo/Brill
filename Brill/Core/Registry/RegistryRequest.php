@@ -74,7 +74,9 @@ class RegistryRequest extends Registry{
      * @return bool
      */
     public function isConsole() {
-        return $this->_isConsole;
+        //Mock
+        return true;
+        //return $this->_isConsole;
     }
 
     /*
