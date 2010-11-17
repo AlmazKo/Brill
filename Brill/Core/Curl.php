@@ -1,13 +1,12 @@
 <?php
-/**
- * Класс Curl - ООП обвертка стандартной curl-lib
+/*
+ * class-wrapper Curl's
  *
- * @author Alexander Suslov a.s.suslov@gmail.com
  */
 
 class Curl {
     protected
-        // ссылка на текущий курл
+        // ссылка на курл
         $_ch,
         //массив опций для курла
         $_opt = array(),
@@ -15,151 +14,70 @@ class Curl {
         $_info = array(),
         //хранит результат запроса, пока его не распарсят
         $_responseRaw,
-        // "Тело" ответа, без заголовков
         $_responseBody,
-        // массив заголовоков ответа
         $_aResponseHeaders,
-        // кодировка ответа, если не указана - будет браться из заголовков ответа
-        $_charsetResponse = 'windows-1251', // can use UNKNOW, if unkonow encoding in response
-        // Массив get-параметров для запроса
+        $_charsetResponse,
+        $_charsetRequest = 'windows-1251',
         $_aGet = array(),
-        // Массив post-параметров для запроса
         $_aPost,
-        // Массив заголовков для запроса
         $_aRequestHeaders,
-        // Массив файлов для запроса
-        $_aRequestFiles;
+        $_aFiles;
 
     public function __construct() {
-
+        // TODO Убрать заглушку
+        $this->_charsetResponse  = 'windows-1251';
     }
 
     /**
      * Выполняет запрос и все необходимые действия
-     * @return Curl
+     * @return bool удачно или нет
      */
     public function request($url) {
         $this->_clean();
-        $sGet = $this->_preparedGet();
-        $headers = $this->_preparedHeaders();
+        $sGet = $this->_preparedGetArray();
         if ($aGet) {
             $url = $url . '?' . $sGet;
         }
         if ($this->exec($url)) {
-            $this->_parseResponse();
+            $this->_info = curl_getinfo($this->_ch);
+        } else {
+            $this->_info = null;
         }
+        $this->_parseResponse();
         return $this;
     }
 
-    /**
-     * Выполнить Get запрос
-     * @param string $url - url, без get-параметров
-     */
     public function requestGet($url) {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'GET');
-        return $this->request($url);
+        if (is_array($this->send_param_get)){
+            foreach ($this->send_param_get as $key => $value){
+               if (!empty($key)) $for_sen_action_url .= $key . '=' . urlencode($value) . '&';
+            }
+        }
     }
 
-    /**
-     * Выполнить Post запрос
-     * @param string $url - url, без get-параметров
-     */
-    public function requestPost($url) {
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
-        return $this->request($url);
-    }
-
-    /**
-     * Добавить файл к запросу
-     * @param string $key
-     * @param string $pathToFile
-     */
-    function setFile($key, $pathToFile) {
+    public function requestGet() {
 
     }
 
-    /**
-     * Получить файл
-     * @param string $key
-     * @return string path to file
-     */
-    function getFile($key) {
-        return path;
-    }
-
-    /**
-     * Задать массив Post
-     * @param array $array
-     */
-    function setPost (array $array) {
+    function setPostArray (array $array) {
         $this->_aPost = array_merge($this->_aPost, $array);
     }
 
-    /**
-     * Задать массив Get
-     * @param array $array
-     */
-    function setGet(array $array) {
-        $this->_aGet = array_merge($this->_aGet, $array);
+    function setGetArray() {
+        $this->_aPost = array_merge($this->_aPost, $array);
     }
 
-    /**
-     * Получить массив Post
-     * @return array
-     */
-    function getPost () {
-        return $this->_aPost;
-    }
-
-    /**
-     * Получить массив Get
-     * @return array
-     */
-    function getGet() {
-        return $this->_aGet;
-    }
-
-    /**
-     * Задать заголовки запроса
-     */
-    function setHeaders() {
-
-    }
-
-    /**
-     * Получить заголовки запроса
-     */
-    function getHeaders() {
-
-    }
-    /**
-     * Формирует строку из get-параметров
-     * Применяет к параметрам urldecode
-     * например key1=123&key2=a%20b&key2
-     * @return string
-     */
     protected function _preparedGet() {
-        $get = array();
+        $get = '';
         foreach ($this->_aGet as $key => $value) {
-            $get[] = $key . ($value === '') ? '' : '=' . urldecode($value);
+            $get .= $key . ($value === '') ? '' : '=' . urldecode($value);
         }
-        return implode('&' . $get);
+        return $get;
     }
-
-    /**
-     * Формирует строку заголовков
-     */
-    protected function _preparedHeaders() {
+    function setHeadersArray() {
 
     }
-
-    /**
-     * Выполнить как ajax-запрос
-     */
-    function asAjax() {
-        $this->setHeaders();
-    }
-
     /**
      * Возвращает тело ответа
      * @return string Utf-8
@@ -176,10 +94,6 @@ class Curl {
         return $this->_aResponseHeaders;
     }
 
-    /**
-     * Задать настройки курла из массива
-     * @param array $opt массив настроек для curl
-     */
     public function setOptArray(array $opt = array()) {
          $this->_opt = array_merge($this->_opt, $opt);
     }
@@ -294,7 +208,6 @@ class Curl {
     protected function _clean() {
         $this->_responseBody = null;
         $this->_aResponseHeaders = null;
-        $this->_info = null;
 
     }
 
