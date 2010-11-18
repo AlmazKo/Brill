@@ -35,7 +35,7 @@ class se_ParserYandexXml extends se_Parser{
         $result = DB::query($sql, self::$lnk2);
         if ($result->num_rows > 0){
             $row = $result->fetch_assoc();
-            DB::query('UPDATE ' . self::TBL_IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
+            DB::query('UPDATE ' . se_Tbl::IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
             return $row['ri_ip'];
         } else {
             Log::warning('Закончились IP');
@@ -161,34 +161,27 @@ class se_ParserYandexXml extends se_Parser{
     }
 
     public function start() {
-        $this->initCurl();
-        $keywords = array();
-        $this->db = $config->get('db');
-        $db = $this->db;
-        $keywords = $db->getKeywords(10);
-
+        parent::start();
+        // . ' limit 10 order by name'
+        $sql = Stmt::prepareSql(se_StmtDeamon::GET_KEYWORDS, array('limit' => 10));
+        $keywords = DB::query($sql, self::$_db);
+       // $k = new sep_Keywords();
         if(!$keywords) die ();//'Закончились ключевики');
         $this->curl_opt[CURLOPT_POST] = 1;
 
         foreach ($keywords as $kw){
-
-           $this->curl_opt[CURLOPT_URL] = $this->getGET($kw->region_id);
-//-        $ps = $this->parsing ($kw);
+           $this->curl->setGet(array('lr', $kw->region_id));
 /*+*/      $psDot = $this->parsing ($kw, true);
-//         if ($ps) {
 /*+*/      if ($psDot) {
-//-            $psDot = $this->parsing ($kw, true);
 /*+*/          $ps = $this->parsing ($kw);
-//-            foreach ($ps as  $val) {
 /*+*/          foreach ($psDot as $val) {
                     $p = new Positions();
                     $s = new Sites;
                     $u = new Urls;
-//-                 $posDot = 0;
+
 /*+*/               $pos = 0;
-//-                 $idPos = md5($val['url']);
+
 /*+*/               $idPosDot = md5($val['url']);
-//-                 if(isset($psDot[$idPos])) $posDot = $psDot[$idPos]['pos'];
 /*+*/               if(isset($ps[$idPosDot])) $pos = $ps[$idPosDot]['pos'];
                     $p->keyword_id = $kw->id;
                     if (!$s->getObject('name', $val['site'])) {
@@ -203,8 +196,6 @@ class se_ParserYandexXml extends se_Parser{
                     $p->site_id = $s->id;
                     $p->url_id = $u->id;
 
-//-                 $p->pos = $val['pos'];
-//-                 $p->pos_dot = $posDot;
 /*+*/               $p->pos_dot = $val['pos'];
 /*+*/               $p->pos = $pos;
 
@@ -219,7 +210,8 @@ class se_ParserYandexXml extends se_Parser{
            }
 
            $kw->save();
-           //
+           //$kw->saveCache();
+           //$kv->save();
         }
 
 

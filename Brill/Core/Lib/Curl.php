@@ -5,7 +5,6 @@
  * @author Alexander Suslov a.s.suslov@gmail.com
  */
 
-require_once 'Mimetypes.php';
 class Curl {
     protected
         // ссылка на текущий курл
@@ -32,7 +31,7 @@ class Curl {
         $_aRequestFiles;
 
     public function __construct() {
-        $_ch = curl_init();
+
     }
 
     /**
@@ -123,8 +122,8 @@ class Curl {
     /**
      * Задать заголовки запроса
      */
-    function setHeaders() {
-
+    function setHeaders(array $aHeaders) {
+        $this->setOpt(CURLOPT_HTTPHEADER, $aHeaders);
     }
 
     /**
@@ -227,11 +226,19 @@ class Curl {
         $sHeaders = strtolower(StringUtf8::substr($this->_responseRaw, 0,
                 $this->_info['header_size']));
         $sHeaders = TFormat::winTextToLinux($sHeaders);
+        $sHeaders = preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $sHeaders);
         $rows = explode("\n", $sHeaders);
         foreach ($rows as $row) {
             $rr = explode(': ', $row, 2);
             $keyHeader = $rr[0];
             $valueHeader = $rr[1];
+            preg_match('/([^;]+)((;\s+(.+))*)/', $subject, $matches);
+            if (preg_match('/([^=]+)=(.+)/', $subject, $m2)) {
+                $val[$m2[1]] = $m2[2];
+            } else {
+                $val[] = $match;
+            }
+
             $aHeaders[$keyHeader] = $valueHeader;
 
 // надо заменить на регулярку
@@ -299,7 +306,4 @@ class Curl {
 
     }
 
-    public function close() {
-        curl_close($this->$_ch);
-    }
 }

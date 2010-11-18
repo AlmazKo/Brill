@@ -43,7 +43,7 @@ abstract class Model {
     /**
      * Получение значений $this->values
      * @param string $field
-     * @return 
+     * @return
      */
     function  __get($field) {
         if (array_key_exists($field, $this->values)) {
@@ -76,11 +76,13 @@ abstract class Model {
     final function  __construct($pk = null) {
         if (isset($pk)) {
             return $this->getObject($pk);
+        } else {
+            return $this;
         }
     }
 
     function  __destruct() {
-        
+
     }
 
 
@@ -106,6 +108,7 @@ abstract class Model {
      * @param string $field поле по какому ищем
      * @param string&int&array $val значение поля
      * @return array
+     * TODO пожохе не нужна
      */
     public static function getObjects($class, $field = null, $val = null) {
         $colClass = new $class();
@@ -123,6 +126,7 @@ abstract class Model {
         }
     }
 
+
     /**
      * удаляет объект, полученный по первому полю
      * @param string $valPk значение ключа
@@ -133,7 +137,7 @@ abstract class Model {
       unset($this->values[$this->fields[0]]);
       $this->calcCheckSum();
     }
-    
+
     /**
      * Сбрасывает у объекта его idшник
      * следующий save добавит в базу новую запись
