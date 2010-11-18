@@ -1,1 +1,0 @@
-*/2 * * * * /home/webexpert/domains/account.webexpert.ru/private_html/newindex/Daemons/cron/ParserYandexXml.sh
