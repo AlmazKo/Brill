@@ -67,6 +67,7 @@ class Log {
     public static function warning($text, $block = true) {
         $b = debug_backtrace();
         $text .= "\n" . $b[1]['file'] . ':' . $b[1]['line'];
+        $text .= "\n" . $b[2]['file'] . ':' . $b[2]['line'];
         self::inputLog('Warning', $text, $block, 'red', 'error');
        ## TODO  должна обрабатываться или та строка или нижняя
        //  RegistryContext::instance()->set('error', self::viewLog());

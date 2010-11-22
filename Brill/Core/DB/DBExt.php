@@ -17,7 +17,7 @@ class DBExt extends DB{
      * @return $int Количество вставленных(изменных) записей
      */
     static function insertOne($tblName, $values) {
-        
+
         $aValues = self::parseValues($values);
         $aFields = self::parseFields(array_keys($values));
         $query = "insert IGNORE into `$tblName` (" . $aFields . ") "
@@ -64,13 +64,33 @@ class DBExt extends DB{
      * @param string/int $value
      * @return array
      */
-    public static function getOneRow($tblName, $field, $value) {
+    public static function getOneRowPk($tblName, $field, $value) {
         $where = self::simpleWhere($field, $value);
         $query = "select * from `$tblName` $where Limit 1";
         $result = parent::query($query);
         $values = null;
         if ($result->num_rows == 1) {
             $values = $result->fetch_assoc();
+        } else {
+            Log::warning("Получено больше одной строки");
+        }
+        return $values;
+    }
+    
+    /**
+     *Возвращает одну строку.
+     * @param string $tblName
+     * @param field $pk имя ключа
+     * @param string/int $value
+     * @return array
+     */
+    public static function getOneRow($sql, $lnk = null) {
+        $result = parent::query($sql);
+        $values = null;
+        if ($result->num_rows == 1) {
+            $values = $result->fetch_assoc();
+        } else if ($result->num_rows > 0) {
+            Log::warning("Получено больше одной строки");
         }
         return $values;
     }
@@ -93,7 +113,7 @@ class DBExt extends DB{
         }
         return $values;
     }
-    
+
     /**
      *
      * @param string $tblName
@@ -162,7 +182,7 @@ class DBExt extends DB{
      * @return int количество затронутых строк
      */
     function updateOne($tblName, $values, $field, $val) {
-         
+
         $where = self::simpleWhere($field, $val);
         $aSets = self::parseValuesWithFields($values);
         $query = "update `$tblName` set " . $aSets . $where . " limit 1";

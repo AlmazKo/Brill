@@ -64,7 +64,7 @@ require_once 'RegistryContext.php';
 require_once 'RegistryDb.php';
 
 require CORE_PATH . 'ActionResolver.php';
-require CORE_PATH . 'Stmt.php';
+require CORE_PATH . 'DB/Stmt.php';
 require CORE_PATH . 'Navigation.php';
 require CORE_PATH . 'Interfaces/IPaging.php';
 require CORE_PATH . 'Interfaces/ISorting.php';

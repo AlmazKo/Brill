@@ -16,14 +16,14 @@ class aKeywords extends Action {
         require_once $this->module->pathModels . 'sep_Regions.php';
         require_once $this->module->pathModels . 'sep_UrlKeywords.php';
 
-        require_once MODULES_PATH . 'SEParsing/DB/Stmt.php';
+        require_once MODULES_PATH . 'SEParsing/DB/se_Stmt.php';
     }
 
     protected function act_Thematic () {
         $this->context->setTpl('content', 'keywords_thematic_html');
         $id = (int) $this->request->get('thematic_id');
-        $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS_THEMATIC, array('t_id' => $id));
-        $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
+        $sql = Stmt::prepare(se_Stmt::ALL_KEYWORDS_THEMATIC, array('t_id' => $id, Stmt::ORDER => 'name'));
+        $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->viewColumns('name', 'set');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->setViewIterator(true);
@@ -57,8 +57,8 @@ class aKeywords extends Action {
         $this->context->setTpl('content', 'keywords_set_html');
         $id = (int) $this->request->get('set_id');
         
-        $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS_SET, array('s_id' => $id));
-        $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
+        $sql = Stmt::prepare(se_Stmt::ALL_KEYWORDS_SET, array('s_id' => $id, Stmt::ORDER => 'name'));
+        $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->viewColumns('name', 'thematic', 'k_url');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->setViewIterator(true);
@@ -78,12 +78,14 @@ class aKeywords extends Action {
         $this->context->set('table', $tbl);
         $this->context->set('title', 'Ключевики');
     }
+
     protected function act_Pos () {
         $this->context->setTpl('content', 'keywords_pos_html');
         $id = (int) $this->request->get('id');
-        $sql = Stmt::prepareSql(Stmt::URLS_AND_POS_FOR_KEYWORD, array('keyword_id' => $id));
+        $sql = Stmt::prepare(se_Stmt::URLS_AND_POS_FOR_KEYWORD, 
+                array('keyword_id' => $id, Stmt::ORDER => 'pos_dot', Stmt::DIRECTION => 'DESC'));
 
-        $tbl = new oTable(DBExt::selectToTable($sql. ' order by pos_dot DESC'));
+        $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->addCol('newCol');
         $this->context->set('table', $tbl);
         $tbl->viewColumns('name', 'pos', 'url', 'pos_dot', 'newCol');
@@ -133,8 +135,8 @@ class aKeywords extends Action {
 
 
     protected function act_All () {
-        $sql = Stmt::prepareSql(Stmt::ALL_KEYWORDS);
-        $tbl = new oTable(DBExt::selectToTable($sql. ' order by name ASC'));
+        $sql = Stmt::prepare(se_Stmt::ALL_KEYWORDS, array(Stmt::ORDER => 'name'));
+        $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->viewColumns('name', 'yandex', 'set', 'thematic');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->setViewIterator(true);
@@ -153,6 +155,7 @@ class aKeywords extends Action {
         $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#">#set#</a>');
         $this->context->set('tbl', $tbl);
     }
+
     public function act_View() {
         if ($this->request->isAjax()) {
             $this->context->setTopTpl('keywords_list');
@@ -193,10 +196,10 @@ class aKeywords extends Action {
             $this->context->setTpl('content', 'keywords_add');
         }
 
-        $sqlT = Stmt::prepareSql(Stmt::ALL_THEMATICS);
-        $sqlR = Stmt::prepareSql(Stmt::ALL_REGIONS);
-        $listThematics = new oList(DBExt::selectToList($sqlT. ' order by name ASC'));
-        $listRegions = new oList(DBExt::selectToList($sqlR. ' order by name ASC'));
+        $sqlT = Stmt::prepare(se_Stmt::ALL_THEMATICS, array (Stmt::ORDER => 'name'));
+        $sqlR = Stmt::prepare(se_Stmt::ALL_REGIONS, array (Stmt::ORDER => 'name'));
+        $listThematics = new oList(DBExt::selectToList($sqlT));
+        $listRegions = new oList(DBExt::selectToList($sqlR));
 
         $fields['thematics'] = array('title' => 'Тематика', 'value' => '', 'data' => $listThematics, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['region'] = array('title' => 'Регион', 'value' => '', 'data' => $listRegions, 'type'=>'select', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
@@ -217,6 +220,7 @@ class aKeywords extends Action {
                     $k->thematic_id = $thematic->id;
                 }
                 if ($this->request->is('set') && trim($this->request->get('set'))) {
+                     Log::dump($k);
                     $row = DBExt::getOneRow('sep_Sets', 'name', trim($this->request->get('set')));
                     if (isset($row)) {
                         $k->set_id = $row['id'];
@@ -239,6 +243,7 @@ class aKeywords extends Action {
                     }
                 }
                 $k->region_id = $this->request->get('region', sep_Regions::ID_YANDEX_MOSCOW);
+               
                 foreach ($kw as $v) {
                     if(trim($v)) {
                         $k->name = trim($v);

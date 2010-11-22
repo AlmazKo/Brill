@@ -94,7 +94,7 @@ abstract class Model {
     public function getObject($valPk) {
         // подумать, как от этого избавиться
         $valPk = addslashes($valPk);
-        $values = DBExt::getOneRow($this->tbl_name, $this->fields[0], $valPk);
+        $values = DBExt::getOneRowPk($this->tbl_name, $this->fields[0], $valPk);
         if (isset($values)) {
             $this->initData($values);
         } else {
@@ -126,6 +126,76 @@ abstract class Model {
         }
     }
 
+    public static function getObjectsFromSql($class, $sql, $lnk = null) {
+        $colClass = new $class();
+        if (is_subclass_of($colClass, 'Model')) {
+            $values = DB::query($sql);
+            $aObjects = array();
+            foreach ($values as $row) {
+                $obj = new $class();
+                //TODO менять tbl
+                $obj->initData($row);
+                $aObjects[] = $obj;
+            }
+            return $aObjects;
+        }  else {
+            Log::warning('Для получения коллекции объектов ' . $class . ' - должен быть унаследован от Model');
+        }
+    }
+
+    public static function getObjectFromSql ($class, $sql, $lnk = null) {
+        $model = new $class();
+        if (is_subclass_of($model, 'Model')) {
+            $row = DBExt::getOneRow($sql);
+            if ($row) {
+                $model->initData($row);
+                return $model;
+            } else {
+                return false;
+            }
+        }  else {
+            Log::warning('Для получения объекта ' . $class . ' - должен быть унаследован от Model');
+        }
+    }
+
+    /**
+     * Пытается заполнить объект из результата sql-запроса
+     * @param string $sql
+     * @param resource $lnk
+     * @return bool
+     */
+    public function fillObjectFromSql ($sql, $lnk = null) {
+        $row = DBExt::getOneRow($sql, $lnk);
+        if ($row) {
+            // по идее у модели должен меняться _table
+            $this->initData($row);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    protected function _getObjectFromSql ($class, $sql, $lnk = null) {
+        if (isset($this)) {
+            $model = $this;
+            // значит вызвали из самого объекта
+        } else {
+            //проверяем класс
+        }
+
+        if (is_subclass_of($model, 'Model')) {
+            $row = DBExt::getOneRow($sql);
+            if ($row) {
+                $model->initData($row);
+            return $model;
+            } else {
+                return false;
+            }
+        }  else {
+            Log::warning('Для получения объекта ' . $class . ' - должен быть унаследован от Model');
+        }
+    }
 
     /**
      * удаляет объект, полученный по первому полю

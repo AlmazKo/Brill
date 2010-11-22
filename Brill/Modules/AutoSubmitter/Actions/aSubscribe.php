@@ -15,21 +15,6 @@ class aSubscribe extends Action{
         require_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
-
-
-        require_once $this->module->pathLib . 'AS_xmlMapper.php';
-        require_once $this->module->pathModule . 'UserData.php';
-        require_once $this->module->pathModule . 'UserDataProject.php';
-        require_once $this->module->pathModule . 'Strategy.php';
-        require_once $this->module->pathModule . 'AS_Bot.php';
-
-
-
-
-
-
-
-
         $this->context->setTopTpl('subscribe_start_html');
     }
     /**
@@ -111,6 +96,15 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      */
     public function act_Start() {
+
+        //TODO вынести в отдельный файл
+
+
+        require_once $this->module->pathLib . 'AS_xmlMapper.php';
+        require_once $this->module->pathModule . 'UserData.php';
+        require_once $this->module->pathModule . 'UserDataProject.php';
+        require_once $this->module->pathModule . 'Strategy.php';
+        require_once $this->module->pathModule . 'AS_Bot.php';
 //        if ($this->request->isAjax()) {
 //           $this->context->setTopTpl('subscribe_start_html');
 //        } else {

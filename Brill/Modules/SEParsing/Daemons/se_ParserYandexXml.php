@@ -163,11 +163,13 @@ class se_ParserYandexXml extends se_Parser{
     public function start() {
         parent::start();
         // . ' limit 10 order by name'
-        $sql = Stmt::prepareSql(se_StmtDeamon::GET_KEYWORDS, array('limit' => 10));
-        $keywords = DB::query($sql, self::$_db);
-       // $k = new sep_Keywords();
-        if(!$keywords) die ();//'Закончились ключевики');
-        $this->curl_opt[CURLOPT_POST] = 1;
+        $sql = Stmt::prepare(se_StmtDeamon::GET_KEYWORDS, array('limit' => 10));
+
+        $keywords = Model::getObjectsFromSql('se_Keywords', $sql, self::$_db);
+        if(!$keywords) {
+            die ();//'Закончились ключевики');
+        }
+      ###  $this->curl_opt[CURLOPT_POST] = 1;
 
         foreach ($keywords as $kw){
            $this->curl->setGet(array('lr', $kw->region_id));
@@ -182,8 +184,13 @@ class se_ParserYandexXml extends se_Parser{
 /*+*/               $pos = 0;
 
 /*+*/               $idPosDot = md5($val['url']);
-/*+*/               if(isset($ps[$idPosDot])) $pos = $ps[$idPosDot]['pos'];
+/*+*/               if (isset($ps[$idPosDot])) {
+                        $pos = $ps[$idPosDot]['pos'];
+                    }
                     $p->keyword_id = $kw->id;
+                    //временное решение, т.к. поле уникальное и сделать через стандартные методы
+                    //
+                    if ($s->getObjectFromSql('select * from se_Sites where name = ' . $val['site']));
                     if (!$s->getObject('name', $val['site'])) {
                        $s->name = $val['site'];
                        $s->id = $s->add();

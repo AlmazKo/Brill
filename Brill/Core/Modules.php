@@ -17,7 +17,8 @@ abstract class Modules {
     protected $pathModels = null;
     protected $pathActions = null;
     protected $pathViews = null;
-    protected $pathLibs = null;
+    protected $pathLib = null;
+    protected $pathD = null;
     protected $requiredModules = array ();
 
     public static function init() {
@@ -58,6 +59,6 @@ abstract class Modules {
      * @param string $field
      */
     function  __set($field, $value) {
-        Log::warning('Read only. Задавать значения может только сам класс '.__CLASS__);
+    //    Log::warning('Read only. Задавать значения может только сам класс '.__CLASS__);
     }
 }
