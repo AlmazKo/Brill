@@ -119,23 +119,21 @@ class se_ParserYandexXml extends se_Parser{
         return $positions;
     }
 
-    protected function parsing(Keywords $k, $dot = false){
-
+    protected function parsing(sep_Keywords $k, $dot = false){
         $query = $this->setQuery($k->name);
         $query .= $dot ? '.' : '';
         $depth = 1;
         $finded = false;
         $pos = array();
         for ($page = 0; $page < $depth; $page++){
-
-            $this->curl_opt[CURLOPT_INTERFACE] = $this->getIp();
-            $this->curl_opt[CURLOPT_POSTFIELDS] = 'text='.$this->getXMLRequest($query, $page);
+            $this->curl->setOpt(CURLOPT_INTERFACE, $this->getIp());
+            $this->curl->setPostArray(array('text', $this->getXMLRequest($query, $page)));
             $xml_response = $this->request();
 
             $attempts = 2;// +2 попытки
             while(empty($xml_response) && $attempts!=0){
-                $this->curl_opt[CURLOPT_INTERFACE] = $this->getIp();
-                var_dump('Яндекс не ответил, может не понравился ip, поробуем еще раз...');
+                $this->curl->setOpt(CURLOPT_INTERFACE, $this->getIp());
+                var_dump('Яндекс не ответил, попробуем еще раз...');
                 sleep(1);
                 $xml_response = $this->request();
                 $attempts--;
@@ -189,13 +187,12 @@ class se_ParserYandexXml extends se_Parser{
                     }
                     $p->keyword_id = $kw->id;
                     //временное решение, т.к. поле уникальное и сделать через стандартные методы
-                    //
-                    if ($s->getObjectFromSql('select * from se_Sites where name = ' . $val['site']));
-                    if (!$s->getObject('name', $val['site'])) {
+
+                    if (!$s->getObjectField('name', $val['site'])) {
                        $s->name = $val['site'];
                        $s->id = $s->add();
                     }
-                    if (!$u->getObject('url', $val['url'])) {
+                    if (!$u->getObjectField('url', $val['url'])) {
                        $u->url = $val['url'];
                        $u->site_id = $s->id;
                        $u->id = $u->add();
@@ -207,10 +204,11 @@ class se_ParserYandexXml extends se_Parser{
 /*+*/               $p->pos = $pos;
 
                     $p->links_search = $val['links_search'];
-                    $p->add();
+                    $p->saveInBuffer()->reset();
 
 
                }
+               $p->save();
                $kw->yandex = 'Сalculated';
            } else {
                $kw->yandex = 'Error';

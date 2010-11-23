@@ -9,9 +9,8 @@
  */
 
 class as_Subscribes extends Model {
-    protected $tbl_name = __CLASS__;
-    protected $isPk = true;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'id',
         'user_id',
         'name', //название рассылки

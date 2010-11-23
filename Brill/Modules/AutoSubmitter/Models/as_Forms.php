@@ -6,8 +6,8 @@
  * @author almaz
  */
 class as_Forms {
-    protected $tbl_name = __CLASS__;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'id',
         'date',
         /*

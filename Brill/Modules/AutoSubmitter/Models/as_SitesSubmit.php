@@ -10,8 +10,8 @@
  */
 
 class as_SitesSubmit {
-    protected $tbl_name = __CLASS__;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'id',
         'site_id',
         'subscribe_id',

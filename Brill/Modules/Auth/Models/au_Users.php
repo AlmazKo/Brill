@@ -6,8 +6,8 @@
  * @author Alexander
  */
 class au_Users extends Model {
-    protected $tbl_name = __CLASS__;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'id',
         'loginEmail',
         'password',

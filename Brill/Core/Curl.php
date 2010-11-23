@@ -56,11 +56,13 @@ class Curl {
         }
     }
 
-    public function requestGet() {
-
+    public function requestPost() {
+        $this->setOpt(CURLOPT_POST, 1);
+        $this->_preparePost();
     }
 
     function setPostArray (array $array) {
+        //CURLOPT_POSTFIELDS=
         $this->_aPost = array_merge($this->_aPost, $array);
     }
 
@@ -74,6 +76,13 @@ class Curl {
             $get .= $key . ($value === '') ? '' : '=' . urldecode($value);
         }
         return $get;
+    }
+    protected function _preparePost() {
+        $post = '';
+        foreach ($this->_aPost as $key => $value) {
+            $post .= $key . ($value === '') ? '' : '=' . urldecode($value);
+        }
+        $this->setOpt(CURLOPT_POSTFIELDS, $post);
     }
     function setHeadersArray() {
 

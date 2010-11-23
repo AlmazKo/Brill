@@ -7,8 +7,8 @@
 
 class sep_Regions extends Model {
     const ID_YANDEX_MOSCOW = 213;
-    protected $tbl_name = __CLASS__;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'id',
         'name',
         'sort',

@@ -5,8 +5,8 @@
  * @author Alexander
  */
 class au_UserGroups extends  Model{
-    protected $tbl_name = __CLASS__;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'user_id',
         'group_id'
     );

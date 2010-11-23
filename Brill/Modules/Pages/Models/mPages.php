@@ -5,8 +5,8 @@
  * класс Сайтов
  */
 class mPages extends Model {
-    protected $tbl_name = 'Pages';
-    protected $fields = array (
+    protected $_tblName = 'Pages';
+    protected $_fields = array (
         'id',
         'name',
         'content',

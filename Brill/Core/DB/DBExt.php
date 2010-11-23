@@ -64,19 +64,19 @@ class DBExt extends DB{
      * @param string/int $value
      * @return array
      */
-    public static function getOneRowPk($tblName, $field, $value) {
+    public static function getOneRow($tblName, $field, $value) {
         $where = self::simpleWhere($field, $value);
         $query = "select * from `$tblName` $where Limit 1";
         $result = parent::query($query);
         $values = null;
         if ($result->num_rows == 1) {
             $values = $result->fetch_assoc();
-        } else {
+        } else if ($result->num_rows > 0) {
             Log::warning("Получено больше одной строки");
         }
         return $values;
     }
-    
+
     /**
      *Возвращает одну строку.
      * @param string $tblName
@@ -84,7 +84,7 @@ class DBExt extends DB{
      * @param string/int $value
      * @return array
      */
-    public static function getOneRow($sql, $lnk = null) {
+    public static function getOneRowSql($sql, $lnk = null) {
         $result = parent::query($sql);
         $values = null;
         if ($result->num_rows == 1) {
@@ -211,7 +211,7 @@ class DBExt extends DB{
      * @param array $fields
      * @return string
      */
-   function parseFields($fields) {
+   static function parseFields($fields) {
         foreach ($fields as $field) {
             $newFields[] = '`'.$field.'`';
         }
@@ -268,4 +268,6 @@ class DBExt extends DB{
         }
         return $where;
    }
+
+
 }

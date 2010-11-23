@@ -5,8 +5,8 @@
  */
 
 class sep_Urls extends Model {
-    protected $tbl_name = __CLASS__;
-    protected $fields = array (
+    protected $_tblName = __CLASS__;
+    protected $_fields = array (
         'id',
         'url',
         'site_id',

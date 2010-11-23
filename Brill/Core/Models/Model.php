@@ -5,49 +5,36 @@
  * Класс родитель для вех моделей
  */
 
-/*
- * save()
- * getCols($aCols ext
- * getFields() ext
- * getObject($pk)
- * getObjects($field)
- * delete($pk)
- *
- * update()
- * add()
- *
- *
- */
-
-
 abstract class Model {
-
-    //название таблицы
-    protected $tbl_name;
-
-    //поля - должны быть уникальны
-    protected $fields = array();
-
     //значения
-    private $values = null;
-    /*
-     * есть ли первичный ключ. им становится первое поле
-     * если он включен, то его создает только БД и менять его нельзя
-     * если отключен - то запрещены все операции обновления и удаления
-     */
-    protected $isPk = true;
+    private
+        //значения
+        $_values = null,
+        // контрольная сумма объекта, после заполнения данными из БД
+        $_checkSum = null;
 
-    // контрольная сумма объекта, после заполнения данными из БД
-    private $checkSum = null;
+    protected
+        //название таблицы
+        $_tbl_name,
+        //поля - должны быть уникальны
+        $_fields = array(),
+        /*
+         * есть ли первичный ключ. им становится первое поле
+         * если он включен, то его создает только БД и менять его нельзя
+         * если отключен - то запрещены все операции обновления и удаления
+         */
+        $_isPk = true,
+        // накапливаемый буффер для вставки
+        $_buffer;
 
     /**
-     * Получение значений $this->values
+     * Получение значений $this->_values
      * @param string $field
      * @return
      */
     function  __get($field) {
-        if (array_key_exists($field, $this->values)) {
-             return $this->values[$field];
+        if (array_key_exists($field, $this->_values)) {
+             return $this->_values[$field];
         } else {
             Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
         }
@@ -55,24 +42,27 @@ abstract class Model {
     }
 
     /**
-     * Задание значений $this->values
+     * Задание значений $this->_values
      * @param string $field
      * @param object $value
      */
     function  __set($field, $value) {
-        if (in_array($field, $this->fields)) {
-            if ($this->isPk && $field == $this->fields[0]) {
+        if (in_array($field, $this->_fields)) {
+            if ($this->_isPk && $field == $this->_fields[0]) {
                 Log::warning('Нельзя изменять первичный ключ '.$field);
             }
             //экранируем все от греха по дельше
-            $this->values[$field] = addslashes($value);
+            $this->_values[$field] = addslashes($value);
         } else {
             Log::warning('Не возможно задать свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
         }
     }
 
-
-
+    /**
+     * Получить объект. Можно сразу его заполнить, если передать значение первичного ключа
+     * @param mixed $pk
+     * @return Model
+     */
     final function  __construct($pk = null) {
         if (isset($pk)) {
             return $this->getObject($pk);
@@ -81,10 +71,7 @@ abstract class Model {
         }
     }
 
-    function  __destruct() {
-
-    }
-
+    function  __destruct() {}
 
     /**
      * Возвращает объект, полученный по первому полю
@@ -94,13 +81,32 @@ abstract class Model {
     public function getObject($valPk) {
         // подумать, как от этого избавиться
         $valPk = addslashes($valPk);
-        $values = DBExt::getOneRowPk($this->tbl_name, $this->fields[0], $valPk);
+        $values = DBExt::getOneRow($this->_tblName, $this->_fields[0], $valPk);
         if (isset($values)) {
             $this->initData($values);
         } else {
-            Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->fields[0] . '=' . $valPk);
+            Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
         }
     }
+
+    /**
+     * Возвращает объект, полученный по уникальному полю
+     * @param string $valPk значение ключа
+     * @return class
+     */
+    public function getObjectField($field, $value) {
+        if (in_array($field, $this->_fields)) {
+            $values = DBExt::getOneRow($this->_tblName, $field, $value);
+            if (isset($values)) {
+                $this->initData($values);
+            } else {
+                Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
+            }
+        } else {
+            Log::warning('У объекта ' . get_class($this) . 'нет свойства ' . $field);
+        }
+    }
+
     /**
      *
      * Возвращает массив объектов $class
@@ -113,7 +119,7 @@ abstract class Model {
     public static function getObjects($class, $field = null, $val = null) {
         $colClass = new $class();
         if (is_subclass_of($colClass, 'Model')) {
-            $values = DBExt::getRows($colClass->tbl_name, $field, $val);
+            $values = DBExt::getRows($colClass->_tblName, $field, $val);
             $aObjects = array();
             foreach($values as $row) {
                 $obj = new $class();
@@ -126,6 +132,13 @@ abstract class Model {
         }
     }
 
+    /**
+     * Получить массив объектов из результата запроса
+     * @param string $class
+     * @param string $sql
+     * @param recource $lnk
+     * @return class
+     */
     public static function getObjectsFromSql($class, $sql, $lnk = null) {
         $colClass = new $class();
         if (is_subclass_of($colClass, 'Model')) {
@@ -143,6 +156,13 @@ abstract class Model {
         }
     }
 
+    /**
+     * Получить объект из результата запроса
+     * @param string $class
+     * @param sring $sql
+     * @param recourxce $lnk
+     * @return class
+     */
     public static function getObjectFromSql ($class, $sql, $lnk = null) {
         $model = new $class();
         if (is_subclass_of($model, 'Model')) {
@@ -175,36 +195,14 @@ abstract class Model {
         }
     }
 
-
-    protected function _getObjectFromSql ($class, $sql, $lnk = null) {
-        if (isset($this)) {
-            $model = $this;
-            // значит вызвали из самого объекта
-        } else {
-            //проверяем класс
-        }
-
-        if (is_subclass_of($model, 'Model')) {
-            $row = DBExt::getOneRow($sql);
-            if ($row) {
-                $model->initData($row);
-            return $model;
-            } else {
-                return false;
-            }
-        }  else {
-            Log::warning('Для получения объекта ' . $class . ' - должен быть унаследован от Model');
-        }
-    }
-
     /**
      * удаляет объект, полученный по первому полю
      * @param string $valPk значение ключа
      * @return class
      */
     public function delete() {
-      DBExt::deleteOneRow($this->tbl_name, $this->fields[0], $this->values[$this->fields[0]]);
-      unset($this->values[$this->fields[0]]);
+      DBExt::deleteOneRow($this->_tblName, $this->_fields[0], $this->_values[$this->_fields[0]]);
+      unset($this->_values[$this->_fields[0]]);
       $this->calcCheckSum();
     }
 
@@ -213,23 +211,23 @@ abstract class Model {
      * следующий save добавит в базу новую запись
      */
     public function reset() {
-        if ($this->isPk) {
-            $this->values[$this->fields[0]] = null;
+        if ($this->_isPk) {
+            $this->_values[$this->_fields[0]] = null;
         }
     }
     /**
      * Получить массив значений таблицы объекта
      */
     function getArray() {
-        return DBExt::getAllRows($this->tbl_name);
+        return DBExt::getAllRows($this->_tblName);
     }
 
     /**
      * Вставляет данные в базу
      */
     protected function add () {
-        $this->calcCheckSum();
-        $this->values[$this->fields[0]] = DBExt::insertOne($this->tbl_name, $this->values);
+        $this->_calcCheckSum();
+        $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
 
     }
 
@@ -238,8 +236,8 @@ abstract class Model {
      */
     //сделать какойто идентификатор id каждому объекту модели
     public function save() {
-        if ($this->isPk) {
-            if (isset($this->values[$this->fields[0]])) {
+        if ($this->_isPk) {
+            if (isset($this->_values[$this->_fields[0]])) {
                 $this->update();
             } else {
                 $this->add();
@@ -255,13 +253,34 @@ abstract class Model {
      */
     protected function update () {
         //изменения вносим в базу только если изменилась контрольная сумма
-        if ($this->checkSum != $this->calcCheckSum()) {
-            $newValues = $this->values;
+        if ($this->_checkSum != $this->calcCheckSum()) {
+            $newValues = $this->_values;
             $valPk = array_shift($newValues);
-            $result = DBExt::updateOne($this->tbl_name, $newValues, $this->fields[0], $valPk);
+            $result = DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk);
         }
      }
 
+     public function saveInBuffer(){
+         if (isset($this->_values[$this->_fields[0]])) {
+            $this->update();
+         } else {
+            if (!$this->_buffer) {
+                $this->_buffer = 'INSERT INTO (' . DBExt::parseFields($this->_fields) . ') VALUES ';
+            } else {
+                 $this->_buffer .= ",\n";
+            }
+            $this->_buffer .= '(' . DBExt::parseValues($this->_values) . ')';
+            
+         }
+     }
+
+     public function executeBuffer() {
+         DB::query($this->_buffer);
+     }
+
+     public function cleanBuffer() {
+         $this->_buffer = null;
+     }
     /**
      * инициализирует данные полученные из БД
      * а также создает контрольную сумму значений
@@ -269,9 +288,9 @@ abstract class Model {
      */
     protected function initData($values) {
         //заполнение полей значениями
-        foreach ($this->fields as $fld) {
+        foreach ($this->_fields as $fld) {
             if (isset($values[$fld])) {
-               $this->values[$fld] = $values[$fld];
+               $this->_values[$fld] = $values[$fld];
             } else {
                 Log::warning('Не найдено соответствие в базе полю ' .$fld );
             }
@@ -280,14 +299,14 @@ abstract class Model {
     }
 
     protected function calcCheckSum() {
-       $this->checkSum = crc32(implode($this->values));
-       return $this->checkSum;
+
+       return $this->_checkSum = crc32(implode($this->_values));
     }
     public function getValues() {
-        return $this->values;
+        return $this->_values;
     }
 
     public function getFields() {
-        return $this->fields;
+        return $this->_fields;
     }
 }
