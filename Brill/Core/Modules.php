@@ -1,6 +1,6 @@
 <?php
 /* 
- * Класс от которого должны наследоваться все модули
+ * Класс от которого должны наследоваться все настройки модулей
  */
 
 /**
@@ -9,17 +9,19 @@
  * @author almaz
  */
 abstract class Modules {
-    protected $version = 0;
-    protected $prefix = "";
-    protected $name = null;
-    protected $defaultAction = null;
-    protected $pathModule;
-    protected $pathModels = null;
-    protected $pathActions = null;
-    protected $pathViews = null;
-    protected $pathLib = null;
-    protected $pathD = null;
-    protected $requiredModules = array ();
+    protected 
+        $version = 0,
+        $prefix = "",
+        $name,
+        $defaultAction,
+        $pathModule,
+        $pathModels,
+        $pathActions,
+        $pathViews,
+        $pathDB,
+        $pathLib,
+        $pathDaemons,
+        $requiredModules = array ();
 
     public static function init() {
         if (self::$instance === null) {
@@ -35,12 +37,13 @@ abstract class Modules {
     abstract public static function instance();
     
     function  __construct() {
-        $this->pathModule = MODULES_PATH . $this->name . '/';
-        $this->pathModels = $this->pathModule . General::NAME_DIR_MODELS .'/';
-        $this->pathActions = $this->pathModule . General::NAME_DIR_ACTIONS . '/';
-        $this->pathViews = $this->pathModule . General::NAME_DIR_VIEWS . '/';
-        $this->pathLib = $this->pathModule . General::NAME_DIR_LIB . '/';
-        $this->pathD = $this->pathD . General::NAME_DIR_DAEMONS . '/';
+        $this->pathModule   = MODULES_PATH . $this->name . '/';
+        $this->pathModels   = $this->pathModule . General::NAME_DIR_MODELS .'/';
+        $this->pathActions  = $this->pathModule . General::NAME_DIR_ACTIONS . '/';
+        $this->pathViews    = $this->pathModule . General::NAME_DIR_VIEWS . '/';
+        $this->pathDB       = $this->pathModule . General::NAME_DIR_DB . '/';
+        $this->pathLib      = $this->pathModule . General::NAME_DIR_LIB . '/';
+        $this->pathDaemons  = $this->pathDaemons . General::NAME_DIR_DAEMONS . '/';
         $this->configure();
     }
 

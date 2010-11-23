@@ -3,9 +3,6 @@
  * SEParsing
  */
 
-require_once CORE_PATH . 'Modules.php';
-// пространство имен класса Pages
-
 class Pages extends Modules {
     protected static $instance = null;
     protected $version = 1;

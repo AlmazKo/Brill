@@ -15,8 +15,7 @@ class aKeywords extends Action {
         require_once $this->module->pathModels . 'sep_Sets.php';
         require_once $this->module->pathModels . 'sep_Regions.php';
         require_once $this->module->pathModels . 'sep_UrlKeywords.php';
-
-        require_once MODULES_PATH . 'SEParsing/DB/se_Stmt.php';
+        require_once $this->module->pathDB . 'se_Stmt.php';
     }
 
     protected function act_Thematic () {

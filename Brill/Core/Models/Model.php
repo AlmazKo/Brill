@@ -85,7 +85,8 @@ abstract class Model {
         if (isset($values)) {
             $this->initData($values);
         } else {
-            Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
+            return false;
+            #Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
         }
     }
 
@@ -100,7 +101,8 @@ abstract class Model {
             if (isset($values)) {
                 $this->initData($values);
             } else {
-                Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
+                return false;
+                #Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
             }
         } else {
             Log::warning('У объекта ' . get_class($this) . 'нет свойства ' . $field);
@@ -142,7 +144,7 @@ abstract class Model {
     public static function getObjectsFromSql($class, $sql, $lnk = null) {
         $colClass = new $class();
         if (is_subclass_of($colClass, 'Model')) {
-            $values = DB::query($sql);
+            $values = DBExt::selectToArray($sql);
             $aObjects = array();
             foreach ($values as $row) {
                 $obj = new $class();
@@ -166,7 +168,7 @@ abstract class Model {
     public static function getObjectFromSql ($class, $sql, $lnk = null) {
         $model = new $class();
         if (is_subclass_of($model, 'Model')) {
-            $row = DBExt::getOneRow($sql);
+            $row = DBExt::getOneRowSql($sql);
             if ($row) {
                 $model->initData($row);
                 return $model;
@@ -185,7 +187,7 @@ abstract class Model {
      * @return bool
      */
     public function fillObjectFromSql ($sql, $lnk = null) {
-        $row = DBExt::getOneRow($sql, $lnk);
+        $row = DBExt::getOneRowSql($sql, $lnk);
         if ($row) {
             // по идее у модели должен меняться _table
             $this->initData($row);

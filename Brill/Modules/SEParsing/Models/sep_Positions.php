@@ -12,6 +12,7 @@ class sep_Positions extends Model {
         'site_id',
         'pos',
         'pos_dot',
+        //найден по ссылке
         'links_search',
         'date'
     );

@@ -6,16 +6,22 @@
  * Парсит Yandex.Xml
  * @author almaz
  */
-require_once MODULES_PATH .'SEParsing/Daemons/se_Parser.php';
-//require_once DIR_PATH . '/Models/Keywords.php';
-//require_once DIR_PATH . '/Models/Sites.php';
-//require_once DIR_PATH . '/Models/Urls.php';
-//require_once DIR_PATH . '/Models/Positions.php';
-class se_ParserYandexXml extends se_Parser{
-    const TBL_IP = 'z_routeip';
+class se_ParserYandexXml extends se_Parser {
+    const
+        TBL_IP = 'z_routeip',
+        //url yandex XML
+        URL_YA_SEARCH = 'http://xmlsearch.yandex.ru/xmlsearch',
+        CONF_NULL = 0,
+        CONF_WITH_DOT = 1,
+        //сколько попыток сделать один запрос
+        ATTEMPTS = 2;
+
     protected
-        $_db,
-        $_dbAcc;
+        $_lnk2;
+
+    protected
+        $_depth = 1,
+        $_linksInPages = 100;
 
     public function  __construct() {
         parent::__construct();
@@ -23,19 +29,28 @@ class se_ParserYandexXml extends se_Parser{
         DB::connect();
         //RegistryDb::instance()->setSettings('account', array('localhost', 'webexpert_acc', '3k8GnrcM', 'webexpert_acc'));
         RegistryDb::instance()->setSettings('account', array('localhost', 'root', '12345', 'brill'));
-        $this->_dbAcc = DB::connect('account');
+        $this->_lnk2 = DB::connect('account');
+     }
+
+    protected function _configure() {
+        require_once $this->_module->pathModels . 'sep_Keywords.php';
+        require_once $this->_module->pathModels . 'sep_Sites.php';
+        require_once $this->_module->pathModels . 'sep_Thematics.php';
+        require_once $this->_module->pathModels . 'sep_Sets.php';
+        require_once $this->_module->pathModels . 'sep_Regions.php';
+        require_once $this->_module->pathModels . 'sep_UrlKeywords.php';
     }
 
     /**
      * Получить Ip
      * @return string
      */
-    protected function  getIp() {
-        $sql = Stmt::prepareSql(se_StmtDeamon::GET_IP);
-        $result = DB::query($sql, self::$lnk2);
+    protected function  _getIp() {
+        $sql = Stmt::prepare(se_StmtDaemon::GET_IP, null);
+        $result = DBExt::selectToArray($sql, $this->_lnk2);
         if ($result->num_rows > 0){
             $row = $result->fetch_assoc();
-            DB::query('UPDATE ' . se_Tbl::IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
+            Db::query('UPDATE ' . se_Tbl::IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
             return $row['ri_ip'];
         } else {
             Log::warning('Закончились IP');
@@ -48,45 +63,24 @@ class se_ParserYandexXml extends se_Parser{
      * @return string
      */
     protected function getXMLRequest($query, $page = 1){
-        $data = '<?xml version="1.0" encoding="windows-1251"?>'."\r\n";
-        $data .= "<request>\r\n";
-        $data .= "<query>$query</query>\r\n";
-        $data .= "<page>$page</page>\r\n";
-        $data .= "<groupings>\r\n";
-        $data .= "<groupby attr=\"d\" mode=\"deep\" groups-on-page=\"100\" docs-in-group=\"1\" />\r\n";
-        $data .= "</groupings>\r\n";
-        $data .= "</request>\r\n";
+        $data = '<?xml version="1.0" encoding="windows-1251"?>' . "\r\n" .
+                "<request>\r\n" .
+                "<query>$query</query>\r\n" .
+                "<page>$page</page>\r\n" .
+                "<groupings>\r\n" .
+                '<groupby attr="d" mode="deep" groups-on-page="' . $this->_linksInPages .'" docs-in-group="1" />' . "\r\n" .
+                "</groupings>\r\n".
+                "</request>\r\n";
         return  $data;
     }
 
-    // cleaning query
-    protected function setQuery($query){
-        $query=str_replace('&','&amp;', $query);
-        $query=str_replace('<','&lt;', $query);
-        $query=str_replace('>','&gt;', $query);
-        return trim($query);
-    }
-
-
     // cleaning url for compare
     protected function getHost($url){
-        return str_replace ("www.", "",parse_url(strtolower($url), PHP_URL_HOST));
+        return str_replace ("www.", "", parse_url(strtolower($url), PHP_URL_HOST));
     }
 
     protected function getPath($url){
         return parse_url ($url, PHP_URL_PATH);
-    }
-
-    protected function getGET($region){
-
-        $path = '';
-        if (!$region) {
-            $region = 213;
-        }
-
-        $path = "?lr=".$region;
-        $url = 'http://xmlsearch.yandex.ru/xmlsearch'.$path;
-        return $url;
     }
 
     /**
@@ -95,7 +89,7 @@ class se_ParserYandexXml extends se_Parser{
      * @param string $url_comp  url для сравнения
      * @return array (z_Seo, z_Seocomp)
      */
-    private function parsed($response){
+    private function parsingXml($response){
 
         $positions = array();
         $pos       = 0;
@@ -103,11 +97,9 @@ class se_ParserYandexXml extends se_Parser{
         $i         = 0;
         $ps;
 
-
         foreach($groups as $value){
             $pos++;
             $ps['pos'] = $pos;
-
             $url = (string) $value->doc->url;
             $parsedUrl = @parse_url($url);
             $ps['site'] = $parsedUrl['host'];//
@@ -119,21 +111,27 @@ class se_ParserYandexXml extends se_Parser{
         return $positions;
     }
 
-    protected function parsing(sep_Keywords $k, $dot = false){
-        $query = $this->setQuery($k->name);
-        $query .= $dot ? '.' : '';
-        $depth = 1;
+    /**
+     *
+     * @param sep_Keywords $k
+     * @param int $dot тип парсинга
+     * @return <type>
+     */
+    protected function parsing(sep_Keywords $k, $conf = 0) {
+
+        $query = $k->name . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
+        $query = Xml::prepareTextForXml($query);
         $finded = false;
         $pos = array();
-        for ($page = 0; $page < $depth; $page++){
-            $this->curl->setOpt(CURLOPT_INTERFACE, $this->getIp());
-            $this->curl->setPostArray(array('text', $this->getXMLRequest($query, $page)));
-            $xml_response = $this->request();
+        for ($page = 0; $page < $this->_depth; $page++){
+         ##   $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
+            $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
+            $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH);
 
-            $attempts = 2;// +2 попытки
+            $attempts = self::ATTEMPTS;
             while(empty($xml_response) && $attempts!=0){
-                $this->curl->setOpt(CURLOPT_INTERFACE, $this->getIp());
-                var_dump('Яндекс не ответил, попробуем еще раз...');
+          ##      $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
+                Log::dump('Яндекс не ответил, попробуем еще раз...');
                 sleep(1);
                 $xml_response = $this->request();
                 $attempts--;
@@ -151,75 +149,92 @@ class se_ParserYandexXml extends se_Parser{
             }
 
             $sxe = simplexml_load_string($xml_response)->response;
-            $pos += $this->parsed($sxe);
-           // Log::dump($pos, 'Black', $k->name);
+            $pos += $this->parsingXml($sxe);
         }
-
         return $pos;
     }
 
-    public function start() {
+    /**
+     * Старт бота
+     *
+     * @param int $type - типа парсинга
+     */
+    public function start($type = self::CONF_WITH_DOT) {
+        $this->_configure();
         parent::start();
-        // . ' limit 10 order by name'
-        $sql = Stmt::prepare(se_StmtDeamon::GET_KEYWORDS, array('limit' => 10));
 
-        $keywords = Model::getObjectsFromSql('se_Keywords', $sql, self::$_db);
-        if(!$keywords) {
+        $sql = Stmt::prepare(se_StmtDaemon::GET_KEYWORDS, array('limit' => 1));
+        $keywords = Model::getObjectsFromSql('sep_Keywords', $sql);
+        if (!$keywords) {
             die ();//'Закончились ключевики');
         }
-      ###  $this->curl_opt[CURLOPT_POST] = 1;
 
+        if (self::CONF_WITH_DOT == $type) {
+            $this->_parseDot($keywords);
+        } else if (!$type) {
+            $this->_parseSimple($keywords);
+        }
+
+       // echo 'Сделано запросов: '.$this->count_request.'; Пропарсено ключевиков: '.$this->db->numberChangedKeys();
+    }
+
+    /**
+     * Стандартный парсинг
+     * @param array $keywords
+     */
+    private function _parseSimple($keywords) {
+
+    }
+
+    /**
+     * Парсинг с "точкой"
+     * @param array $keywords
+     */
+    private function _parseDot($keywords) {
         foreach ($keywords as $kw){
-           $this->curl->setGet(array('lr', $kw->region_id));
-/*+*/      $psDot = $this->parsing ($kw, true);
-/*+*/      if ($psDot) {
-/*+*/          $ps = $this->parsing ($kw);
-/*+*/          foreach ($psDot as $val) {
-                    $p = new Positions();
-                    $s = new Sites;
-                    $u = new Urls;
-
-/*+*/               $pos = 0;
-
-/*+*/               $idPosDot = md5($val['url']);
-/*+*/               if (isset($ps[$idPosDot])) {
+           $this->curl->setGet(array('lr' => $kw->region_id));
+           $psDot = $this->parsing ($kw, self::CONF_WITH_DOT);
+           if ($psDot) {
+               $ps = $this->parsing ($kw);
+               $p = new sep_Positions();
+               $site = new sep_Sites();
+               $url = new sep_Urls();
+               foreach ($psDot as $val) {
+                    $pos = 0;
+                    $idPosDot = md5($val['url']);
+                    if (isset($ps[$idPosDot])) {
                         $pos = $ps[$idPosDot]['pos'];
                     }
                     $p->keyword_id = $kw->id;
-                    //временное решение, т.к. поле уникальное и сделать через стандартные методы
-
-                    if (!$s->getObjectField('name', $val['site'])) {
-                       $s->name = $val['site'];
-                       $s->id = $s->add();
+                    // есть ли такой сайт в базе
+                    if (!$site->getObjectField('name', $val['site'])) {
+                       $site->name = $val['site'];
+                       $site->save();
                     }
-                    if (!$u->getObjectField('url', $val['url'])) {
-                       $u->url = $val['url'];
-                       $u->site_id = $s->id;
-                       $u->id = $u->add();
-                    }
-                    $p->site_id = $s->id;
-                    $p->url_id = $u->id;
 
-/*+*/               $p->pos_dot = $val['pos'];
-/*+*/               $p->pos = $pos;
+                    // есть ли такой url в базе
+                    if (!$url->getObjectField('url', $val['url'])) {
+                       $url->url = $val['url'];
+                       $url->site_id = $site->id;
+                       $url->save();
+                    }
+                    $p->site_id = $site->id;
+                    $p->url_id = $url->id;
+
+                    $p->pos_dot = $val['pos'];
+                    $p->pos = $pos;
 
                     $p->links_search = $val['links_search'];
                     $p->saveInBuffer()->reset();
-
-
+                    $url->reset();
+                    $site->reset();
                }
-               $p->save();
+               $p->executeBuffer();
                $kw->yandex = 'Сalculated';
            } else {
                $kw->yandex = 'Error';
            }
-
            $kw->save();
-           //$kw->saveCache();
-           //$kv->save();
         }
-
-
-       // echo 'Сделано запросов: '.$this->count_request.'; Пропарсено ключевиков: '.$this->db->numberChangedKeys();
     }
 }

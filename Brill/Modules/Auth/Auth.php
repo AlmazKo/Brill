@@ -3,9 +3,6 @@
  * Auth
  * Модуль отвечающий за работу с пользователями
  */
-
-require_once CORE_PATH . 'Modules.php';
-
 class Auth extends Modules {
     protected static $instance = null;
     protected $version = 1;

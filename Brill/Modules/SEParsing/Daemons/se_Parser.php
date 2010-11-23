@@ -9,16 +9,28 @@ abstract class se_Parser extends Daemon
 {
     protected 
         $_curl,
-        $_countRequests;
+        $_countRequests,
+        //сколько страниц проходить по поисковой выдаче
+        $_depth = 1,
+        //сколько ссылок запрашивать на страницу
+        $_linksInPages = 20;
 
-    public function  __construct() {}
+    public function  __construct() {
+        parent::__construct();
+        $this->curl = new Curl();
+        $opt = array (CURLOPT_HEADER => true,
+                      CURLOPT_RETURNTRANSFER => false,
+                      CURLOPT_FOLLOWLOCATION => false,
+                      CURLOPT_TIMEOUT => 20);
+        $this->curl->setOptArray($opt);
+    }
     /**
      *
      * Посылает запросы и по циклу проходит страницы
      * @param Keyword $k  ключевик из z_keywords
      *
      */
-    abstract protected function parsing(Keywords $k);
+  //  protected function parsing(Keywords $k);
 
     /**
      *
@@ -26,15 +38,7 @@ abstract class se_Parser extends Daemon
      * @return string IP адрес
      *
      */
-    abstract protected function getIp();
-
-
-    /**
-     * Получает строку Get-запроса
-     * @return string GET-запрос
-     *
-     */
-    protected function getGET(){}
+    abstract protected function _getIp();
 
     /**
      * Получает строку POST-запроса
@@ -54,17 +58,12 @@ abstract class se_Parser extends Daemon
     }
 
     final protected function initCurl(){
-        $this->curl = new Curl();
-        $opt[CURLOPT_HEADER] = false;
-        $opt[CURLOPT_RETURNTRANSFER] = true;
-        $opt[CURLOPT_FOLLOWLOCATION] = false;
-        $opt[CURLOPT_TIMEOUT] = 30;
-        $this->curl->setOptArray($opt);
+
     }
 
 
     final function  __destruct() {
-        if($this->curl) {
+        if(isset($this->curl)) {
             $this->curl->close();
         }
     }

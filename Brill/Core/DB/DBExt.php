@@ -38,15 +38,6 @@ class DBExt extends DB{
 //        parent::execute($prepared, $value, $returnFields);
 //
 //
-
-
-
-
-
-
-
-
-
         $value = is_string($value) ? "'".addslashes($value)."'" : (string) $value;
         $query = "select * from `$tblName` where $field=$value Limit 1";
 
@@ -87,11 +78,12 @@ class DBExt extends DB{
     public static function getOneRowSql($sql, $lnk = null) {
         $result = parent::query($sql);
         $values = null;
+        
         if ($result->num_rows == 1) {
             $values = $result->fetch_assoc();
         } else if ($result->num_rows > 0) {
             Log::warning("Получено больше одной строки");
-        }
+        }Log::dump($values);
         return $values;
     }
     /**
@@ -140,8 +132,8 @@ class DBExt extends DB{
      * @param string $sql Query
      * @return array
      */
-    function selectToTable($query) {
-        $result = parent::query($query);
+    function selectToTable($query, $lnk = null) {
+        $result = parent::query($query, $lnk);
         $values = $fields = array();
         while ($finfo = mysqli_fetch_field($result)) {
             $fields [] = $finfo->name;
@@ -156,14 +148,30 @@ class DBExt extends DB{
         return array($fields, $values);
     }
 
+   /**
+     * Получает данные по запросу и возращает даннные для класса oTable
+     * @param string $sql Query
+     * @return array
+     */
+    function selectToArray($query, $lnk = null) {
+        $result = parent::query($query, $lnk);
+        $values = array();
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $values[] = $row;
+            }
+        }
+
+        return $values;
+    }
 
 /**
      * Получает данные по запросу и возращает даннные для класса oList
      * @param string $sql Query
      * @return array
      */
-    function selectToList($query) {
-        $result = parent::query($query);
+    function selectToList($query, $lnk = null) {
+        $result = parent::query($query, $lnk);
         $values = array();
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_row()) {

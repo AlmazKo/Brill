@@ -42,7 +42,7 @@ class Front {
         $dirsModules = scandir(MODULES_PATH);
         foreach ($dirsModules as $nameModule) {
             if ($nameModule != '.' && $nameModule != '..') {
-                $pathModule = MODULES_PATH.$nameModule . '/' . $nameModule . '.php';
+                $pathModule = MODULES_PATH . $nameModule . '/' . $nameModule . '.php';
                 if (file_exists($pathModule)) {
                     require_once $pathModule;
                     // working in php >= 5.2.x

@@ -17,6 +17,11 @@ abstract class Daemon {
      * apaчевский аналог start|stop|restart|reload|force-reload|start-htcacheclean|stop-htcacheclean|status
      *
      */
+
+    protected
+    // ссылка на конфигурацию модуля
+        $_module;
+    public function  __construct() {}
     public function start() {}
     public function stop() {}
     
@@ -25,4 +30,8 @@ abstract class Daemon {
     public function getStatus() {}
     protected function _setStatus() {}
     protected function _error() {}
+
+    public function setModule($module) {
+        $this->_module = $module;
+    }
 }

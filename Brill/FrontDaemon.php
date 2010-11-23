@@ -45,7 +45,9 @@ class FrontDeamon {
     private function handleRequest() {
         $request = RegistryRequest::instance();
         if ($request->isConsole()) {
-            
+            $daemonR = new Underworld();
+            $daemon = $daemonR->summon();
+            $daemon->start();
         } else {
             
             // очень странно будет если ктото сюда попадет
@@ -53,8 +55,6 @@ class FrontDeamon {
         
 //      $context = RegistryContext::instance();
         // фабрика демонов
-        $daemonR = new Underworld();
-        $daemon = $daemonR->summon();
-        $daemon->start();
+
     }
 }

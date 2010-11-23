@@ -17,6 +17,14 @@ class SEParsing extends Modules {
 
     protected function configure() {}
 
+    /**
+     * Подключает важные файлы, до инициализации демона
+     */
+    function configureDaemon() {
+        require_once $this->pathDaemons . 'se_Parser.php';
+        require_once $this->pathDB . 'se_StmtDaemon.php';
+    }
+    
     public  static function instance() {
         if (self::$instance === null) {
            self::$instance = new self();

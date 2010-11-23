@@ -24,14 +24,15 @@ class Curl {
         // Массив get-параметров для запроса
         $_aGet = array(),
         // Массив post-параметров для запроса
-        $_aPost,
+        $_aPost = array(),
         // Массив заголовков для запроса
         $_aRequestHeaders,
         // Массив файлов для запроса
         $_aRequestFiles;
 
     public function __construct() {
-
+        $this->_ch = curl_init();
+        RunTimer::addTimer('Curl');
     }
 
     /**
@@ -40,12 +41,16 @@ class Curl {
      */
     public function request($url) {
         $this->_clean();
-        $sGet = $this->_preparedGet();
+        $aGet = $this->_preparedGet();
+
         $headers = $this->_preparedHeaders();
         if ($aGet) {
-            $url = $url . '?' . $sGet;
+            $url = $url . '?' . $aGet;
+        }var_dump($url);
+        if ($this->isOpt(CURLOPT_POST)) {
+            $this->_preparePost();
         }
-        if ($this->exec($url)) {
+        if ($this->_exec($url)) {
             $this->_parseResponse();
         }
         return $this;
@@ -66,6 +71,8 @@ class Curl {
      */
     public function requestPost($url) {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
+        $this->setOpt(CURLOPT_POST, 1);
+        $this->_preparePost();
         return $this->request($url);
     }
 
@@ -96,19 +103,19 @@ class Curl {
     }
 
     /**
-     * Задать массив Get
-     * @param array $array
-     */
-    function setGet(array $array) {
-        $this->_aGet = array_merge($this->_aGet, $array);
-    }
-
-    /**
      * Получить массив Post
      * @return array
      */
     function getPost () {
         return $this->_aPost;
+    }
+    
+    /**
+     * Задать массив Get
+     * @param array $array
+     */
+    function setGet(array $array) {
+        $this->_aGet = array_merge($this->_aGet, $array);
     }
 
     /**
@@ -123,14 +130,14 @@ class Curl {
      * Задать заголовки запроса
      */
     function setHeaders(array $aHeaders) {
-        $this->setOpt(CURLOPT_HTTPHEADER, $aHeaders);
+        $this->_aRequestHeaders = array_merge($this->_aRequestHeaders, $array);
     }
 
     /**
      * Получить заголовки запроса
      */
     function getHeaders() {
-
+        return $this->_aRequestHeaders;
     }
     /**
      * Формирует строку из get-параметров
@@ -141,23 +148,37 @@ class Curl {
     protected function _preparedGet() {
         $get = array();
         foreach ($this->_aGet as $key => $value) {
-            $get[] = $key . ($value === '') ? '' : '=' . urldecode($value);
+            $get[] = $key . (($value === '') ? '' : '=' . urldecode($value));
         }
-        return implode('&' . $get);
+        return implode('&' , $get);
     }
 
+    /**
+     * Формирует тело Post запроса
+     */
+    protected function _preparePost() {
+        $post = array();
+        foreach ($this->_aPost as $key => $value) {
+            $post[] = $key . (($value === '') ? '' : '=' . $value);
+        }
+        $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
+    }
+    
     /**
      * Формирует строку заголовков
      */
     protected function _preparedHeaders() {
-
+        if ($this->_aRequestHeaders) {
+            $this->setOpt(CURLOPT_HTTPHEADER, $this->_aRequestHeaders);
+        }
     }
 
     /**
      * Выполнить как ajax-запрос
      */
     function asAjax() {
-        $this->setHeaders();
+        $this->setHeaders(array('X-Requested-With' => 'XMLHttpRequest',
+                                'Content-Type'     => 'application/x-www-form-urlencoded; charset=UTF-8;'));
     }
 
     /**
@@ -184,9 +205,15 @@ class Curl {
          $this->_opt = array_merge($this->_opt, $opt);
     }
 
+    /**
+     * Задать настройку для курла
+     * @param int $key
+     * @param mixed $value
+     */
     public function setOpt($key, $value) {
          $this->_opt[$key] = $value;
     }
+
     public function getinfo() {
         return $this->_info = curl_getinfo($this->_ch);
     }
@@ -197,9 +224,12 @@ class Curl {
      * @return mixed
      */
     public function isOpt($name) {
-        return isset($this->_opt[$name]) ? (bool)$this->_opt[$name] : null;
+        return isset($this->_opt[$name]) ? true : false;
     }
 
+    public function getOpt($name) {
+        return $this->isOpt($name) ? $this->_opt[$name] : null;
+    }
     /**
      * Выполнить курл с текущими настройками
      * @return bool удачно или нет
@@ -207,8 +237,9 @@ class Curl {
     protected function _exec($get = '', $post = null) {
         RunTimer::addPoint('Curl');
         //задаем урл
-        curl_setopt_array($_ch, $this->_opt);
-        $this->_responseRaw = curl_exec($_ch);
+        curl_setopt_array($this->_ch, $this->_opt);
+        Log::dump($this->getOpt(CURLOPT_POSTFIELDS));
+        $this->_responseRaw = curl_exec($this->_ch); echo $this->_responseRaw; 
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
@@ -278,7 +309,7 @@ class Curl {
         if ($this->_charsetResponse && ENCODING_CODE != $this->_responseRaw ) {
             $this->_responseRaw = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseRaw);
         }
-
+echo $this->_responseRaw;
         // если в конфигурации стоит получение заголовков
         if ($this->isOpt(CURLOPT_HEADER)) {
             $this->_aResponseHeaders = $this->_headersToArray();
@@ -304,6 +335,10 @@ class Curl {
         $this->_aResponseHeaders = null;
         $this->_info = null;
 
+    }
+
+    public function close() {
+        curl_close($this->_ch);
     }
 
 }
