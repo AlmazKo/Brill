@@ -30,8 +30,6 @@ class Curl {
         // Массив файлов для запроса
         $_aRequestFiles;
 
-    protected
-        $curlConstants = array (CURLOPT_IPRESOLVE => 'CURLOPT_IPRESOLVE');
     public function __construct() {
         $this->_ch = curl_init();
         RunTimer::addTimer('Curl');
