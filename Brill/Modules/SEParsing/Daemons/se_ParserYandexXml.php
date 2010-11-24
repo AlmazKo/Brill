@@ -39,6 +39,9 @@ class se_ParserYandexXml extends se_Parser {
         require_once $this->_module->pathModels . 'sep_Sets.php';
         require_once $this->_module->pathModels . 'sep_Regions.php';
         require_once $this->_module->pathModels . 'sep_UrlKeywords.php';
+        require_once $this->_module->pathModels . 'sep_Positions.php';
+        require_once $this->_module->pathModels . 'sep_Urls.php';
+
     }
 
     /**
@@ -126,8 +129,7 @@ class se_ParserYandexXml extends se_Parser {
         for ($page = 0; $page < $this->_depth; $page++){
          ##   $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
             $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
-            $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH);
-
+            $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
             $attempts = self::ATTEMPTS;
             while(empty($xml_response) && $attempts!=0){
           ##      $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
@@ -168,6 +170,8 @@ class se_ParserYandexXml extends se_Parser {
         if (!$keywords) {
             die ();//'Закончились ключевики');
         }
+        $this->curl->setGet(array('user' => 'alexandersuslov',
+                                  'key'  => '03.16530698:0be40b9b36e8180e342b869c26086871'));
 
         if (self::CONF_WITH_DOT == $type) {
             $this->_parseDot($keywords);

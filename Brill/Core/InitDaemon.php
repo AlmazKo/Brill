@@ -10,7 +10,7 @@
 header('Content-type: text/html; charset=utf-8');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
+define  ('ENCODING_CODE', 'utf-8');
 
 @ini_set ('pcre.backtrack_limit', '5000000');
 @ini_set('max_execution_time', 0);
@@ -29,6 +29,9 @@ require_once CORE_PATH . 'Common/Encoding.php';
 require_once CORE_PATH . 'Common/StringUtf8.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';
+
+Log::setLevel(1);
+
 require_once CORE_PATH . 'Underworld.php';
 require_once CORE_PATH . 'Modules.php';
 require_once REGISTRY_PATH . 'Registry.php';
