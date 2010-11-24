@@ -30,6 +30,8 @@ class Curl {
         // Массив файлов для запроса
         $_aRequestFiles;
 
+    protected
+        $curlConstants = array (CURLOPT_IPRESOLVE => 'CURLOPT_IPRESOLVE');
     public function __construct() {
         $this->_ch = curl_init();
         RunTimer::addTimer('Curl');
@@ -50,7 +52,8 @@ class Curl {
         if ($this->isOpt(CURLOPT_POST)) {
             $this->_preparePost();
         }
-        if ($this->_exec($url)) {
+        $this->setOpt(CURLOPT_URL, $url);
+        if ($this->_exec()) {
             $this->_parseResponse();
         }
         return $this;
@@ -202,6 +205,7 @@ class Curl {
      * @param array $opt массив настроек для curl
      */
     public function setOptArray(array $opt = array()) {
+        log::dump($opt);
          $this->_opt = array_merge($this->_opt, $opt);
     }
 
@@ -211,6 +215,7 @@ class Curl {
      * @param mixed $value
      */
     public function setOpt($key, $value) {
+         log::dump($key . ' ' . $value);
          $this->_opt[$key] = $value;
     }
 
@@ -234,12 +239,13 @@ class Curl {
      * Выполнить курл с текущими настройками
      * @return bool удачно или нет
      */
-    protected function _exec($get = '', $post = null) {
+    protected function _exec() {
         RunTimer::addPoint('Curl');
         //задаем урл
         curl_setopt_array($this->_ch, $this->_opt);
-        Log::dump($this->getOpt(CURLOPT_POSTFIELDS));
-        $this->_responseRaw = curl_exec($this->_ch); echo $this->_responseRaw; 
+        #Log::dump($this->getOpt(CURLOPT_POSTFIELDS));
+        $this->_responseRaw = curl_exec($this->_ch); #
+        log::dump($this->getinfo()); #die();
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
@@ -309,7 +315,7 @@ class Curl {
         if ($this->_charsetResponse && ENCODING_CODE != $this->_responseRaw ) {
             $this->_responseRaw = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseRaw);
         }
-echo $this->_responseRaw;
+
         // если в конфигурации стоит получение заголовков
         if ($this->isOpt(CURLOPT_HEADER)) {
             $this->_aResponseHeaders = $this->_headersToArray();
