@@ -4,6 +4,7 @@
  *
  * @author Alexander Suslov a.s.suslov@gmail.com
  */
+require_once CORE_PATH . 'Lib/curlConstants.php';
 
 class Curl {
     protected
@@ -110,7 +111,7 @@ class Curl {
     function getPost () {
         return $this->_aPost;
     }
-    
+
     /**
      * Задать массив Get
      * @param array $array
@@ -164,7 +165,7 @@ class Curl {
         }
         $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
     }
-    
+
     /**
      * Формирует строку заголовков
      */
@@ -232,6 +233,22 @@ class Curl {
 
     public function getOpt($name) {
         return $this->isOpt($name) ? $this->_opt[$name] : null;
+    }
+
+    public function getOpts($analogView = false) {
+        if ($analogView) {
+            $analogOpt = $this->_opt;
+            foreach($this->_opt as $key => $val) {
+                if (isset(curlConstants::$opts[$val])) {
+                    $analogOpt[curlConstants::$opts[$val]] = $val;
+                } else {
+                    $analogOpt[$key] = $val;
+                }
+            }
+            return $analogOpt;
+        } else {
+            return $this->_opt;
+        }
     }
     /**
      * Выполнить курл с текущими настройками
