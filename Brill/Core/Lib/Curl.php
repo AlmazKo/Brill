@@ -4,7 +4,7 @@
  *
  * @author Alexander Suslov a.s.suslov@gmail.com
  */
-require_once CORE_PATH . 'Lib/curlConstants.php';
+require_once CORE_PATH . 'Lib/ConstCurl.php';
 
 class Curl {
     protected
@@ -21,7 +21,7 @@ class Curl {
         // массив заголовоков ответа
         $_aResponseHeaders,
         // кодировка ответа, если не указана - будет браться из заголовков ответа
-        $_charsetResponse = 'windows-1251', // can use UNKNOW, if unkonow encoding in response
+        $_charsetResponse = ENCODING_CODE, // can use UNKNOW, if unkonow encoding in response
         // Массив get-параметров для запроса
         $_aGet = array(),
         // Массив post-параметров для запроса
@@ -47,7 +47,7 @@ class Curl {
         $headers = $this->_preparedHeaders();
         if ($aGet) {
             $url = $url . '?' . $aGet;
-        }var_dump($url);
+        }
         if ($this->isOpt(CURLOPT_POST)) {
             $this->_preparePost();
         }
@@ -74,7 +74,6 @@ class Curl {
     public function requestPost($url) {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
         $this->setOpt(CURLOPT_POST, 1);
-        $this->_preparePost();
         return $this->request($url);
     }
 
@@ -101,7 +100,7 @@ class Curl {
      * @param array $array
      */
     function setPost (array $array) {
-        $this->_aPost = array_merge($this->_aPost, $array);
+        $this->_aPost = $this->_aPost + $array;
     }
 
     /**
@@ -117,7 +116,7 @@ class Curl {
      * @param array $array
      */
     function setGet(array $array) {
-        $this->_aGet = array_merge($this->_aGet, $array);
+        $this->_aGet = $this->_aGet + $array;
     }
 
     /**
@@ -132,7 +131,7 @@ class Curl {
      * Задать заголовки запроса
      */
     function setHeaders(array $aHeaders) {
-        $this->_aRequestHeaders = array_merge($this->_aRequestHeaders, $array);
+        $this->_aRequestHeaders = $this->_aRequestHeaders + $array;
     }
 
     /**
@@ -204,8 +203,7 @@ class Curl {
      * @param array $opt массив настроек для curl
      */
     public function setOptArray(array $opt = array()) {
-        log::dump($opt);
-         $this->_opt = array_merge($this->_opt, $opt);
+         $this->_opt = $this->_opt + $opt;
     }
 
     /**
@@ -214,7 +212,6 @@ class Curl {
      * @param mixed $value
      */
     public function setOpt($key, $value) {
-         log::dump($key . ' ' . $value);
          $this->_opt[$key] = $value;
     }
 
@@ -235,12 +232,18 @@ class Curl {
         return $this->isOpt($name) ? $this->_opt[$name] : null;
     }
 
+    /**
+     * Возвращает массив всех настроек курла
+     * 
+     * @param bool $analogView - вывести в человекопонятном виде
+     * @return array
+     */
     public function getOpts($analogView = false) {
         if ($analogView) {
-            $analogOpt = $this->_opt;
+            $analogOpt = array();
             foreach($this->_opt as $key => $val) {
-                if (isset(curlConstants::$opts[$val])) {
-                    $analogOpt[curlConstants::$opts[$val]] = $val;
+                if (isset(ConstCurl::$opts[$key])) {
+                    $analogOpt[ConstCurl::$opts[$key]] = $val;
                 } else {
                     $analogOpt[$key] = $val;
                 }
@@ -258,9 +261,9 @@ class Curl {
         RunTimer::addPoint('Curl');
         //задаем урл
         curl_setopt_array($this->_ch, $this->_opt);
-        #Log::dump($this->getOpt(CURLOPT_POSTFIELDS));
-        $this->_responseRaw = curl_exec($this->_ch); #
-        log::dump($this->getinfo()); #die();
+        Log::dump($this->getOpts(true));
+        $this->_responseRaw = curl_exec($this->_ch);
+        log::dump($this->getinfo());
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
@@ -282,16 +285,17 @@ class Curl {
         $rows = explode("\n", $sHeaders);
         foreach ($rows as $row) {
             $rr = explode(': ', $row, 2);
-            $keyHeader = $rr[0];
-            $valueHeader = $rr[1];
-            preg_match('/([^;]+)((;\s+(.+))*)/', $subject, $matches);
-            if (preg_match('/([^=]+)=(.+)/', $subject, $m2)) {
-                $val[$m2[1]] = $m2[2];
-            } else {
-                $val[] = $match;
+            if (count($rr) == 2) {
+                $keyHeader = $rr[0];
+                $valueHeader = $rr[1];
+//                if (preg_match('/([^=]+)=(.+)/', $subject, $m2)) {
+//                    $val[$m2[1]] = $m2[2];
+//                } else {
+//                    $val[] = $match;
+//                }
+                $aHeaders[$keyHeader] = $valueHeader;
             }
 
-            $aHeaders[$keyHeader] = $valueHeader;
 
 // надо заменить на регулярку
 // http://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BA%D0%B8_HTTP#.D0.9E.D0.B1.D1.89.D0.B8.D0.B9_.D1.84.D0.BE.D1.80.D0.BC.D0.B0.D1.82
@@ -317,7 +321,7 @@ class Curl {
 //
 //            }
 
-        }
+        }Log::dump($aHeaders);
         return $this->_aResponseHeaders = $aHeaders;
     }
 
@@ -326,10 +330,6 @@ class Curl {
      * Получает массив заголовков и строку тела в UTF-8 кодировке
      */
     protected function _parseResponse() {
-        // если кодировка задана заранее
-        if ($this->_charsetResponse && ENCODING_CODE != $this->_responseRaw ) {
-            $this->_responseRaw = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseRaw);
-        }
 
         // если в конфигурации стоит получение заголовков
         if ($this->isOpt(CURLOPT_HEADER)) {
@@ -343,7 +343,12 @@ class Curl {
 //                                             ENCODING_CODE,
 //                                             $this->_responseRaw);
 //            }
-            $this->_responseBody = StringUtf8::substr($response, -$info['download_content_length']);
+
+           $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
+           // если кодировка задана заранее
+            if ($this->_charsetResponse && ENCODING_CODE ) {
+             //   $this->_responseBody = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseBody);
+            }
         }
         $this->_responseRaw = null;
     }

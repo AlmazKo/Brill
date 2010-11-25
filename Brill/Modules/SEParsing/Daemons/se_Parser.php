@@ -19,9 +19,10 @@ abstract class se_Parser extends Daemon
         parent::__construct();
         $this->curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
-                      CURLOPT_RETURNTRANSFER => false,
+                      CURLOPT_RETURNTRANSFER => true,
                       CURLOPT_FOLLOWLOCATION => false,
-                      CURLOPT_TIMEOUT => 20);
+                      CURLOPT_TIMEOUT => 20,
+);
         $this->curl->setOptArray($opt);
     }
     /**
