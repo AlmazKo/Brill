@@ -41,7 +41,6 @@ class se_ParserYandexXml extends se_Parser {
         require_once $this->_module->pathModels . 'sep_UrlKeywords.php';
         require_once $this->_module->pathModels . 'sep_Positions.php';
         require_once $this->_module->pathModels . 'sep_Urls.php';
-
     }
 
     /**
@@ -130,6 +129,7 @@ class se_ParserYandexXml extends se_Parser {
          ##   $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
             $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
             $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
+            Log::dump($xml_response); die();
             $attempts = self::ATTEMPTS;
             while(empty($xml_response) && $attempts!=0){
           ##      $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
@@ -197,7 +197,7 @@ class se_ParserYandexXml extends se_Parser {
     private function _parseDot($keywords) {
         foreach ($keywords as $kw){
            $this->curl->setGet(array('lr' => $kw->region_id));
-           $psDot = $this->parsing ($kw, self::CONF_WITH_DOT);
+           $psDot = $this->parsing($kw, self::CONF_WITH_DOT);
            if ($psDot) {
                $ps = $this->parsing ($kw);
                $p = new sep_Positions();

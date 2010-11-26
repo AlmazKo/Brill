@@ -85,11 +85,13 @@ abstract class Action {
         $this->configure();
         $this->session = RegistrySession::instance();
 
-        //срабатывание эвента EVENT_INIT_ACTION
+        //срабатывание эвента
         if (!$isInternal) {
             General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION);
+        } else {
+            General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL);
         }
-        
+
     }
 
     public function input() {

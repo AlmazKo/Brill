@@ -49,7 +49,7 @@ abstract class Model {
     function  __set($field, $value) {
         if (in_array($field, $this->_fields)) {
             if ($this->_isPk && $field == $this->_fields[0]) {
-                Log::warning('Нельзя изменять первичный ключ '.$field);
+                Log::warning(get_class($this) . ' Нельзя изменять первичный ключ '.$field);
             }
             //экранируем все от греха по дельше
             $this->_values[$field] = addslashes($value);
@@ -245,7 +245,7 @@ abstract class Model {
                 $this->add();
             }
         } else {
-            Log::warning('Объекты, которые не поддеживают первичный ключ - изменять нельзя');
+            $this->add();
         }
         return $this;
     }
