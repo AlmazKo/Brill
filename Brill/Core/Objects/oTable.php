@@ -51,7 +51,9 @@ class oTable implements ISorting{
         $viewIterator = false,
         $viewHead = true,
         $typeSelected = false,
-        $viewSorting = true;
+        $viewSorting = true,
+        $_isEdit,
+        $_isDel;
 
     function __construct($data) {
         if (is_array($data)) {
@@ -183,7 +185,21 @@ class oTable implements ISorting{
         $this->viewIterator = (bool) $view;
     }
 
+    /**
+     * выводить таблицу с ссылкой на редактирование
+     * @param bool $view
+     */
+    function setIsEdit($edit = false) {
+        $this->_isEdit = (bool) $edit;
+    }
 
+   /**
+     * выводить таблицу с ссылкой на удаление
+     * @param bool $view
+     */
+    function setIsDel($del = false) {
+        $this->_isDel = (bool) $del;
+    }
     /**
      * Выводить ли шапку таблицы
      * @param bool $view
@@ -310,6 +326,10 @@ class oTable implements ISorting{
                 $html .= '<th>' . $this->headers[$i] . '</th>';
             }
         }
+
+        if ($this->_isEdit) {
+            $html .= '<th class="options">Опции</th>';
+        }
         $html .= '</tr>';
         return $html;
     }
@@ -340,6 +360,16 @@ class oTable implements ISorting{
                         $html .= '<td>' . $this->buildTd($cell, $this->viewCols[$i], $row) .'</td>';
                     }
                     $i++;
+                }
+                if ($this->_isEdit || $this->_isDel) {
+                    $html .= '<td class="options">';
+                    if ($this->_isEdit) {
+                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'edit'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax><img src="' . WEB_PREFIX .'Brill/img/edit.png" /></a>';
+                    }
+                    if ($this->_isDel) {
+                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'del'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax_areusure><img src="' . WEB_PREFIX .'Brill/img/del.png" /></a>';
+                    }
+                    $html .= '</td>';
                 }
                 $idRow++;
                 $html .= '</tr>';

@@ -11,7 +11,8 @@ protected $fields = array();
 protected $action;
 protected $method = 'POST';
 protected $enctype = 'multipart/form-data';
-    function __construct(array $fields = array(), $url = null) {
+    function __construct(array $fields = array(), $url = array()) {
+        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), $url);
         $this->action = Routing::constructUrl($url);
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););
@@ -28,11 +29,11 @@ protected $enctype = 'multipart/form-data';
     public function buildHtml($id = 'form',$disable = false) {
         $html = '';
         if ($this->fields) {
-            $html .= '<form id="' . $id . '" enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '?ajax=1">';
+            $html .= '<form id="' . $id . '" enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }
-            $html .='<label></label><input type="submit"></form>';
+            $html .='<label></label><input type="submit"></form><div style="clear:both"></div>';
         }
         return $html;
     }
@@ -89,12 +90,14 @@ protected $enctype = 'multipart/form-data';
             case 'submit':
                 break;
         }
+       
         if ($settings['info']) {
-            $html .= '<br /><span class="form_field_info">' . $settings['info'] . '</span>';
+            $html .= '<span class="form_field_info">' . $settings['info'] . '</span>';
         }
         if ($settings['error']) {
-            $html .= '<br /><span class="form_field_error">' . $settings['error'] . '</span>';
+            $html .= '<span class="form_field_error">' . $settings['error'] . '</span>';
         }
+         $html .= '<div style="clear:both"></div>';
         $html .= '</p>';
         return $html;
     }

@@ -20,7 +20,8 @@ class aSets extends Action{
         $tbl = new oTableExt(array($sets->getFields(), $sets->getArray()));
         $tbl->viewColumns('name');
         $tbl->setNamesColumns(array('name'=>'Сет'));
-        
+        $tbl->setIsEdit(true);
+        $tbl->setIsDel(true);
         $this->context->set('tbl', $tbl);
     }
 

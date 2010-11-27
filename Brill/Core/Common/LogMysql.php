@@ -13,7 +13,7 @@ class LogMysql extends Log{
     public static function errorQuery($query) {
        $descr= htmlspecialchars($query) . "\n";
        self::warning($descr, true, 'SQL Error');
-       // echo self::inputLog('SQL Error', $descr, true, 'Red', 'mysql_errors');
+       echo self::inputLog('SQL Error', $descr, true, 'Red', 'mysql_errors');
 
     }
 }

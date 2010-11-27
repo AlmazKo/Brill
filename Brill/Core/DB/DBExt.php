@@ -209,9 +209,8 @@ class DBExt extends DB{
      */
     public static function deleteOneRow($tblName, $field, $value) {
         $query = "delete from `$tblName` where $field=$value Limit 1";
-        Log::dump($query);
-       # $result = parent::query($query);
-       # return parent::$lnk->affected_rows;
+        $result = parent::query($query);
+        return parent::$lnk->affected_rows;
     }
 
     /**

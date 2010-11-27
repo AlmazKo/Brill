@@ -91,10 +91,19 @@ abstract class Model {
         $values = DBExt::getOneRow($this->_tblName, $this->_fields[0], $valPk);
         if (isset($values)) {
             $this->initData($values);
+            return $this;
         } else {
             return false;
             #Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
         }
+    }
+
+    /**
+     * Возвращает объект, как массив
+     * @return array
+     */
+    public function toArray() {
+        return $this->getValues();
     }
 
     /**
@@ -172,7 +181,7 @@ abstract class Model {
      * @param recourxce $lnk
      * @return class
      */
-    public static function getObjectFromSql ($class, $sql, $lnk = null) {
+    public static function getObjectFromSql($class, $sql, $lnk = null) {
         $model = new $class();
         if (is_subclass_of($model, 'Model')) {
             $row = DBExt::getOneRowSql($sql);
@@ -193,7 +202,7 @@ abstract class Model {
      * @param resource $lnk
      * @return bool
      */
-    public function fillObjectFromSql ($sql, $lnk = null) {
+    public function fillObjectFromSql($sql, $lnk = null) {
         $row = DBExt::getOneRowSql($sql, $lnk);
         if ($row) {
             // по идее у модели должен меняться _table
@@ -205,6 +214,22 @@ abstract class Model {
     }
 
     /**
+     * Пытается заполнить объект из массива.
+     * Т.к. данные не известно откуда, то происходит запись только тех полей, которые найдутся в модели.
+     * Первичный ключ не изменяется.
+     *
+     * @param array $values
+     * @return bool
+     */
+    public function fillObjectFromArray(array $values) {
+        foreach ($this->_fields as $fld) {
+            if ($fld != $this->_fields[0] && isset($values[$fld])) {
+               $this->_values[$fld] = $values[$fld];
+            }
+        }
+    }
+
+    /**
      * удаляет объект, полученный по первому полю
      * @param string $valPk значение ключа
      * @return class
@@ -212,7 +237,7 @@ abstract class Model {
     public function delete() {
       DBExt::deleteOneRow($this->_tblName, $this->_fields[0], $this->_values[$this->_fields[0]]);
       unset($this->_values[$this->_fields[0]]);
-      $this->calcCheckSum();
+      $this->_calcCheckSum();
     }
 
     /**
@@ -262,12 +287,12 @@ abstract class Model {
      */
     protected function _update () {
         //изменения вносим в базу только если изменилась контрольная сумма
-        if ($this->_checkSum != $this->calcCheckSum()) {
+        if ($this->_checkSum != $this->_calcCheckSum()) {
             $newValues = $this->_values;
             $valPk = array_shift($newValues);
             if (DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk)) {
                 //было что-то измено в базе, создаем новую чексумму
-                $this->calcCheckSum();
+                $this->_calcCheckSum();
             }
         }
      }
@@ -320,7 +345,7 @@ abstract class Model {
                 Log::warning('Не найдено соответствие в базе полю ' .$fld );
             }
         }
-        $this->calcCheckSum();
+        $this->_calcCheckSum();
     }
 
     /**
@@ -328,7 +353,7 @@ abstract class Model {
      * Нужна, чтобы избежать лишних апдейтов
      * @return int сгенерированная новая чек-сумма
      */
-    protected function calcCheckSum() {
+    protected function _calcCheckSum() {
        return $this->_checkSum = crc32(implode($this->_values));
     }
 

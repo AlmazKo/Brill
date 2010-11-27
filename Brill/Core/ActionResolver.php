@@ -92,7 +92,6 @@ class ActionResolver {
                 $action->nav = $route->nav;
                 $action->search = $route->search;
                 $action->route = $route;
-                        
                 //TODO проверка subclass От Actions
                 return $action;
             } else {

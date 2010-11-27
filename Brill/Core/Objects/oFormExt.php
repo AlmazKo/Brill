@@ -3,7 +3,7 @@
  * Class  extended form
  * @author almazKo
  */
-class oFormExt extends oForm{
+class oFormExt extends oForm {
 
 
     /**

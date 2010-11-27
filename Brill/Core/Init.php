@@ -46,6 +46,8 @@ require_once CORE_PATH . 'Lang/ru/texts.php';
 require CORE_PATH . 'ActionResolver.php';
 require CORE_PATH . 'DB/Stmt.php';
 require CORE_PATH . 'Navigation.php';
+require_once CORE_PATH . 'InternalRoute.php';
+
 require CORE_PATH . 'Interfaces/IPaging.php';
 require CORE_PATH . 'Interfaces/ISorting.php';
 

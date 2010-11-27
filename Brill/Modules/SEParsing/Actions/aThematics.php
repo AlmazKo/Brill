@@ -22,7 +22,8 @@ class aThematics extends Action{
         $tbl->viewColumns('name');
         $tbl->setNamesColumns(array('name'=>'Тематика'));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#id#">#name#</a>');
-
+        $tbl->setIsEdit(true);
+        $tbl->setIsDel(true);
         $this->context->set('h1', 'Все тематики');
         $this->context->set('tbl', $tbl);
 

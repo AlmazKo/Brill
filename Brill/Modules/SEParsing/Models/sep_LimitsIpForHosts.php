@@ -1,20 +1,17 @@
 <?php
 /**
  * sep_Interfaces
- * Все IP и прокси
+ * Лимиты на количество запросов с одного ip
  */
 
-class sep_Interfaces extends Model {
+class sep_LimitsIpForHosts extends Model {
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'id',
-        //IP address or a host name
-        'interface',
-        'port',
-        'type', // enum('Proxy','local')
-        'proxy_type', //enum ('HTTP', 'SOCKS5')
-        'proxy_password',
-        'proxy_login',
+        'host_id',
+        'everyDay',
+        'everyHour',
+        'everyMin',
         'date',
     );
 }

@@ -147,11 +147,7 @@ class Curl {
      * @return string
      */
     protected function _preparedGet() {
-        $get = array();
-        foreach ($this->_aGet as $key => $value) {
-            $get[] = $key . (($value === '') ? '' : '=' . urldecode($value));
-        }
-        return implode('&' , $get);
+        return TFormat::prepareQueryString($this->_aGet);
     }
 
     /**

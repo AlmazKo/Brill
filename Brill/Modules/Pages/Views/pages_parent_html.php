@@ -36,6 +36,12 @@
             <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a></li>
             <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a></li>
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a><b><a href="<?=WEB_PREFIX?>SEParsing/Keywords/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b></li>
+            <li class="sep"></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/">Интерфейсы бота</a><b><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/">Доступы к Яндексу</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Ограничения</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Статистика</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Ошибки</a></li>
             </ul>
 
             </li>
@@ -50,6 +56,31 @@
     </table>
 
 <script type="text/javascript">
+
+    function loadBlock (block, url) {
+        var position = block.position();
+        var posImg = 300;
+        block.append('<div id="loading"><img src="<?=WEB_PREFIX?>Brill/img/loader1.gif" style="margin-top:48px;margin-left:'+posImg+'px"></div>');
+        $('#loading').css({'top': position.top, 'left':position.left,
+                           'width': block.width(), 'height':block.height()+10,
+                           'opacity':0.8});
+        $('#loading').show(100);  //alert('e[ns ;sdlk');
+        $.ajax({
+            type: "GET",
+            url: url,
+            stop:function(data, textStatus){
+              //  $('#loading').hide();
+            },
+            success: function(data, textStatus){
+                block.html(data);
+            },
+            complete: function(){
+                $('#loading').hide();
+            }
+        });
+        return false;
+}
+
 $(document).ready(function(){
     $('.yes').hover(function(e) {
         $(this).css({'color':'red'});
@@ -59,35 +90,37 @@ $(document).ready(function(){
         $(this).children('b').hide();
     });
 
+
+    $('a[areusure]').live("click", function(){
+        if (confirm("Вы действительно уверены?")) {
+
+        } else {
+            return false;
+        }
+    });
+
+
+    $('a[ajax]').live("click", function(){
+          var block = $("#page_content");
+          loadBlock(block, $(this).attr('href'));
+          return false;
+    });
+
+    //аякс с запросом подтверждения
+    $('a[ajax_areusure]').live("click", function(){
+        if (confirm("Вы, действительно хотите удалить запись?")) {
+            var block = $("#page_content");
+            loadBlock(block, $(this).attr('href'));
+            return false;
+        } else {
+            return false;
+        }
+    });
+
+
     $('#page_menu a').click(function() {
         var block = $("#page_content");
-        var position = block.position();
-        var posImg = 300;
-        block.append('<div id="loading"><img src="<?=WEB_PREFIX?>Brill/img/loader1.gif" style="margin-top:48px;margin-left:'+posImg+'px"></div>');
-        $('#loading').css({'top': position.top, 'left':position.left,
-                           'width': block.width(), 'height':block.height()+10,
-                           'opacity':0.8});
-        $('#loading').show(100);
-
-        $.ajax({
-            type: "GET",
-            url: $(this).attr('href'),
-            beforeSend:function(data, textStatus){
-
-
-            },
-            stop:function(data, textStatus){
-              //  $('#loading').hide();
-            },
-            success: function(data, textStatus){
-                block.html(data);
-            },
-            complete: function(){
-
-                $('#loading').hide();
-            }
-        });
-                                            
+        loadBlock(block, $(this).attr('href'));
         return false;
     });
 });

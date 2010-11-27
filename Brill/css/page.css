@@ -43,10 +43,11 @@ h1 {
 }
 #page_content {
     padding: 5px;
+    vertical-align: top;
 }
 
 form p {
-    margin: 2px 0;
+    margin-bottom: 10px;
 }
 
 form {
@@ -58,10 +59,33 @@ form .form_field_error{
     padding-left:110px;
 }
 
+form .form_field_info{
+    color:#AAA;
+    font-size: 0.9em;
+    padding-left:10px;
+    float:left;
+    width:500px;
+}
+
 #UserForm input {
     width: 500px;
-
 }
+
+form input {
+    float: left;
+    width: 300px;
+}
+
+form textarea {
+    float: left;
+    width: 300px;
+}
+
+form select {
+    float: left;
+    width: 306px;
+}
+
 
 #UserForm textarea {
     width: 500px;
@@ -72,18 +96,18 @@ form .form_field_error{
     width: 500px;
 
 }
-#UserForm label {
+form label {
     display:block;
     float:left;
     padding:3px;
     text-align:right;
-    width:100px;
+    width:150px;
 }
 
 .table {
     border-collapse: collapse;
     width: 900px;
-        margin:5px;
+    margin:5px;
 }
 .table td {
     border: 1px solid #ccc;
@@ -212,3 +236,22 @@ form .form_field_error{
     border:0;
 }
 
+li .sep {
+    border-bottom:1px dotted #AAA;
+    list-style:none outside none;
+    margin:10px 20px 5px 0;
+}
+img{
+    border:0px;
+}
+
+td .options {
+    width: 80px;
+    text-align: center;
+}
+
+
+
+td .options a {
+    margin:0 5px;
+}
