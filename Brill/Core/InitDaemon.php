@@ -40,6 +40,7 @@ require_once REGISTRY_PATH . 'RegistryRequest.php';
 require_once REGISTRY_PATH . 'RegistryContext.php';
 require_once REGISTRY_PATH . 'RegistryDb.php';
 require_once CORE_PATH . 'DB/DBExt.php';
+require_once CORE_PATH . 'Common/LogInDb.php';
 require_once CORE_PATH . 'Models/Model.php';
 require_once CORE_PATH . 'Lib/Lib.php';
 require_once CORE_PATH . 'Lib/Xml.php';

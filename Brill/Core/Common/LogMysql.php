@@ -1,11 +1,6 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of LogMysql
+ * LogMysql - класс логгирования mysql опереаций
  *
  * @author almaz
  */

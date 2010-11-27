@@ -1,27 +1,33 @@
 <?php
 /*
- * Model
+ * Model родитель всех объектов-моделей. содержит всю логику работы с ними
  *
- * Класс родитель для вех моделей
+ * @author AlmazKo <a.s.suslov@gmail.com>
  */
 
 abstract class Model {
-    //значения
     private
         //значения
         $_values = null,
         // контрольная сумма объекта, после заполнения данными из БД
-        $_checkSum = null;
+        $_checkSum = null,
+        // Имя класса
+        $_nameClass;
 
     protected
+        //коннект
+        $_lnk,
+        //название БД
+        $_db,
         //название таблицы
         $_tbl_name,
         //поля - должны быть уникальны
         $_fields = array(),
         /*
-         * есть ли первичный ключ. им становится первое поле
-         * если он включен, то его создает только БД и менять его нельзя
-         * если отключен - то запрещены все операции обновления и удаления
+         * Используется ли первичный ключ, если да, то им становится первое поле.
+         * Поле в таблице должно быть уникальным
+         * Если он включен, то его может создать только БД и менять его нельзя.
+         * Если отключен - то запрещены все операции обновления и удаления.
          */
         $_isPk = true,
         // накапливаемый буффер для вставки
@@ -36,9 +42,8 @@ abstract class Model {
         if (array_key_exists($field, $this->_values)) {
              return $this->_values[$field];
         } else {
-            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
+            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ', т.к. оно не определено');
         }
-
     }
 
     /**
@@ -64,6 +69,7 @@ abstract class Model {
      * @return Model
      */
     final function  __construct($pk = null) {
+        $this->_nameClass = get_class($this);
         if (isset($pk)) {
             return $this->getObject($pk);
         } else {
@@ -72,6 +78,7 @@ abstract class Model {
     }
 
     function  __destruct() {}
+    private function __clone() {}
 
     /**
      * Возвращает объект, полученный по первому полю
@@ -110,8 +117,8 @@ abstract class Model {
     }
 
     /**
-     *
      * Возвращает массив объектов $class
+     *
      * @param string $class название класса
      * @param string $field поле по какому ищем
      * @param string&int&array $val значение поля
@@ -209,14 +216,15 @@ abstract class Model {
     }
 
     /**
-     * Сбрасывает у объекта его idшник
-     * следующий save добавит в базу новую запись
+     * Сбрасывает у объекта его idшник.
+     * Следующий save() добавит в базу новую запись
      */
     public function reset() {
         if ($this->_isPk) {
             $this->_values[$this->_fields[0]] = null;
         }
     }
+
     /**
      * Получить массив значений таблицы объекта
      */
@@ -227,10 +235,9 @@ abstract class Model {
     /**
      * Вставляет данные в базу
      */
-    protected function add () {
-        $this->_calcCheckSum();
+    protected function _add () {
         $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
-
+        $this->_calcCheckSum();
     }
 
     /**
@@ -240,12 +247,12 @@ abstract class Model {
     public function save() {
         if ($this->_isPk) {
             if (isset($this->_values[$this->_fields[0]])) {
-                $this->update();
+                $this->_update();
             } else {
-                $this->add();
+                $this->_add();
             }
         } else {
-            $this->add();
+            $this->_add();
         }
         return $this;
     }
@@ -253,18 +260,25 @@ abstract class Model {
     /**
      * Обновление объекта
      */
-    protected function update () {
+    protected function _update () {
         //изменения вносим в базу только если изменилась контрольная сумма
         if ($this->_checkSum != $this->calcCheckSum()) {
             $newValues = $this->_values;
             $valPk = array_shift($newValues);
-            $result = DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk);
+            if (DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk)) {
+                //было что-то измено в базе, создаем новую чексумму
+                $this->calcCheckSum();
+            }
         }
      }
 
+     /**
+      * Добавить значения объекта в буффер множественной вставки
+      * если у объекта есть первичный ключ - выполнится простой апдейт
+      */
      public function saveInBuffer(){
-         if (isset($this->_values[$this->_fields[0]])) {
-            $this->update();
+         if ($this->_isPk && isset($this->_values[$this->_fields[0]])) {
+            $this->_update();
          } else {
             if (!$this->_buffer) {
                 $this->_buffer = 'INSERT INTO (' . DBExt::parseFields($this->_fields) . ') VALUES ';
@@ -272,24 +286,33 @@ abstract class Model {
                  $this->_buffer .= ",\n";
             }
             $this->_buffer .= '(' . DBExt::parseValues($this->_values) . ')';
-            
+
          }
      }
 
+     /**
+      * Выполнить множественную вставку
+      * и очистить буффер
+      */
      public function executeBuffer() {
-         DB::query($this->_buffer);
+         if($this->_buffer) {
+            DB::query($this->_buffer);
+            $this->cleanBuffer();
+         }
      }
 
+     /**
+      * Очистить буффер множественной вставки
+      */
      public function cleanBuffer() {
          $this->_buffer = null;
      }
     /**
-     * инициализирует данные полученные из БД
+     * Заполняет значения данными из БД,
      * а также создает контрольную сумму значений
      * @param array $values
      */
     protected function initData($values) {
-        //заполнение полей значениями
         foreach ($this->_fields as $fld) {
             if (isset($values[$fld])) {
                $this->_values[$fld] = $values[$fld];
@@ -300,14 +323,27 @@ abstract class Model {
         $this->calcCheckSum();
     }
 
+    /**
+     * Создает чек сумму объекта.
+     * Нужна, чтобы избежать лишних апдейтов
+     * @return int сгенерированная новая чек-сумма
+     */
     protected function calcCheckSum() {
-
        return $this->_checkSum = crc32(implode($this->_values));
     }
+
+    /**
+     * Возвращает массив значений объекта
+     * @return array
+     */
     public function getValues() {
         return $this->_values;
     }
 
+    /**
+     * Получить массив полей объекта
+     * @return array
+     */
     public function getFields() {
         return $this->_fields;
     }

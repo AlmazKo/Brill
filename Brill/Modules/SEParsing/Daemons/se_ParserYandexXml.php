@@ -129,7 +129,7 @@ class se_ParserYandexXml extends se_Parser {
          ##   $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
             $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
             $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
-            Log::dump($xml_response); die();
+            
             $attempts = self::ATTEMPTS;
             while(empty($xml_response) && $attempts!=0){
           ##      $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
@@ -141,16 +141,20 @@ class se_ParserYandexXml extends se_Parser {
 
             if(empty($xml_response)){
                 var_dump ('Error: Яндекс не ответил на данный запрос');
-                return null;
+                return;
             }
 
             $yaerror = strstr($xml_response, '<error code=');
             if($yaerror){
                 var_dump ('Ошибка на Яндексе: '.$yaerror);
-                return null;
+                return;
             }
 
             $sxe = simplexml_load_string($xml_response)->response;
+            if ($sxe->error) {
+                LogInDb::notice($sxe->error, get_class($this));
+                return;
+            }
             $pos += $this->parsingXml($sxe);
         }
         return $pos;
@@ -199,7 +203,7 @@ class se_ParserYandexXml extends se_Parser {
            $this->curl->setGet(array('lr' => $kw->region_id));
            $psDot = $this->parsing($kw, self::CONF_WITH_DOT);
            if ($psDot) {
-               $ps = $this->parsing ($kw);
+               $ps = $this->parsing($kw);
                $p = new sep_Positions();
                $site = new sep_Sites();
                $url = new sep_Urls();
