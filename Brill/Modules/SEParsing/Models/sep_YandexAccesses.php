@@ -13,7 +13,7 @@ class sep_YandexAccesses extends Model {
         'login',
         'password',
         'xml_key',
-        'ip_id',
+        'interface_id',
         'date',
     );
 }

@@ -9,7 +9,7 @@
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
-        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
+        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_1.png" align="middle"/>Проект</td><td>Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">
@@ -33,14 +33,33 @@
 
             <li> <span>Парсинг</span>
             <ul>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a></li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a><b><a href="<?=WEB_PREFIX?>SEParsing/Keywords/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Sets/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a>
+                <b>
+                    <a href="<?=WEB_PREFIX?>SEParsing/Keywords/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a>
+                    <a href="<?=WEB_PREFIX?>SEParsing/Keywords/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/mass_add.png" /></a>
+                </b>
+            </li>
             <li class="sep"></li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/">Интерфейсы бота</a><b><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/">Доступы к Яндексу</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Ограничения</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Статистика</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/">Интерфейсы бота</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a>
+                <a href="<?=WEB_PREFIX?>SEParsing/Interfaces/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/mass_add.png" /></a></b>
+            </li>
+
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/">Доступы к Яндексу</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Regions/">Регионы</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Regions/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Hosts/">Источники</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Limits/">Ограничения</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/StatsToday/">Сегодняшняя статистика</a></li>
             <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Ошибки</a></li>
             </ul>
 
@@ -48,10 +67,10 @@
             <li class="yes"> <span>Новости</span> </li>
             <li class="yes"> <span>Написать сообщение</span> </li>
             </ul>
-             <td id="page_content">
+             <td id="page_content" colspan="2">
                <?php include_once ($t->getTpl('content'))?>
              </td>
-             <td>Полезная инфа</td></tr>
+             </tr>
          <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?></td></tr>
     </table>
 
@@ -76,12 +95,14 @@
             },
             complete: function(){
                 $('#loading').hide();
+                setTimeout(function(){$('.error_content').fadeOut(500)}, 2000);
             }
         });
         return false;
 }
 
 $(document).ready(function(){
+
     $('.yes').hover(function(e) {
         $(this).css({'color':'red'});
         $(this).children('b').css({'display': 'inline'});

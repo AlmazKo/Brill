@@ -32,8 +32,22 @@ abstract class Registry{
             return false;
         }
     }
-   public function set($key, $value) {
-        $this->values[$key] = $value;
-   }
+
+    /**
+     * Добавить значение в реестр
+     * 
+     * @param mixed $key - имя ключа
+     * @param mixed $value - значение
+     * @param bool $force - перезаписывать ли данные?
+     */
+    public function set($key, $value, $force = true) {
+        if ($force) {
+            $this->values[$key] = $value;
+        } else {
+            if (!$this->is($key)) {
+                $this->values[$key] = $value;
+            }
+        }
+    }
 
 }

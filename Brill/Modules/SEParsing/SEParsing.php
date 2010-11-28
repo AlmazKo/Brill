@@ -15,7 +15,9 @@ class SEParsing extends Modules {
     protected $pathActions = null;
     protected $pathViews = null;
 
-    protected function configure() {}
+    protected function configure() {
+        require_once $this->pathDB . 'se_Stmt.php';
+    }
 
     /**
      * Подключает важные файлы, до инициализации демона

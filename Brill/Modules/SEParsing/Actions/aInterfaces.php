@@ -21,7 +21,7 @@ class aInterfaces extends Action{
 
     function act_View () {
         if ($this->request->isAjax()) {
-            $this->context->setTopTpl('interfaces_html');
+            $this->context->setTopTpl('list_html');
         } else {
             $this->_parent();
             $this->context->setTpl('content', 'interfaces_html');
@@ -36,9 +36,13 @@ class aInterfaces extends Action{
             'proxy_login' => 'Логин от прокси',
             'proxy_password' => 'Пароль от прокси',
             ));
+        $tbl->sort(Navigation::get('field'), Navigation::get('order'));
+        $tbl->addRulesView('proxy_password', '******');
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
+        $tbl->viewColumns('interface', 'port', 'type');
         $this->context->set('tbl', $tbl);
+        $this->context->set('h1', 'Интерфейсы');
     }
 
     function act_Edit () {
@@ -49,9 +53,6 @@ class aInterfaces extends Action{
             $this->context->setTpl('content', 'interfaces_edit');
         }
         $id = (int)$this->request->get('id', 0);
-        if (!$id) {
-            return;
-        }
         $form = new oForm($this->fields, array('GET' => array('id' => $id)));
         $ints = new sep_Interfaces();
 
@@ -93,8 +94,45 @@ class aInterfaces extends Action{
         $this->context->set('h1', 'Добавление нового сетевого интерфейса');
     }
 
+    function act_MassAdd () {
+        if ($this->request->isAjax()) {
+            $this->context->setTopTpl('interfaces_add');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'interfaces_add');
+        }
+        $this->fields['interface'] = array('title' => 'Список интерфейсов', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 
+            'info'=>'Разделитель - новая строка.<br />Может содержать номер порта после двоеточия.<br />Например: 192.168.1.1:8080<br /> Интерфейсам, у которых не указан порт, <br /> порт присвоится из указанного значения снизу.', 'error' => false, 'attr' => 'rows="10"', $checked = array());
+        $form = new oForm($this->fields);
+        $this->context->set('form', $form);
+        if ($this->request->is('POST')) {
+            $form->fill($this->request->get('POST'));
+            if ($form->isComplited()) {
+                $ints = new sep_Interfaces();
+                $ints->fillObjectFromArray($form->getValues());
+                $port = $ints->port;
+                $interfaces = TFormat::winTextToLinux($this->request->get('interface'));
+                $aInts = explode("\n", $interfaces);
+                if (is_array($aInts)) {
+                    foreach ($aInts as $value) {
+                        $interface = explode(":", $value, 2);
+                        if (1 == count($interface)) {
+                            $ints->interface = $value;
+                            $ints->port = $port;
+                        } else {
+                            $ints->interface = $interface[0];
+                            $ints->port = (int)$interface[1];
+                        }
+                        $ints->save()->reset();
+                    }
+                }
+            }
+        }
+        $this->context->set('h1', 'Массовое добавление сетевых интерфейсов');
+    }
+
     function act_Del () {
-        $ints = new sep_Interfaces((int)$this->request->get('id'));
+        $ints = new sep_Interfaces((int)$this->request->get('id', 0));
         $ints->delete();
         $iRoute = new InternalRoute();
         $iRoute->module = 'SEParsing';

@@ -83,7 +83,7 @@ class DBExt extends DB{
             $values = $result->fetch_assoc();
         } else if ($result->num_rows > 0) {
             Log::warning("Получено больше одной строки");
-        }Log::dump($values);
+        }
         return $values;
     }
     /**
@@ -127,6 +127,21 @@ class DBExt extends DB{
         return $values;
     }
 
+    /**
+     * Есть ли данные по этом запросу
+     * 
+     * @param string $sql
+     * @param <type> $lnk
+     * @return bool
+     */
+    public static function isData($sql, $lnk = null) {
+        $result = parent::query($sql, $lnk);
+        if ($result->num_rows > 0) {
+            return true;
+        } else if ($result->num_rows > 0) {
+            return false;
+        }
+    }
     /**
      * Получает данные по запросу и возращает даннные для класса oTable
      * @param string $sql Query

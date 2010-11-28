@@ -161,5 +161,12 @@ class TFormat {
         return implode('&' , $get);
     }
 
+    public static function viewErrorsContent(array $errors) {
+        $html = '';
+        foreach ($errors as $value) {
+            $html .= '<div class="error_content">' . $value . '</div>';
+        }
+        return $html;
+    }
 }
 

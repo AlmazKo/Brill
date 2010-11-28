@@ -2,15 +2,17 @@
 
 class aYandexAccesses extends Action{
     protected $defaultAct = 'view';
+
     protected function configure() {
         require_once $this->module->pathModels . 'sep_YandexAccesses.php';
 
-        $ips = new oList(array(array('1', '89.249.22.228')));
+        $sql = Stmt::prepare(se_Stmt::INTERFACES_USUAL);
+        $interfaces = new oList(DBExt::selectToList($sql));
 
         $fields['login'] = array('title' => 'Логин', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'без указания домена @yandex.ru', 'error' => false, 'attr' => '', $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
-        $fields['xml_key'] = array('title' => 'Xml ключ', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
-        $fields['ip_id'] = array('title' => 'Интерфейс', 'value' => '', 'data' => $ips, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['xml_key'] = array('title' => 'Xml ключ', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'Берется на странице http://xml.yandex.ru/stat.xml', 'error' => false, 'attr' => '', $checked = array());
+        $fields['interface_id'] = array('title' => 'Интерфейс', 'value' => '', 'data' => $interfaces, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
     
         $this->fields = $fields;
     }
@@ -22,14 +24,16 @@ class aYandexAccesses extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'yandexAccesses_html');
         }
-        $yaAccess = new sep_YandexAccesses();
-        $tbl = new oTableExt(array($yaAccess->getFields(), $yaAccess->getArray()));
+
+        $sql = Stmt::prepare(se_Stmt::YANDEX_ACCESSES);
+        $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->setNamesColumns(array(
             'login'=>'Логин',
             'password' => 'Пароль',
             'xml_key' => 'Xml ключ',
-            'ip_id' => 'Интерфейс',
+            'interface' => 'Интерфейс',
             ));
+        $tbl->addRulesView('password', '******');
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
         $this->context->set('tbl', $tbl);
@@ -37,11 +41,12 @@ class aYandexAccesses extends Action{
 
     function act_Edit () {
         if ($this->request->isAjax()) {
-            $this->context->setTopTpl('interfaces_edit');
+            $this->context->setTopTpl('edit_html');
         } else {
             $this->_parent();
-            $this->context->setTpl('content', 'interfaces_edit');
+            $this->context->setTpl('content', 'edit_html');
         }
+        $this->context->set('h1', 'Редактирование сетевого интерфейса');
         $id = (int)$this->request->get('id', 0);
         if (!$id) {
             return;
@@ -62,7 +67,7 @@ class aYandexAccesses extends Action{
                 $this->context->set('form', $form);
             }
         }
-        $this->context->set('h1', 'Редактирование сетевого интерфейса');
+
     }
 
     function act_Add () {
@@ -78,9 +83,9 @@ class aYandexAccesses extends Action{
         if ($this->request->is('POST')) {
             $form->fill($this->request->get('POST'));
             if ($form->isComplited()) {
-                $ints = new sep_Interfaces();
-                $ints->fillObjectFromArray($form->getValues());
-                $ints->save();
+                $yaAccess = new sep_YandexAccesses();
+                $yaAccess->fillObjectFromArray($form->getValues());
+                $yaAccess->save();
                 $this->context->del('form');
             }
         }
@@ -88,8 +93,8 @@ class aYandexAccesses extends Action{
     }
 
     function act_Del () {
-        $ints = new sep_Interfaces((int)$this->request->get('id'));
-        $ints->delete();
+        $yaAccess = new sep_YandexAccesses((int)$this->request->get('id'));
+        $yaAccess->delete();
         $iRoute = new InternalRoute();
         $iRoute->module = 'SEParsing';
         $iRoute->action = 'Interfaces';

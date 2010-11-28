@@ -11,7 +11,9 @@
  */
 
 class RegistryContext extends Registry {
+    const ERROR = 'error';
     protected $tpls = array();
+    protected $_errors = array();
     protected $_topTpl;
     protected static $instance = null;
 
@@ -46,6 +48,16 @@ class RegistryContext extends Registry {
 
     }
 
+    function  set($key, $value, $force = true) {
+        if (self::ERROR == $key) {
+            $this->_errors[] = $value;
+        }
+        parent::set($key, $value, $force);
+    }
+
+    public function getErrors() {
+        return $this->_errors;
+    }
     public function del($key) {
         if (self::is($key)) {
             unset($this->values[$key]);

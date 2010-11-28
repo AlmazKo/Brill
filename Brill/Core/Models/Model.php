@@ -246,7 +246,7 @@ abstract class Model {
      */
     public function reset() {
         if ($this->_isPk) {
-            $this->_values[$this->_fields[0]] = null;
+            unset($this->_values[$this->_fields[0]]);
         }
     }
 
@@ -261,6 +261,7 @@ abstract class Model {
      * Вставляет данные в базу
      */
     protected function _add () {
+      //  Log::dump($this->_values);
         $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
         $this->_calcCheckSum();
     }

@@ -9,9 +9,9 @@ class sep_LimitsIpForHosts extends Model {
     protected $_fields = array (
         'id',
         'host_id',
-        'everyDay',
-        'everyHour',
-        'everyMin',
+        'every_day',
+        'every_hour',
+        'every_min',
         'date',
     );
 }

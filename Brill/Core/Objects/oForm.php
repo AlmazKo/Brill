@@ -23,17 +23,18 @@ protected $enctype = 'multipart/form-data';
     /**
      * Строит форму
      *
-     * @param bool $disable
+     * @param mixed $submit - если false - форма блочится и кнопка сабмита убирается
+     *
      * @return string
      */
-    public function buildHtml($id = 'form',$disable = false) {
+    public function buildHtml($idCss = 'form', $classCss = 'form', $submit = 'Отправить') {
         $html = '';
         if ($this->fields) {
-            $html .= '<form id="' . $id . '" enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
+            $html .= '<form '.($idCss ? 'id="' . $idCss . '" ' : '').($classCss ? 'class="' . $classCss . '" ' : '').'enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }
-            $html .='<label></label><input type="submit"></form><div style="clear:both"></div>';
+            $html .='<label></label><input type="submit" class="submit" value="'.$submit.'"></form><div style="clear:both"></div>';
         }
         return $html;
     }

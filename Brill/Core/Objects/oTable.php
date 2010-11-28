@@ -1,11 +1,7 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
- * Description of List
+ * Класс настройки и сборки таблицы
  *
  * @author Alexander
  */
@@ -18,6 +14,10 @@ function cmp($a, $b) {
 
 
 class oTable implements ISorting{
+    const
+        OPT_DEL = 'Del',
+        OPT_EDIT = 'Edit';
+    
     protected
         //текущая страница
         $page = 1,
@@ -52,8 +52,7 @@ class oTable implements ISorting{
         $viewHead = true,
         $typeSelected = false,
         $viewSorting = true,
-        $_isEdit,
-        $_isDel;
+        $_opts = array();
 
     function __construct($data) {
         if (is_array($data)) {
@@ -85,6 +84,7 @@ class oTable implements ISorting{
             $this->mapsView[$field] = $func;
         }
     }
+
     /**
      * Разделитель таблицы
      * @param string $nameSep какое поле должно измениться, чтобы сработал разделитель
@@ -100,6 +100,7 @@ class oTable implements ISorting{
         }
 
     }
+
     /**
      * Форматирует строку по шаблону
      * @param string $cell
@@ -190,7 +191,11 @@ class oTable implements ISorting{
      * @param bool $view
      */
     function setIsEdit($edit = false) {
-        $this->_isEdit = (bool) $edit;
+        if ($edit) {
+            $this->_opts[self::OPT_EDIT] = true;
+        } else {
+            unset($this->_opts[self::OPT_EDIT]);
+        }
     }
 
    /**
@@ -198,7 +203,43 @@ class oTable implements ISorting{
      * @param bool $view
      */
     function setIsDel($del = false) {
-        $this->_isDel = (bool) $del;
+        if ($del) {
+            $this->_opts[self::OPT_DEL] = true;
+        } else {
+            unset($this->_opts[self::OPT_DEL]);
+        }
+    }
+
+    /**
+     * Добавить свою опцию
+     *
+     * @param string $img название картинки
+     * @param string $action - на какой экшен уходим
+     * @param string $urlGetParameter - параметр
+     */
+    function setCustomOpt($name, $title, $img, $action, $act, $urlGetParameter) {
+        $this->_opts[$name] = array(
+            'action' => $action,
+            'act' => $act,
+            'image' => $img,
+            'arg' => $urlGetParameter,
+            'title' => $title
+            );
+    }
+
+    function buildOpt ($pkValue) {
+        $html = '';
+        foreach ($this->_opts as $key => $value) {
+            if ($key != self::OPT_DEL && $key != self::OPT_EDIT) {
+                $html .= '<a href="' . Routing::constructUrl(array('action' => $value['action'], 'act' => $value['act']), false) . '?' . $value['arg'].  '=' . $pkValue.'" ajax>'.
+                         '<img title="' . $value['title'] . '" src="' . WEB_PREFIX .'Brill/img/' . $value['image'] . '" /></a>';
+            }
+        }
+        return $html;
+    }
+
+    function isOptions () {
+        return (bool) count($this->_opts);
     }
     /**
      * Выводить ли шапку таблицы
@@ -321,13 +362,13 @@ class oTable implements ISorting{
         foreach ($this->viewCols as $i => $cell) {
             if ($this->viewSorting) {
 
-                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'">' . $this->headers[$i] . '</a></th>';
+                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'" ajax>' . $this->headers[$i] . '</a></th>';
             } else {
                 $html .= '<th>' . $this->headers[$i] . '</th>';
             }
         }
 
-        if ($this->_isEdit) {
+        if ($this->isOptions()) {
             $html .= '<th class="options">Опции</th>';
         }
         $html .= '</tr>';
@@ -341,8 +382,19 @@ class oTable implements ISorting{
     public function buildBody (){
         $html = '';
         $idRow = 0;
+        $cols = count($this->viewCols);
+        if (!$cols) {
+          $cols = count($this->fields);
+        }
+        if ($this->viewIterator) {
+            $cols++;
+        }
+        if ($this->isOptions()) {
+            $cols++;
+        }
         if(empty($this->values)) {
-            $html .= '<tr><td colspan="'.count($this->fields).'" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
+
+            $html .= '<tr><td colspan="' . $cols . '" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
         } else {
             foreach ($this->values as $row) {
                 $html .= '<tr>';
@@ -350,7 +402,7 @@ class oTable implements ISorting{
                     $html .= '<td>' . ($idRow + 1) . '</td>';
                 }
                 if ($this->separator &&  ($this->separatorValue != $row[$this->separator] || $idRow == 0)) {
-                    $html .= '<tr><td colspan="' . count($this->viewCols) . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
+                    $html .= '<tr><td colspan="' . $cols . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
                     $this->separatorValue = $row[$this->separator];
                 }
                 $i = 0;
@@ -361,14 +413,17 @@ class oTable implements ISorting{
                     }
                     $i++;
                 }
-                if ($this->_isEdit || $this->_isDel) {
+                if ($this->isOptions()) {
                     $html .= '<td class="options">';
-                    if ($this->_isEdit) {
-                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'edit'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax><img src="' . WEB_PREFIX .'Brill/img/edit.png" /></a>';
+                    
+                    $html .= $this->buildOpt($row[$this->fields[0]]);
+                    if (isset($this->_opts[self::OPT_EDIT])) {
+                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'edit'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax="1"><img src="' . WEB_PREFIX .'Brill/img/edit.png" /></a>';
                     }
-                    if ($this->_isDel) {
-                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'del'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax_areusure><img src="' . WEB_PREFIX .'Brill/img/del.png" /></a>';
+                    if (isset($this->_opts[self::OPT_DEL])) {
+                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'del'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax_areusure="1"><img src="' . WEB_PREFIX .'Brill/img/del.png" /></a>';
                     }
+                    
                     $html .= '</td>';
                 }
                 $idRow++;

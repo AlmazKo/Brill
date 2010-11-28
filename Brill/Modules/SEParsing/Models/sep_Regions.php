@@ -12,6 +12,7 @@ class sep_Regions extends Model {
         'id',
         'name',
         'sort',
+        'yandex_id',
     );
 }
 
