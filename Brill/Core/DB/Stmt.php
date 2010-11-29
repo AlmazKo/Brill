@@ -41,6 +41,26 @@ class Stmt {
         return $pSql;
     }
 
+    public function prepare2($sql, $args = array(), $ext = false) {
+        if (!$sql) {
+            LogMysql::errorQuery('Пустой sql');
+        }
+        $pSql = $sql;
+        if (is_array($args)) {
+            foreach ($args as $key => $value) {
+                if (!array_key_exists($key, self::$_arr)) {
+                    $pSql = str_replace("#$key#", $value, $pSql);
+                }
+            }
+            if (is_array($ext)) {
+                $aExt = array_merge(self::$_arr, $ext);
+                $pSql .= self::_addExt($aExt);
+            }
+
+        }
+        return $pSql;
+    }
+
     /**
      * Добавяет к запросу ограничивающие и сортирующие функции
      * @param array $arr

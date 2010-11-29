@@ -5,9 +5,9 @@
  */
 
 class sep_InterfaceCountCallToday extends Model {
+    protected $_isPk = false;
     protected $_tblName = __CLASS__;
     protected $_fields = array (
-        'id',
         'interface_id',
         'host_id',
         'count',

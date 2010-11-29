@@ -28,7 +28,7 @@ h1 {
     width: 200px;
 }
 #page_head {
-    height: 100px
+    height: 77px
 
 }
 
@@ -83,6 +83,10 @@ form textarea {
     width: 300px;
 }
 
+form .submit {
+    margin-top: 10px;
+    width: 306px;
+}
 form select {
     float: left;
     width: 306px;
@@ -121,11 +125,13 @@ form label {
 .table th {
     border: 1px solid #ccc;
     border-collapse: separate;
-    font-size:10pt;
+    font-size:0.9em;
     text-align: left;
     padding:3px;
     text-align: center;
     font-weight: bold;
+    background: #E1E4E8;
+
 }
 .table_chk {
     width: 1%;
@@ -212,19 +218,19 @@ form label {
 
 
 
-#page_menu a {
+a {
     color: #0771be;
     text-decoration: underline;
 }
-#page_menu a:hover {
+a:hover {
     color: #0771be;
 }
 
-#page_menu a:visited {
+a:visited {
     color: #0771be;
 }
 
-#page_menu a:link {
+a:link {
    color: #0771be;
 }
 
@@ -238,8 +244,8 @@ form label {
     position: absolute;
 }
 #page_menu li b img {
- /*   margin-top: 2px;
-    margin-left: 5px;*/
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
 }
 #page_menu li b a {
     position: relative;
@@ -324,4 +330,13 @@ margin: 1px 0;
     width: 136px;
     height: 22px;
     font-size: 11px;
+    margin-top: 0;
+}
+
+li {
+    list-style: none;
+}
+
+ul {
+    padding: 0 0 10px 20px;
 }

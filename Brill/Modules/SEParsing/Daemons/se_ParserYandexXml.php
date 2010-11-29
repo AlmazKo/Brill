@@ -27,9 +27,6 @@ class se_ParserYandexXml extends se_Parser {
         parent::__construct();
         RegistryDb::instance()->setSettings(DB::DEFAULT_LNK, array('localhost', 'root', '12345', 'brill'));
         DB::connect();
-        //RegistryDb::instance()->setSettings('account', array('localhost', 'webexpert_acc', '3k8GnrcM', 'webexpert_acc'));
-        RegistryDb::instance()->setSettings('account', array('localhost', 'root', '12345', 'brill'));
-        $this->_lnk2 = DB::connect('account');
      }
 
     protected function _configure() {
@@ -43,21 +40,21 @@ class se_ParserYandexXml extends se_Parser {
         require_once $this->_module->pathModels . 'sep_Urls.php';
     }
 
-    /**
-     * Получить Ip
-     * @return string
-     */
-    protected function  _getIp() {
-        $sql = Stmt::prepare(se_StmtDaemon::GET_IP, null);
-        $result = DBExt::selectToArray($sql, $this->_lnk2);
-        if ($result->num_rows > 0){
-            $row = $result->fetch_assoc();
-            Db::query('UPDATE ' . se_Tbl::IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
-            return $row['ri_ip'];
-        } else {
-            Log::warning('Закончились IP');
-        }
-    }
+//    /**
+//     * Получить Ip
+//     * @return string
+//     */
+//    protected function  _getIp() {
+//        $sql = Stmt::prepare(se_StmtDaemon::GET_IP, null);
+//        $result = DBExt::selectToArray($sql, $this->_lnk2);
+//        if ($result->num_rows > 0){
+//            $row = $result->fetch_assoc();
+//            Db::query('UPDATE ' . se_Tbl::IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
+//            return $row['ri_ip'];
+//        } else {
+//            Log::warning('Закончились IP');
+//        }
+//    }
 
     /**
      * Constructing Xml request for Yandex.ru
@@ -102,7 +99,7 @@ class se_ParserYandexXml extends se_Parser {
         foreach($groups as $value){
             $pos++;
             $ps['pos'] = $pos;
-            $url = (string) $value->doc->url;
+            $url = urldecode((string) $value->doc->url);
             $parsedUrl = @parse_url($url);
             $ps['site'] = $parsedUrl['host'];//
             $ps['url'] = $url;
@@ -126,21 +123,28 @@ class se_ParserYandexXml extends se_Parser {
         $finded = false;
         $pos = array();
         for ($page = 0; $page < $this->_depth; $page++){
-         ##   $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
+            $interface = se_Lib::getIp();
+            if ('127.0.0.1' != $interface && 'localhost' != strtolower($interface)) {
+                $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
+            }
             $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
             $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
             
             $attempts = self::ATTEMPTS;
             while(empty($xml_response) && $attempts!=0){
-          ##      $this->curl->setOpt(CURLOPT_INTERFACE, $this->_getIp());
-                Log::dump('Яндекс не ответил, попробуем еще раз...');
+                $interface = se_Lib::getIp();
+                if ('127.0.0.1' != $interface && 'localhost' != strtolower($interface)) {
+                    $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
+                }
+                LogInDb::notice($this, 'Яндекс не ответил...');
+                Log::dump('Яндекс не ответил...');
                 sleep(1);
-                $xml_response = $this->request();
+                $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
                 $attempts--;
             }
 
             if(empty($xml_response)){
-                var_dump ('Error: Яндекс не ответил на данный запрос');
+                LogInDb::notice('Error: Яндекс не ответил на данный запрос');
                 return;
             }
 
@@ -152,8 +156,8 @@ class se_ParserYandexXml extends se_Parser {
 
             $sxe = simplexml_load_string($xml_response)->response;
             if ($sxe->error) {
-                LogInDb::notice($sxe->error, get_class($this));
-                return;
+                LogInDb::notice($this, $sxe->error);
+                die();
             }
             $pos += $this->parsingXml($sxe);
         }
@@ -243,6 +247,7 @@ class se_ParserYandexXml extends se_Parser {
                $kw->yandex = 'Error';
            }
            $kw->save();
+         //  Log::warning('');
         }
     }
 }

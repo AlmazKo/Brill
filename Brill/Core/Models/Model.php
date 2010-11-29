@@ -20,7 +20,7 @@ abstract class Model {
         //название БД
         $_db,
         //название таблицы
-        $_tbl_name,
+        $_tblName,
         //поля - должны быть уникальны
         $_fields = array(),
         /*
@@ -307,13 +307,14 @@ abstract class Model {
             $this->_update();
          } else {
             if (!$this->_buffer) {
-                $this->_buffer = 'INSERT INTO (' . DBExt::parseFields($this->_fields) . ') VALUES ';
+                $this->_buffer = 'INSERT INTO '.$this->_tblName.'(' . DBExt::parseFields(array_keys($this->_values)) . ') VALUES ';
             } else {
                  $this->_buffer .= ",\n";
             }
             $this->_buffer .= '(' . DBExt::parseValues($this->_values) . ')';
 
          }
+         return $this;
      }
 
      /**

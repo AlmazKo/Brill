@@ -34,14 +34,6 @@ abstract class se_Parser extends Daemon
   //  protected function parsing(Keywords $k);
 
     /**
-     *
-     * Получает ip для парсера
-     * @return string IP адрес
-     *
-     */
-    abstract protected function _getIp();
-
-    /**
      * Получает строку POST-запроса
      * @return string POST-запрос
      *

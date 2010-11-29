@@ -362,7 +362,7 @@ class oTable implements ISorting{
         foreach ($this->viewCols as $i => $cell) {
             if ($this->viewSorting) {
 
-                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'" ajax>' . $this->headers[$i] . '</a></th>';
+                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'" ajax="1">' . $this->headers[$i] . '</a></th>';
             } else {
                 $html .= '<th>' . $this->headers[$i] . '</th>';
             }

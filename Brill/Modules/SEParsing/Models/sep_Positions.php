@@ -5,6 +5,7 @@
  */
 
 class sep_Positions extends Model {
+    protected $_isPk = false;
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'keyword_id',

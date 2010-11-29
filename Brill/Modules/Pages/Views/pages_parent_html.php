@@ -9,7 +9,7 @@
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
-        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_1.png" align="middle"/>Проект</td><td>Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
+        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_web.png" align="middle"/></td><td>Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">
@@ -59,8 +59,8 @@
             </li>
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Hosts/">Источники</a></li>
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Limits/">Ограничения</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/StatsToday/">Сегодняшняя статистика</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Ошибки</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/StatsToday/">Статистика за сегодня</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Errors/">Ошибки</a></li>
             </ul>
 
             </li>
@@ -71,7 +71,7 @@
                <?php include_once ($t->getTpl('content'))?>
              </td>
              </tr>
-         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?></td></tr>
+         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?><br />This product includes PHP software, freely available from http://www.php.net/software/></td></tr>
     </table>
 
 <script type="text/javascript">
@@ -96,6 +96,7 @@
             complete: function(){
                 $('#loading').hide();
                 setTimeout(function(){$('.error_content').fadeOut(500)}, 2000);
+              //  $('a img').css('opacity', 0.5);
             }
         });
         return false;
@@ -103,7 +104,18 @@
 
 $(document).ready(function(){
 
-    $('.yes').hover(function(e) {
+//
+//    $('a img').css('opacity', 0.5);
+//
+//    $('a img').live("mousemove", function(){
+//        $(this).css('opacity', 1);
+//    });
+//
+//    $('a img').live("mouseout", function(){
+//        $(this).css('opacity', 0.5);
+//    });
+    
+    $('li .yes').hover(function(e) {
         $(this).css({'color':'red'});
         $(this).children('b').css({'display': 'inline'});
     },function() {
@@ -143,6 +155,14 @@ $(document).ready(function(){
         var block = $("#page_content");
         loadBlock(block, $(this).attr('href'));
         return false;
+    });
+
+    $('#page_content td').live("mousemove", function(){
+       $(this).parent('tr').css({'background-color':'#ecf1f4'});
+    });
+
+    $('#page_content td').live("mouseout", function(){
+        $(this).parent('tr').css({'background-color':'#fff'});
     });
 });
 

@@ -1,23 +1,19 @@
 <?php
 /**
  * LogInDb - запись логов в базу
- * требует коннекта
+ * требует таблицу
  *
  * @author almaz
  */
 class LogInDb extends Log{
-    private static $_lnk;
-
-    public function setConnection($db) {
-        self::$_lnk= $db;
-    }
-
-    public static function notice ($descr, $class) {
-        if (self::$_lnk) {
-            DB::query('insert into Logs ()');
-        } else {
-            parent::warning('Не был задан connect для класса LogInDb');
-        }
+    /**
+     *
+     * @param object $class
+     * @param <type> $error
+     */
+    public static function notice ($class, $error) {
+        $className = get_class($class);
+        DB::query("insert into mErrors (`class`, `descr`, `date`) values('$className', '$error', now())");
     }
    
 }

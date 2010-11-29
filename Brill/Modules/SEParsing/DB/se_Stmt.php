@@ -76,4 +76,8 @@ const INTERFACES_USUAL = "SELECT id,interface FROM sep_Interfaces WHERE type='Us
 
 const YANDEX_ACCESSES = "SELECT y.id, y.login, y.password, y.xml_key, i.interface, y.date from sep_YandexAccesses as y
 INNER JOIN sep_Interfaces as i on (y.interface_id=i.id)";
+
+const STATS_CALLS_TODAY = "SELECT h.name as `host`, i.interface, it.count, it.last_date from sep_InterfaceCountCallToday as it
+JOIN sep_Hosts as h on (it.host_id=h.id)
+JOIN sep_Interfaces as i on (it.interface_id=i.id)";
 }

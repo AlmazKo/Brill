@@ -25,6 +25,7 @@ class SEParsing extends Modules {
     function configureDaemon() {
         require_once $this->pathDaemons . 'se_Parser.php';
         require_once $this->pathDB . 'se_StmtDaemon.php';
+        require_once $this->pathLib . 'se_Lib.php';
     }
     
     public  static function instance() {

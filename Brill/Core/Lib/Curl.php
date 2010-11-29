@@ -257,9 +257,9 @@ class Curl {
         RunTimer::addPoint('Curl');
         //задаем урл
         curl_setopt_array($this->_ch, $this->_opt);
-        Log::dump($this->getOpts(true));
+     #   Log::dump($this->getOpts(true));
         $this->_responseRaw = curl_exec($this->_ch);
-        log::dump($this->getinfo());
+        $this->getinfo();
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
@@ -317,7 +317,7 @@ class Curl {
 //
 //            }
 
-        }Log::dump($aHeaders);
+        }
         return $this->_aResponseHeaders = $aHeaders;
     }
 
