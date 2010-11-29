@@ -61,6 +61,12 @@ class aYandexAccesses extends Action{
                     $yaAccess->fillObjectFromArray($form->getValues());
                     $yaAccess->save();
                     $this->context->del('form');
+                    $iRoute = new InternalRoute();
+                    $iRoute->module = 'SEParsing';
+                    $iRoute->action = 'YandexAccesses';
+                    $actR = new ActionResolver();
+                    $act = $actR->getInternalAction($iRoute);
+                    $act->runAct();
                 }
             } else {
                 $form->fill($yaAccess->toArray());
@@ -72,10 +78,10 @@ class aYandexAccesses extends Action{
 
     function act_Add () {
         if ($this->request->isAjax()) {
-            $this->context->setTopTpl('interfaces_add');
+            $this->context->setTopTpl('add_html');
         } else {
             $this->_parent();
-            $this->context->setTpl('content', 'interfaces_add');
+            $this->context->setTpl('content', 'add_html');
         }
 
         $form = new oForm($this->fields);
@@ -87,9 +93,16 @@ class aYandexAccesses extends Action{
                 $yaAccess->fillObjectFromArray($form->getValues());
                 $yaAccess->save();
                 $this->context->del('form');
+
+                $iRoute = new InternalRoute();
+                $iRoute->module = 'SEParsing';
+                $iRoute->action = 'YandexAccesses';
+                $actR = new ActionResolver();
+                $act = $actR->getInternalAction($iRoute);
+                $act->runAct();
             }
         }
-        $this->context->set('h1', 'Добавление нового сетевого интерфейса');
+        $this->context->set('h1', 'Добавление новых доступов к yandex.ru');
     }
 
     function act_Del () {
@@ -97,7 +110,7 @@ class aYandexAccesses extends Action{
         $yaAccess->delete();
         $iRoute = new InternalRoute();
         $iRoute->module = 'SEParsing';
-        $iRoute->action = 'Interfaces';
+        $iRoute->action = 'YandexAccesses';
         $actR = new ActionResolver();
         $act = $actR->getInternalAction($iRoute);
         $act->runAct();

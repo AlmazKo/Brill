@@ -36,6 +36,20 @@ class Curl {
         RunTimer::addTimer('Curl');
     }
 
+    public function downloadFile($url, $path) {
+        $this->setOpt(CURLOPT_URL, $url);
+        if ($this->_exec()) {
+            $this->_parseResponse();
+            $file = $this->_responseBody;
+            Log::dump($file);
+        } else {
+            return false;
+        }
+        $fd = fopen($path, "w");
+        fwrite($fd, $file);
+        fclose($fd);
+        return true;
+    }
     /**
      * Выполняет запрос и все необходимые действия
      * @return Curl
@@ -259,7 +273,8 @@ class Curl {
         curl_setopt_array($this->_ch, $this->_opt);
      #   Log::dump($this->getOpts(true));
         $this->_responseRaw = curl_exec($this->_ch);
-        $this->getinfo();
+        Log::dump($this->_responseRaw);
+        Log::dump($this->getinfo());
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }

@@ -23,6 +23,7 @@ define ('REGISTRY_PATH', CORE_PATH . 'Registry/');
 define ('MODULES_PATH', DIR_PATH . '/Modules/');
 define ('USE_CACHE', false);
 
+require_once CORE_PATH . 'Common/NewFunctions.php';
 require_once CORE_PATH . 'Common/General.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
 require_once CORE_PATH . 'Common/Encoding.php';

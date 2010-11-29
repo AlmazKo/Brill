@@ -341,7 +341,7 @@ abstract class Model {
      */
     protected function initData($values) {
         foreach ($this->_fields as $fld) {
-            if (isset($values[$fld])) {
+            if (array_key_exists($fld, $values)) {
                $this->_values[$fld] = $values[$fld];
             } else {
                 Log::warning('Не найдено соответствие в базе полю ' .$fld );

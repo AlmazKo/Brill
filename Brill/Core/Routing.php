@@ -127,8 +127,7 @@ class Routing {
             }
             $queryString = '';
             if ($useQueryString && isset($parts['GET']) && is_array($parts['GET'])) {
-                $aGet = $route->get + $parts['GET'];
-                //Log::dump($aGet);
+                $aGet = array_replace_recursive($route->get, $parts['GET']);
                 if ($aGet) {
                     $queryString = TFormat::prepareQueryString($aGet);
                 }

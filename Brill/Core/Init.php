@@ -19,6 +19,7 @@ $dirs [] = '.';
 $dirs [] = CORE_PATH . '/Registry';
 
 set_include_path(implode(PATH_SEPARATOR, $dirs));
+require_once CORE_PATH . 'Common/NewFunctions.php';
 require_once CORE_PATH . 'Common/General.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
 require_once CORE_PATH . 'Common/Encoding.php';

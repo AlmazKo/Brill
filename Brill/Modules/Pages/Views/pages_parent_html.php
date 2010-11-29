@@ -71,7 +71,7 @@
                <?php include_once ($t->getTpl('content'))?>
              </td>
              </tr>
-         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?><br />This product includes PHP software, freely available from http://www.php.net/software/></td></tr>
+         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?><br />This product includes PHP software, freely available from http://www.php.net/software/</td></tr>
     </table>
 
 <script type="text/javascript">
@@ -103,6 +103,14 @@
 }
 
 $(document).ready(function(){
+
+    $('form').live('submit', function() {
+        $(this).ajaxSubmit({
+            target: '#page_content'
+        });
+        return false;
+    });
+
 
 //
 //    $('a img').css('opacity', 0.5);

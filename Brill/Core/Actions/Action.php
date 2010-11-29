@@ -46,7 +46,7 @@ abstract class Action {
         if (method_exists ($this, $parentAct)) {
             return $this->$parentAct();
         } else {
-            Log::warning('В экшене  "' . __CLASS__ . '" не реализован родительский метод: '.$parentAct);
+            Log::warning('В "' . __CLASS__ . '" не реализован родительский метод: '.$parentAct);
             return false;
         }
     }
@@ -64,7 +64,7 @@ abstract class Action {
         if (method_exists ($this, $act)) {
             return $this->$act();
         } else {
-            Log::warning('В экшене  "' . __CLASS__ . '" не реализован метод: ' . $act);
+            Log::warning('В "' . __CLASS__ . '" не реализован метод: ' . $act);
             return false;
         }
 

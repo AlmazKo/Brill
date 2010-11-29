@@ -1,25 +1,20 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of XmlParser
  *
  * @author Alexander
  */
 class XmlParser {
-    protected  $xml = NULL;
+    public  $_sxe = NULL;
 
     function  __construct($fileXml) {
-        $this->xml = simplexml_load_file($filexml);
+        $this->_sxe = simplexml_load_file($fileXml);
     }
-    function xmlOpen($filexml){
-        $this->xml = simplexml_load_file($filexml);
+    function xmlOpen($fileXml){
+        $this->_sxe = simplexml_load_file($fileXml);
     }
     function xmlClean(){
-        $this->xml = NULL;
+        $this->_sxe = NULL;
     }
     function xmlSave(){}
     function xmlLoadFromFile($file){}

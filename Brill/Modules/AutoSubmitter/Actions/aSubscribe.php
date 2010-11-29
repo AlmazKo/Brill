@@ -13,8 +13,11 @@ class aSubscribe extends Action{
     protected function configure() {
         require_once $this->module->pathModels . 'as_Sites.php';
         require_once $this->module->pathModels . 'as_Subscribes.php';
+        require_once $this->module->pathModels . 'as_SubscribesSites.php';
+
         require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
+        require_once $this->module->pathDB . 'as_Stmt.php';
         $this->context->setTopTpl('subscribe_start_html');
     }
     /**
@@ -51,8 +54,11 @@ class aSubscribe extends Action{
         $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArray('config_status', 'Yes')));
         if ($this->request->is('POST')) {
-
-            $this->session->set('newSelectedSites', $this->request->get('POST', 'table_chk'));
+            $post = $this->request->get('POST');
+            if (isset($post['table_chk']) && is_array($post['table_chk'])) {
+                $sites = array_keys($post['table_chk']);
+                $this->session->set('newSelectedSites', $sites);
+            }
             //TODO массив сайтов должен проверятся и сохрантся в сводную таблицу, после удачного всего прохождения
             return true;
         } else {
@@ -85,7 +91,15 @@ class aSubscribe extends Action{
                 $subscribe->form = $form->getXmlAsText();
                 $subscribe->user_id = 0;
                 $subscribe->date_created = time();
-                $subscribe->add();
+                $subscribe->save();
+                
+                $sites = $this->session->get('newSelectedSites');
+                $subscribeSites = new as_SubscribesSites();
+                $subscribeSites->subscribe_id = $subscribe->id;
+                foreach ($sites as $siteId) {
+                    $subscribeSites->site_id = $siteId;
+                    $subscribeSites->save();
+                }
                 return true;
             }
         }
@@ -104,7 +118,7 @@ class aSubscribe extends Action{
         require_once $this->module->pathModule . 'UserData.php';
         require_once $this->module->pathModule . 'UserDataProject.php';
         require_once $this->module->pathModule . 'Strategy.php';
-        require_once $this->module->pathModule . 'AS_Bot.php';
+  //      require_once $this->module->pathModule . 'AS_Bot.php';
 //        if ($this->request->isAjax()) {
 //           $this->context->setTopTpl('subscribe_start_html');
 //        } else {
@@ -159,6 +173,8 @@ class aSubscribe extends Action{
         $tbl->viewColumns('name', 'date_begin');
         $tbl->setNamesColumns(array('name'=>'Название',
                                     'date_begin' => 'Статус'));
+
+        $tbl->setCustomOpt('Run', 'Начать рассылку', 'start.png', 'Subscribe', 'Run', 'id');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
     }
@@ -206,56 +222,48 @@ class aSubscribe extends Action{
             $this->context->setTpl('content', 'run_html');
         }
 
-
+        $id = (int)$this->request->get('id', 0);
         //$this->context->set('h1','123123');
-        $site = new as_Sites();
-        $site->getObject(26);
-        //Log::dump($site);
-        $pathFileRule = $this->module->pathModule . "rules/" . preg_replace('|^(.+)\.[a-zA-Z0-9\-_]+$|Uis','$1',$site->host) . '.xml';
-//        $this->context->set('content', $content);
 
-
-        $obj_UserDataProject = new UserDataProject();
-
-        $obj_Strategy = new Strategy($obj_UserDataProject, $pathFileRule);
-
-        $content = '';
-        $k = 0;
-        while (($obj_Strategy->end == 'NO')||(empty($obj_Strategy->end))){
-            //если мы имеем что-то присланное от пользователя, то смотрим что имеем, пишем
-/*
-            if ($this->user_send){
-                $this->data = $this->user_send;
-            }
- *
- */
-            //нам нужно общаться со стратегией сообщая заполненные пользователем нулевые поля
-            $content = $obj_Strategy->work($content);
-            //если у нас есть что-то для отображения, то отображаем, если нет, то пусть дальше работает
-            if ($content){
-                //$content = $this->data;
-                //$obj_View->Print_RData($this->data);
-                //$obj_View->UserFormProject();
-                //die();
-                //echo $this->data . "<br />";
-            };
-            if ($obj_Strategy->end == 'NO'){
-                //если правило которое мы выполняли - с ошибкой,то нужно предложить пользователю попробывать снова
-                //или отказаться
-                //die('pravilo vipolneno s oshibkoi');
-                //$obj_View->FormRepeat();
-                $content = 'типа хуй';
-                break;
-            }
-
-            if ($k == 10){
-                die('diiiiieeeee LIMIT 10');
-            };
-            $k++;
+        $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $id)));
+        if ($result) {
+            $site = new as_Sites($result['site_id']);
+      //      Log::dump($site);
         }
-       $this->context->set('content', $content);
+        include_once $this->module->pathLib. 'XmlParser.php';
+        include_once $this->module->pathLib. 'as_XmlMapper.php';
+        include_once CORE_PATH. 'Lib/Curl.php'; 
+        $mapper = new as_XmlMapper($this->module->pathModule . 'rules/'. $site->host . '.xml');
+        $sxe = $mapper->_sxe;
+        $curl = new Curl();
 
 
+        $opt = array (CURLOPT_HEADER => true,
+                      CURLOPT_RETURNTRANSFER => true,
+                      CURLOPT_FOLLOWLOCATION => false,
+                      CURLOPT_TIMEOUT => 30,
+                      CURLOPT_COOKIEFILE => $this->module->pathModule . 'cookies/'.$site->host . '.xml',
+                      CURLOPT_COOKIEJAR => $this->module->pathModule . 'cookies/'.$site->host . '.xml'
+                      );
+
+        $curl->setOptArray($opt);
+
+        foreach($sxe->rule as $rule) {
+            $urlAction = (string)$rule->action['url'];
+            if (isset($rule->before)) {
+                
+                $response = $curl->requestGet($urlAction)->getResponseBody();
+                $response = $curl->downloadFile(
+                        'http://www.press-release.ru/cgi-bin/captcha.pl?rand=',
+                        $this->module->pathModule . 'downloads/'.$site->host . '.gif');
+
+              //  Log::dump($curl->getResponseHeaders());
+             //   echo $response;
+                //делаем запрос
+            }
+        }
+        die('-0-0');
+    
 
 
 

@@ -46,8 +46,8 @@ class aKeywords extends Action {
             'name'=>'Ключевое слово',
             'set'=>'Сет слов',
         ));
-        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
-        $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#">#set#</a>');
+        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#" ajax="1">#name#</a>');
+        $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#" ajax="1">#set#</a>');
         $this->context->set('h1', 'Ключевики по тематике');
         $thematic = new sep_Thematics();
         $thematic->getObject($id);
@@ -82,8 +82,8 @@ class aKeywords extends Action {
             'thematic'=>'Тематика',
             'k_url'=>'URL',
         ));
-        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
-        $tbl->addRulesView('thematic', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#t_id#">#thematic#</a>');
+        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#" ajax="1">#name#</a>');
+        $tbl->addRulesView('thematic', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#t_id#" ajax="1">#thematic#</a>');
         $this->context->set('h1', 'Ключевики сета');
         $set = new sep_Sets($id);
         $this->context->set('set', $set->name);
@@ -152,7 +152,7 @@ class aKeywords extends Action {
         $tbl->viewColumns('name', 'yandex', 'set', 'thematic');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->setViewIterator(true);
-        $tbl->addRulesView('thematic', '<a href="newindex.php?view=keywords&thematic_id=#t_id#">#thematic#</a>');
+        $tbl->addRulesView('thematic', '<a href="newindex.php?view=keywords&thematic_id=#t_id#" ajax="1">#thematic#</a>');
 
         $this->context->set('h1', 'Все ключевые слова');
         $this->context->set('title', 'Ключевики');
@@ -163,8 +163,8 @@ class aKeywords extends Action {
             'set'=>'Сет слов',
             'thematic'=>'Тематика',
         ));
-        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#">#name#</a>');
-        $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#">#set#</a>');
+        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#" ajax="1">#name#</a>');
+        $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#" ajax="1">#set#</a>');
         $this->context->set('tbl', $tbl);
     }
 
