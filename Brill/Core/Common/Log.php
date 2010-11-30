@@ -88,7 +88,12 @@ class Log {
                 return TFormat::htmlMessageLog($title, $descr, $block, $color);
             }
         }
-        return  self::$aLog[self::$i];
+        if (self::$i) {
+            return  self::$aLog[self::$i];
+        } else {
+            return '';
+        }
+        
     }
 
     /**

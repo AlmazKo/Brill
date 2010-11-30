@@ -47,7 +47,7 @@ abstract class Action {
         if (method_exists ($this, $parentAct)) {
             return $this->$parentAct();
         } else {
-            Log::warning('В экшене  "' . __CLASS__ . '" не реализован метод: '.$parentAct);
+            Log::warning('В "' . __CLASS__ . '" не реализован родительский метод: '.$parentAct);
             return false;
         }
     }
@@ -65,7 +65,7 @@ abstract class Action {
         if (method_exists ($this, $act)) {
             return $this->$act();
         } else {
-            Log::warning('В экшене  "' . __CLASS__ . '" не реализован метод: ' . $act);
+            Log::warning('В "' . __CLASS__ . '" не реализован метод: ' . $act);
             return false;
         }
 
@@ -86,11 +86,13 @@ abstract class Action {
         $this->configure();
         $this->session = RegistrySession::instance();
 
-        //срабатывание эвента EVENT_INIT_ACTION
+        //срабатывание эвента
         if (!$isInternal) {
             General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION);
+        } else {
+            General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL);
         }
-        
+
     }
 
     public function input() {

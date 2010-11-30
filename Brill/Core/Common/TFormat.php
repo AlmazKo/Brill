@@ -148,5 +148,25 @@ class TFormat {
         return str_replace("\r\n", "\n", $text);
     }
 
+    /**
+     * Формирует query string из массива
+     * @param array $values
+     * @return string
+     */
+    public static function prepareQueryString($values) {
+        $get = array();
+        foreach ($values as $key => $value) {
+            $get[] = $key . (($value === '') ? '' : '=' . urldecode($value));
+        }
+        return implode('&' , $get);
+    }
+
+    public static function viewErrorsContent(array $errors) {
+        $html = '';
+        foreach ($errors as $value) {
+            $html .= '<div class="error_content">' . $value . '</div>';
+        }
+        return $html;
+    }
 }
 

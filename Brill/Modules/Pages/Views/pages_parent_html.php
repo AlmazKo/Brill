@@ -9,7 +9,7 @@
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
-        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_1.png" align="middle"/>Проект</td><td>Мега система по захвату мира</td><td class="last_col"><?=$t->get('auth')->buildHtml()?></td></tr>
+        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_web.png" align="middle"/></td><td>Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">
@@ -33,49 +33,60 @@
 
             <li> <span>Парсинг</span>
             <ul>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a></li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a><b><a href="<?=WEB_PREFIX?>SEParsing/Keywords/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Sets/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/">Ключевики</a>
+                <b>
+                    <a href="<?=WEB_PREFIX?>SEParsing/Keywords/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a>
+                    <a href="<?=WEB_PREFIX?>SEParsing/Keywords/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/mass_add.png" /></a>
+                </b>
+            </li>
+            <li class="sep"></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/">Интерфейсы бота</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a>
+                <a href="<?=WEB_PREFIX?>SEParsing/Interfaces/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/mass_add.png" /></a></b>
+            </li>
+
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/">Доступы к Яндексу</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Regions/">Регионы</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Regions/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Hosts/">Источники</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Limits/">Ограничения</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/StatsToday/">Статистика за сегодня</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Errors/">Ошибки</a></li>
             </ul>
 
             </li>
             <li class="yes"> <span>Новости</span> </li>
             <li class="yes"> <span>Написать сообщение</span> </li>
             </ul>
-             <td id="page_content">
+             <td id="page_content" colspan="2">
                <?php include_once ($t->getTpl('content'))?>
              </td>
-             <td>Полезная инфа</td></tr>
-         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?></td></tr>
+             </tr>
+         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?><br />This product includes PHP software, freely available from http://www.php.net/software/</td></tr>
     </table>
 
 <script type="text/javascript">
-$(document).ready(function(){
-    $('.yes').hover(function(e) {
-        $(this).css({'color':'red'});
-        $(this).children('b').css({'display': 'inline'});
-    },function() {
-        $(this).css({'color':'#333'});
-        $(this).children('b').hide();
-    });
 
-    $('#page_menu a').click(function() {
-        var block = $("#page_content");
+    function loadBlock (block, url) {
         var position = block.position();
         var posImg = 300;
         block.append('<div id="loading"><img src="<?=WEB_PREFIX?>Brill/img/loader1.gif" style="margin-top:48px;margin-left:'+posImg+'px"></div>');
         $('#loading').css({'top': position.top, 'left':position.left,
                            'width': block.width(), 'height':block.height()+10,
                            'opacity':0.8});
-        $('#loading').show(100);
-
+        $('#loading').show();  //alert('e[ns ;sdlk');
         $.ajax({
             type: "GET",
-            url: $(this).attr('href'),
-            beforeSend:function(data, textStatus){
-
-
-            },
+            url: url,
             stop:function(data, textStatus){
               //  $('#loading').hide();
             },
@@ -83,12 +94,83 @@ $(document).ready(function(){
                 block.html(data);
             },
             complete: function(){
-
-                $('#loading').hide();
+                $('#loading').hide(100);
+                setTimeout(function(){$('.error_content').fadeOut(500)}, 2000);
+              //  $('a img').css('opacity', 0.5);
             }
         });
-                                            
         return false;
+}
+
+$(document).ready(function(){
+
+    $('form').live('submit', function() {
+        $(this).ajaxSubmit({
+            target: '#page_content'
+        });
+        return false;
+    });
+
+
+//
+//    $('a img').css('opacity', 0.5);
+//
+//    $('a img').live("mousemove", function(){
+//        $(this).css('opacity', 1);
+//    });
+//
+//    $('a img').live("mouseout", function(){
+//        $(this).css('opacity', 0.5);
+//    });
+    
+    $('li .yes').hover(function(e) {
+        $(this).css({'color':'red'});
+        $(this).children('b').css({'display': 'inline'});
+    },function() {
+        $(this).css({'color':'#333'});
+        $(this).children('b').hide();
+    });
+
+
+    $('a[areusure]').live("click", function(){
+        if (confirm("Вы действительно уверены?")) {
+
+        } else {
+            return false;
+        }
+    });
+
+
+    $('a[ajax]').live("click", function(){
+          var block = $("#page_content");
+          loadBlock(block, $(this).attr('href'));
+          return false;
+    });
+
+    //аякс с запросом подтверждения
+    $('a[ajax_areusure]').live("click", function(){
+        if (confirm("Вы, действительно хотите удалить запись?")) {
+            var block = $("#page_content");
+            loadBlock(block, $(this).attr('href'));
+            return false;
+        } else {
+            return false;
+        }
+    });
+
+
+    $('#page_menu a').click(function() {
+        var block = $("#page_content");
+        loadBlock(block, $(this).attr('href'));
+        return false;
+    });
+
+    $('#page_content td').live("mousemove", function(){
+       $(this).parent('tr').css({'background-color':'#ecf1f4'});
+    });
+
+    $('#page_content td').live("mouseout", function(){
+        $(this).parent('tr').css({'background-color':'#fff'});
     });
 });
 

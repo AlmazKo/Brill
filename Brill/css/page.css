@@ -28,7 +28,7 @@ h1 {
     width: 200px;
 }
 #page_head {
-    height: 100px
+    height: 77px
 
 }
 
@@ -42,11 +42,12 @@ h1 {
 
 }
 #page_content {
-    padding: 5px;
+    padding: 5px 10px;
+    vertical-align: top;
 }
 
 form p {
-    margin: 2px 0;
+    margin-bottom: 10px;
 }
 
 form {
@@ -55,13 +56,42 @@ form {
 
 form .form_field_error{
     color:Red;
-    padding-left:110px;
+    padding-left:10px;
+    float:left;
+    width:300px;
+}
+
+form .form_field_info{
+    color:#AAA;
+    font-size: 0.9em;
+    padding-left:10px;
+    float:left;
+    width:300px;
 }
 
 #UserForm input {
     width: 500px;
-
 }
+
+form input {
+    float: left;
+    width: 300px;
+}
+
+form textarea {
+    float: left;
+    width: 300px;
+}
+
+form .submit {
+    margin-top: 10px;
+    width: 306px;
+}
+form select {
+    float: left;
+    width: 306px;
+}
+
 
 #UserForm textarea {
     width: 500px;
@@ -72,18 +102,18 @@ form .form_field_error{
     width: 500px;
 
 }
-#UserForm label {
+form label {
     display:block;
     float:left;
     padding:3px;
     text-align:right;
-    width:100px;
+    width:150px;
 }
 
 .table {
     border-collapse: collapse;
-    width: 900px;
-        margin:5px;
+    width:100%;
+    margin:5px;
 }
 .table td {
     border: 1px solid #ccc;
@@ -95,11 +125,13 @@ form .form_field_error{
 .table th {
     border: 1px solid #ccc;
     border-collapse: separate;
-    font-size:10pt;
+    font-size:0.9em;
     text-align: left;
     padding:3px;
     text-align: center;
     font-weight: bold;
+    background: #E1E4E8;
+
 }
 .table_chk {
     width: 1%;
@@ -129,7 +161,7 @@ form .form_field_error{
 
 .null_table {
     color:#80a6ae;
-    text-align: center;
+    text-align: center !important;
     padding: 10px 0;
     font-style: italic;
     font-size: 1.1em;
@@ -186,29 +218,130 @@ form .form_field_error{
 
 
 
-#page_menu a {
+a {
     color: #0771be;
     text-decoration: underline;
 }
-#page_menu a:hover {
+a:hover {
     color: #0771be;
 }
 
-#page_menu a:visited {
+a:visited {
     color: #0771be;
 }
 
-#page_menu a:link {
+a:link {
    color: #0771be;
 }
 
 #page_menu li b {
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+    background:none repeat scroll 0 0 #cfe2eb;
+    margin-left:5px;
+    padding:1px 3px;
     display: none;
     position: absolute;
 }
 #page_menu li b img {
-    margin-top: 2px;
-    margin-left: 5px;
-    border:0;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+}
+#page_menu li b a {
+    position: relative;
+    top:1px;
+ /*   margin-top: 2px;
+    margin-left: 5px;*/
 }
 
+li .sep {
+    border-bottom:1px dotted #AAA;
+    list-style:none outside none;
+    margin:10px 20px 5px 0;
+}
+img{
+    border:0px;
+}
+
+td .options {
+    width: 80px;
+    text-align: center;
+}
+
+
+
+td .options a {
+    margin:0 5px;
+}
+
+.error_content {
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    background:none repeat scroll 0 0 #FFCCCC;
+    border:1px solid red;
+    margin:5px;
+    padding:5px;
+    width:100%;
+}
+
+#page_head td {
+    border-bottom:1px solid #999;
+}
+
+.mini_form {
+    padding: 2px;
+}
+
+.mini_form p{
+margin: 1px 0;
+}
+
+.mini_form input {
+    float: right;
+    width: 130px;
+    height: 15px;
+    font-size: 11px;
+}
+
+.mini_form textarea {
+    float: right;
+    width: 130px;
+    height: 15px;
+    font-size: 11px;
+}
+
+.mini_form select {
+    float: right;
+    width: 136px;
+    height: 15px;
+    font-size: 11px;
+}
+
+.mini_form label {
+    padding:3px;
+    text-align:right;
+    font-size: 11px;
+    width: auto;
+    
+}
+
+.mini_form .submit {
+    float: right;
+    width: 136px;
+    height: 22px;
+    font-size: 11px;
+    margin-top: 0;
+}
+
+li {
+    list-style: none;
+}
+
+ul {
+    padding: 0 0 10px 20px;
+}
+
+
+th img {
+    margin-right:3px;
+}

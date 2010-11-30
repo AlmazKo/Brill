@@ -1,11 +1,6 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of LogMysql
+ * LogMysql - класс логгирования mysql опереаций
  *
  * @author almaz
  */
@@ -18,7 +13,7 @@ class LogMysql extends Log{
     public static function errorQuery($query) {
        $descr= htmlspecialchars($query) . "\n";
        self::warning($descr, true, 'SQL Error');
-       // echo self::inputLog('SQL Error', $descr, true, 'Red', 'mysql_errors');
+       echo self::inputLog('SQL Error', $descr, true, 'Red', 'mysql_errors');
 
     }
 }

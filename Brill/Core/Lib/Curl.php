@@ -36,6 +36,20 @@ class Curl {
         RunTimer::addTimer('Curl');
     }
 
+    public function downloadFile($url, $path) {
+        $this->setOpt(CURLOPT_URL, $url);
+        if ($this->_exec()) {
+            $this->_parseResponse();
+            $file = $this->_responseBody;
+            Log::dump($file);
+        } else {
+            return false;
+        }
+        $fd = fopen($path, "w");
+        fwrite($fd, $file);
+        fclose($fd);
+        return true;
+    }
     /**
      * Выполняет запрос и все необходимые действия
      * @return Curl
@@ -147,11 +161,7 @@ class Curl {
      * @return string
      */
     protected function _preparedGet() {
-        $get = array();
-        foreach ($this->_aGet as $key => $value) {
-            $get[] = $key . (($value === '') ? '' : '=' . urldecode($value));
-        }
-        return implode('&' , $get);
+        return TFormat::prepareQueryString($this->_aGet);
     }
 
     /**
@@ -261,9 +271,10 @@ class Curl {
         RunTimer::addPoint('Curl');
         //задаем урл
         curl_setopt_array($this->_ch, $this->_opt);
-        Log::dump($this->getOpts(true));
+     #   Log::dump($this->getOpts(true));
         $this->_responseRaw = curl_exec($this->_ch);
-        log::dump($this->getinfo());
+        Log::dump($this->_responseRaw);
+        Log::dump($this->getinfo());
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
@@ -321,7 +332,7 @@ class Curl {
 //
 //            }
 
-        }Log::dump($aHeaders);
+        }
         return $this->_aResponseHeaders = $aHeaders;
     }
 

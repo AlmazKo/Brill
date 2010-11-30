@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Press_Release.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : lubyagin sergey
+    Description:
+        Purpose of the document follows.
+-->
+<root>
+    <rule url="http://www.press-release.ru/add/">
+        <action isajax="false" url="http://www.press-release.ru/add/" />
+        <before>
+            <sitedata name='code' type='captcha' src='/cgi-bin/captcha.pl?rand=' />
+        </before>
+        <parameters_for_get>
+            <field htmlname='login' htmltype='text' required='false'><userdataproject name='Fam' /></field>
+        </parameters_for_get>
+        <parameters_for_post>
+
+            <field htmlname='section' htmltype='select' required='true'>
+                <userdata name='section' />
+            </field>
+
+            <field htmlname='title' htmltype='text' required='true'>
+                <userdata name='title' />
+            </field>
+
+            <field htmlname='annot' htmltype='textarea' required='false'>
+                <userdata name='preview' />
+            </field>
+
+            <field htmlname='body' htmltype='textarea' required='true'>
+                <userdata name='release' />
+            </field>
+
+            <field htmlname='keywords' htmltype='textarea' required='true'>
+                <userdata name='keywords' />
+            </field>
+
+            <field htmlname='author' htmltype='text' required='true'>
+                <userdata name='name' />
+            </field>
+            
+            <field htmlname='org' htmltype='text' required='true'>
+                <userdata name='company' />
+            </field>
+            <field htmlname='code' htmltype='text' required='true' isCaptcha='/cgi-bin/captcha.pl?rand='>
+                <userdata name='code' />
+            </field>
+
+
+
+       </parameters_for_post>
+        <headers>
+        </headers>
+        <response url="http://www.press-release.ru/add/status_ok/" value="Материал будет опубликован после проверки модератором" />
+    </rule>
+
+<rule></rule>
+</root>

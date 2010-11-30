@@ -25,6 +25,11 @@ left join `sep_Sets` as s on (s.id=k.set_id)
 left join `sep_Urls` as u on (u.id=k.url_id)
 ";
 
+// получить все ключевики кокретной региона
+const KEYWORDS_BY_REGION_YANDEX = "SELECT k.id FROM `sep_Keywords` as k
+left join `sep_Regions` as r on (r.id=k.region_id)
+where r.id=#r_id#";
+
 // получить все ключевики кокретной тематики
 const ALL_KEYWORDS_THEMATIC = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `sep_Keywords` as k
 left join `sep_Thematics` as t on (t.id=k.thematic_id)
@@ -61,4 +66,18 @@ const ALL_REGIONS = "SELECT id, name FROM `sep_Regions`";
 
 // получить все сеты
 const ALL_SETS = "SELECT id, name FROM `Sets`";
+
+
+
+const LIMITS_HOSTS = "SELECT l.id, h.name, every_day, every_hour, every_min, l.date from sep_LimitsIpForHosts as l
+INNER JOIN sep_Hosts as h on (l.host_id=h.id)";
+
+const INTERFACES_USUAL = "SELECT id,interface FROM sep_Interfaces WHERE type='Usual'";
+
+const YANDEX_ACCESSES = "SELECT y.id, y.login, y.password, y.xml_key, i.interface, y.date from sep_YandexAccesses as y
+INNER JOIN sep_Interfaces as i on (y.interface_id=i.id)";
+
+const STATS_CALLS_TODAY = "SELECT h.name as `host`, i.interface, it.count, it.last_date from sep_InterfaceCountCallToday as it
+JOIN sep_Hosts as h on (it.host_id=h.id)
+JOIN sep_Interfaces as i on (it.interface_id=i.id)";
 }

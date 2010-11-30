@@ -19,6 +19,7 @@ $dirs [] = '.';
 $dirs [] = CORE_PATH . '/Registry';
 
 set_include_path(implode(PATH_SEPARATOR, $dirs));
+require_once CORE_PATH . 'Common/NewFunctions.php';
 require_once CORE_PATH . 'Common/General.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
 require_once CORE_PATH . 'Common/Encoding.php';
@@ -35,6 +36,8 @@ require_once 'RegistryContext.php';
 require_once 'RegistryDb.php';
 require_once CORE_PATH . 'Modules.php';
 require_once CORE_PATH . 'DB/DBExt.php';
+require_once CORE_PATH . 'DB/Stmt.php';
+require_once CORE_PATH . 'Common/LogInDb.php';
 require_once CORE_PATH . 'Actions/Action.php';
 require_once CORE_PATH . 'Models/Model.php';
 require_once CORE_PATH . 'Views/View.php';
@@ -43,8 +46,9 @@ require_once CORE_PATH . 'Lib/Curl.php';
 require_once CORE_PATH . 'Lang/ru/texts.php';
 
 require CORE_PATH . 'ActionResolver.php';
-require CORE_PATH . 'DB/Stmt.php';
 require CORE_PATH . 'Navigation.php';
+require_once CORE_PATH . 'InternalRoute.php';
+
 require CORE_PATH . 'Interfaces/IPaging.php';
 require CORE_PATH . 'Interfaces/ISorting.php';
 

@@ -1,8 +1,8 @@
 <h1><?=$t->h1?></h1>
 <? if ($t->is('form')) :?>
-<?=$t->form->buildHtml('UserForm')?>
+<?=$t->form->buildHtml('Thematics')?>
     <script type="text/javascript">
-        $('#UserForm').bind('submit', function() {
+        $('#Thematics').bind('submit', function() {
             $(this).ajaxSubmit({
                 target: '#page_content'
             });

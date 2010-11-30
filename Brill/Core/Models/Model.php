@@ -1,27 +1,33 @@
 <?php
 /*
- * Model
+ * Model родитель всех объектов-моделей. содержит всю логику работы с ними
  *
- * Класс родитель для вех моделей
+ * @author AlmazKo <a.s.suslov@gmail.com>
  */
 
 abstract class Model {
-    //значения
     private
         //значения
         $_values = null,
         // контрольная сумма объекта, после заполнения данными из БД
-        $_checkSum = null;
+        $_checkSum = null,
+        // Имя класса
+        $_nameClass;
 
     protected
+        //коннект
+        $_lnk,
+        //название БД
+        $_db,
         //название таблицы
-        $_tbl_name,
+        $_tblName,
         //поля - должны быть уникальны
         $_fields = array(),
         /*
-         * есть ли первичный ключ. им становится первое поле
-         * если он включен, то его создает только БД и менять его нельзя
-         * если отключен - то запрещены все операции обновления и удаления
+         * Используется ли первичный ключ, если да, то им становится первое поле.
+         * Поле в таблице должно быть уникальным
+         * Если он включен, то его может создать только БД и менять его нельзя.
+         * Если отключен - то запрещены все операции обновления и удаления.
          */
         $_isPk = true,
         // накапливаемый буффер для вставки
@@ -36,9 +42,8 @@ abstract class Model {
         if (array_key_exists($field, $this->_values)) {
              return $this->_values[$field];
         } else {
-            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
+            Log::warning('Не возможно получить свойство. / ' . get_class($this) .'->' . $field . ', т.к. оно не определено');
         }
-
     }
 
     /**
@@ -49,7 +54,7 @@ abstract class Model {
     function  __set($field, $value) {
         if (in_array($field, $this->_fields)) {
             if ($this->_isPk && $field == $this->_fields[0]) {
-                Log::warning('Нельзя изменять первичный ключ '.$field);
+                Log::warning(get_class($this) . ' Нельзя изменять первичный ключ '.$field);
             }
             //экранируем все от греха по дельше
             $this->_values[$field] = addslashes($value);
@@ -64,6 +69,7 @@ abstract class Model {
      * @return Model
      */
     final function  __construct($pk = null) {
+        $this->_nameClass = get_class($this);
         if (isset($pk)) {
             return $this->getObject($pk);
         } else {
@@ -72,6 +78,7 @@ abstract class Model {
     }
 
     function  __destruct() {}
+    private function __clone() {}
 
     /**
      * Возвращает объект, полученный по первому полю
@@ -84,10 +91,19 @@ abstract class Model {
         $values = DBExt::getOneRow($this->_tblName, $this->_fields[0], $valPk);
         if (isset($values)) {
             $this->initData($values);
+            return $this;
         } else {
             return false;
             #Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);
         }
+    }
+
+    /**
+     * Возвращает объект, как массив
+     * @return array
+     */
+    public function toArray() {
+        return $this->getValues();
     }
 
     /**
@@ -110,8 +126,8 @@ abstract class Model {
     }
 
     /**
-     *
      * Возвращает массив объектов $class
+     *
      * @param string $class название класса
      * @param string $field поле по какому ищем
      * @param string&int&array $val значение поля
@@ -165,7 +181,7 @@ abstract class Model {
      * @param recourxce $lnk
      * @return class
      */
-    public static function getObjectFromSql ($class, $sql, $lnk = null) {
+    public static function getObjectFromSql($class, $sql, $lnk = null) {
         $model = new $class();
         if (is_subclass_of($model, 'Model')) {
             $row = DBExt::getOneRowSql($sql);
@@ -186,7 +202,7 @@ abstract class Model {
      * @param resource $lnk
      * @return bool
      */
-    public function fillObjectFromSql ($sql, $lnk = null) {
+    public function fillObjectFromSql($sql, $lnk = null) {
         $row = DBExt::getOneRowSql($sql, $lnk);
         if ($row) {
             // по идее у модели должен меняться _table
@@ -198,6 +214,22 @@ abstract class Model {
     }
 
     /**
+     * Пытается заполнить объект из массива.
+     * Т.к. данные не известно откуда, то происходит запись только тех полей, которые найдутся в модели.
+     * Первичный ключ не изменяется.
+     *
+     * @param array $values
+     * @return bool
+     */
+    public function fillObjectFromArray(array $values) {
+        foreach ($this->_fields as $fld) {
+            if ($fld != $this->_fields[0] && isset($values[$fld])) {
+               $this->_values[$fld] = $values[$fld];
+            }
+        }
+    }
+
+    /**
      * удаляет объект, полученный по первому полю
      * @param string $valPk значение ключа
      * @return class
@@ -205,18 +237,19 @@ abstract class Model {
     public function delete() {
       DBExt::deleteOneRow($this->_tblName, $this->_fields[0], $this->_values[$this->_fields[0]]);
       unset($this->_values[$this->_fields[0]]);
-      $this->calcCheckSum();
+      $this->_calcCheckSum();
     }
 
     /**
-     * Сбрасывает у объекта его idшник
-     * следующий save добавит в базу новую запись
+     * Сбрасывает у объекта его idшник.
+     * Следующий save() добавит в базу новую запись
      */
     public function reset() {
         if ($this->_isPk) {
-            $this->_values[$this->_fields[0]] = null;
+            unset($this->_values[$this->_fields[0]]);
         }
     }
+
     /**
      * Получить массив значений таблицы объекта
      */
@@ -227,10 +260,10 @@ abstract class Model {
     /**
      * Вставляет данные в базу
      */
-    protected function add () {
-        $this->_calcCheckSum();
+    protected function _add () {
+      //  Log::dump($this->_values);
         $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
-
+        $this->_calcCheckSum();
     }
 
     /**
@@ -240,12 +273,12 @@ abstract class Model {
     public function save() {
         if ($this->_isPk) {
             if (isset($this->_values[$this->_fields[0]])) {
-                $this->update();
+                $this->_update();
             } else {
-                $this->add();
+                $this->_add();
             }
         } else {
-            Log::warning('Объекты, которые не поддеживают первичный ключ - изменять нельзя');
+            $this->_add();
         }
         return $this;
     }
@@ -253,61 +286,91 @@ abstract class Model {
     /**
      * Обновление объекта
      */
-    protected function update () {
+    protected function _update () {
         //изменения вносим в базу только если изменилась контрольная сумма
-        if ($this->_checkSum != $this->calcCheckSum()) {
+        if ($this->_checkSum != $this->_calcCheckSum()) {
             $newValues = $this->_values;
             $valPk = array_shift($newValues);
-            $result = DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk);
+            if (DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk)) {
+                //было что-то измено в базе, создаем новую чексумму
+                $this->_calcCheckSum();
+            }
         }
      }
 
+     /**
+      * Добавить значения объекта в буффер множественной вставки
+      * если у объекта есть первичный ключ - выполнится простой апдейт
+      */
      public function saveInBuffer(){
-         if (isset($this->_values[$this->_fields[0]])) {
-            $this->update();
+         if ($this->_isPk && isset($this->_values[$this->_fields[0]])) {
+            $this->_update();
          } else {
             if (!$this->_buffer) {
-                $this->_buffer = 'INSERT INTO (' . DBExt::parseFields($this->_fields) . ') VALUES ';
+                $this->_buffer = 'INSERT INTO '.$this->_tblName.'(' . DBExt::parseFields(array_keys($this->_values)) . ') VALUES ';
             } else {
                  $this->_buffer .= ",\n";
             }
             $this->_buffer .= '(' . DBExt::parseValues($this->_values) . ')';
-            
+
+         }
+         return $this;
+     }
+
+     /**
+      * Выполнить множественную вставку
+      * и очистить буффер
+      */
+     public function executeBuffer() {
+         if($this->_buffer) {
+            DB::query($this->_buffer);
+            $this->cleanBuffer();
          }
      }
 
-     public function executeBuffer() {
-         DB::query($this->_buffer);
-     }
-
+     /**
+      * Очистить буффер множественной вставки
+      */
      public function cleanBuffer() {
          $this->_buffer = null;
      }
     /**
-     * инициализирует данные полученные из БД
+     * Заполняет значения данными из БД,
      * а также создает контрольную сумму значений
      * @param array $values
      */
     protected function initData($values) {
-        //заполнение полей значениями
         foreach ($this->_fields as $fld) {
-            if (isset($values[$fld])) {
+            if (array_key_exists($fld, $values)) {
                $this->_values[$fld] = $values[$fld];
             } else {
                 Log::warning('Не найдено соответствие в базе полю ' .$fld );
             }
         }
-        $this->calcCheckSum();
+        $this->_calcCheckSum();
     }
 
-    protected function calcCheckSum() {
-
+    /**
+     * Создает чек сумму объекта.
+     * Нужна, чтобы избежать лишних апдейтов
+     * @return int сгенерированная новая чек-сумма
+     */
+    protected function _calcCheckSum() {
        return $this->_checkSum = crc32(implode($this->_values));
     }
+
+    /**
+     * Возвращает массив значений объекта
+     * @return array
+     */
     public function getValues() {
         return $this->_values;
     }
 
+    /**
+     * Получить массив полей объекта
+     * @return array
+     */
     public function getFields() {
         return $this->_fields;
     }

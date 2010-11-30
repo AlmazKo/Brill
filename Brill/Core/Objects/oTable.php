@@ -1,11 +1,7 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
- * Description of List
+ * Класс настройки и сборки таблицы
  *
  * @author Alexander
  */
@@ -18,6 +14,12 @@ function cmp($a, $b) {
 
 
 class oTable implements ISorting{
+    const
+        OPT_DEL = 'Del',
+        OPT_EDIT = 'Edit',
+        SORT_ASC = 'asc',
+        SORT_DESC = 'desc'    ;
+    
     protected
         //текущая страница
         $page = 1,
@@ -51,7 +53,9 @@ class oTable implements ISorting{
         $viewIterator = false,
         $viewHead = true,
         $typeSelected = false,
-        $viewSorting = true;
+        $viewSorting = true,
+        $_opts = array(),
+        $_sort;
 
     function __construct($data) {
         if (is_array($data)) {
@@ -83,6 +87,7 @@ class oTable implements ISorting{
             $this->mapsView[$field] = $func;
         }
     }
+
     /**
      * Разделитель таблицы
      * @param string $nameSep какое поле должно измениться, чтобы сработал разделитель
@@ -98,6 +103,7 @@ class oTable implements ISorting{
         }
 
     }
+
     /**
      * Форматирует строку по шаблону
      * @param string $cell
@@ -183,7 +189,61 @@ class oTable implements ISorting{
         $this->viewIterator = (bool) $view;
     }
 
+    /**
+     * выводить таблицу с ссылкой на редактирование
+     * @param bool $view
+     */
+    function setIsEdit($edit = false) {
+        if ($edit) {
+            $this->_opts[self::OPT_EDIT] = true;
+        } else {
+            unset($this->_opts[self::OPT_EDIT]);
+        }
+    }
 
+   /**
+     * выводить таблицу с ссылкой на удаление
+     * @param bool $view
+     */
+    function setIsDel($del = false) {
+        if ($del) {
+            $this->_opts[self::OPT_DEL] = true;
+        } else {
+            unset($this->_opts[self::OPT_DEL]);
+        }
+    }
+
+    /**
+     * Добавить свою опцию
+     *
+     * @param string $img название картинки
+     * @param string $action - на какой экшен уходим
+     * @param string $urlGetParameter - параметр
+     */
+    function setCustomOpt($name, $title, $img, $action, $act, $urlGetParameter) {
+        $this->_opts[$name] = array(
+            'action' => $action,
+            'act' => $act,
+            'image' => $img,
+            'arg' => $urlGetParameter,
+            'title' => $title
+            );
+    }
+
+    function buildOpt ($pkValue) {
+        $html = '';
+        foreach ($this->_opts as $key => $value) {
+            if ($key != self::OPT_DEL && $key != self::OPT_EDIT) {
+                $html .= '<a href="' . Routing::constructUrl(array('action' => $value['action'], 'act' => $value['act']), false) . '?' . $value['arg'].  '=' . $pkValue.'" ajax>'.
+                         '<img title="' . $value['title'] . '" src="' . WEB_PREFIX .'Brill/img/' . $value['image'] . '" /></a>';
+            }
+        }
+        return $html;
+    }
+
+    function isOptions () {
+        return (bool) count($this->_opts);
+    }
     /**
      * Выводить ли шапку таблицы
      * @param bool $view
@@ -205,13 +265,23 @@ class oTable implements ISorting{
     /**
      * Поддержка интерфейса ISorting
      */
-    function  sort($field, $direction = null) {
+    function  sort($field, $direction = self::SORT_ASC) {
+        if (is_null($direction)) {
+            $direction = self::SORT_ASC;
+        }
         if ($this->isField($field)) {
             if($this->values) {
+                 $this->_sort = array();
+                if(self::SORT_ASC == $direction) {
+                    $this->_sort[$field] = self::SORT_DESC;
+                } else {
+                    $this->_sort[$field] = self::SORT_ASC;
+                }
+                
                 foreach ($this->values as $row) {
                     $tmp[] = $row[$field];
                 }
-                if ($direction !== 'DESC' ) {
+                if (self::SORT_DESC != $direction) {
                     asort($tmp);
                 } else {
                     arsort($tmp);
@@ -293,6 +363,23 @@ class oTable implements ISorting{
     }
 
     /**
+     * Хелпер. показывает стрелочки, направления сортировки
+     * @param <type> $field
+     * @return <type>
+     */
+    protected function _arrowSort($field) {
+        if (isset($this->_sort[$field])) {
+            if(self::SORT_ASC == $this->_sort[$field]) {
+                $img = 'desc';
+            } else {
+                $img = 'asc';
+            }
+        } else {
+            $img = 'dot';
+        }
+        return '<img src="' . WEB_PREFIX .'Brill/img/'.$img.'.png" />';
+    }
+    /**
      * Строит шапку таблицы
      * @return string верстка щапки
      */
@@ -305,10 +392,14 @@ class oTable implements ISorting{
         foreach ($this->viewCols as $i => $cell) {
             if ($this->viewSorting) {
 
-                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'">' . $this->headers[$i] . '</a></th>';
+                $html .= '<th>'.$this->_arrowSort($this->fields[$i]).'<a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i], 'order' => (isset($this->_sort[$this->fields[$i]])) ? $this->_sort[$this->fields[$i]] : self::SORT_ASC ))).'" ajax="1">' . $this->headers[$i] . '</a></th>';
             } else {
                 $html .= '<th>' . $this->headers[$i] . '</th>';
             }
+        }
+
+        if ($this->isOptions()) {
+            $html .= '<th class="options">Опции</th>';
         }
         $html .= '</tr>';
         return $html;
@@ -321,8 +412,19 @@ class oTable implements ISorting{
     public function buildBody (){
         $html = '';
         $idRow = 0;
+        $cols = count($this->viewCols);
+        if (!$cols) {
+          $cols = count($this->fields);
+        }
+        if ($this->viewIterator) {
+            $cols++;
+        }
+        if ($this->isOptions()) {
+            $cols++;
+        }
         if(empty($this->values)) {
-            $html .= '<tr><td colspan="'.count($this->fields).'" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
+
+            $html .= '<tr><td colspan="' . $cols . '" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
         } else {
             foreach ($this->values as $row) {
                 $html .= '<tr>';
@@ -330,7 +432,7 @@ class oTable implements ISorting{
                     $html .= '<td>' . ($idRow + 1) . '</td>';
                 }
                 if ($this->separator &&  ($this->separatorValue != $row[$this->separator] || $idRow == 0)) {
-                    $html .= '<tr><td colspan="' . count($this->viewCols) . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
+                    $html .= '<tr><td colspan="' . $cols . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
                     $this->separatorValue = $row[$this->separator];
                 }
                 $i = 0;
@@ -340,6 +442,19 @@ class oTable implements ISorting{
                         $html .= '<td>' . $this->buildTd($cell, $this->viewCols[$i], $row) .'</td>';
                     }
                     $i++;
+                }
+                if ($this->isOptions()) {
+                    $html .= '<td class="options">';
+                    
+                    $html .= $this->buildOpt($row[$this->fields[0]]);
+                    if (isset($this->_opts[self::OPT_EDIT])) {
+                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'edit'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax="1"><img src="' . WEB_PREFIX .'Brill/img/edit.png" /></a>';
+                    }
+                    if (isset($this->_opts[self::OPT_DEL])) {
+                        $html .= '<a href="' . Routing::constructUrl(array('act' => 'del'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax_areusure="1"><img src="' . WEB_PREFIX .'Brill/img/del.png" /></a>';
+                    }
+                    
+                    $html .= '</td>';
                 }
                 $idRow++;
                 $html .= '</tr>';

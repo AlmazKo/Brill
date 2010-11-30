@@ -95,9 +95,10 @@ class Routing {
     /**
      * Конструирует строку нового урла
      * @param array $parts массив изменяемых частей роутинга
+     * @param bool $useQueryString Использовать ли текущие get-параметры
      * @return string
      */
-    public static function constructUrl($parts = null) {
+    public static function constructUrl($parts = null, $useQueryString = true) {
          $route = self::instance();
         if ($parts) {
             $url  = '/';
@@ -109,7 +110,7 @@ class Routing {
            
             $url .= isset($parts['module']) ? $parts['module'] . '/' : $route->module ? $route->module . '/' : '';
             $url .= isset($parts['action']) ? $parts['action'] . '/' : $route->action ? $route->action . '/' : '';
-            $url .= isset($parts['act']) ? $parts['act'] . '/' : $route->act ? $route->act . '/' : '';
+            $url .= isset($parts['act']) ? ($parts['act'] . '/') : ($route->act ? $route->act . '/' : '');
 
             if (isset($parts['nav']) && is_array($parts['nav'])) {
                 //получаем новый массив путем пересечения. оставляем только те поля, которое могут быть
@@ -125,17 +126,13 @@ class Routing {
                 $url .= isset($parts['nav']) ? $parts['nav'] . '/' : $route->nav ? $route->nav . '/' : '';
             }
             $queryString = '';
-            if (isset($parts['GET']) && is_array($parts['GET'])) {
-                $aGet = array_merge($route->get, $parts['GET']);
-
+            if ($useQueryString && isset($parts['GET']) && is_array($parts['GET'])) {
+                $aGet = array_replace_recursive($route->get, $parts['GET']);
                 if ($aGet) {
-                    $queryString = '';
-                    foreach ($aGet as $key => $value) {
-                        $queryString = $key . '=' .  $value;
-                    }
+                    $queryString = TFormat::prepareQueryString($aGet);
                 }
+                $queryString = $queryString ? $queryString : $route->queryString;
             }
-            $queryString = $queryString ? $queryString : $route->queryString;
             return  $url . ($queryString ? '?' . $queryString : '');
         } else {
             return $route->uri;

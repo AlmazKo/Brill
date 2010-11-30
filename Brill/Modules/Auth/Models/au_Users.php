@@ -15,6 +15,7 @@ class au_Users extends Model {
         'publicEmail',
         'reg_status', //статус ('Yes', 'No')
         'date',
-        'hash'
+        //хэш при проверке через почту. после удачной авторизации должен сбрасываться
+        'auth_hash'
     );
 }
