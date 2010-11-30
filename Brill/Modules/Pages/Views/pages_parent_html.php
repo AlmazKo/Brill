@@ -83,7 +83,7 @@
         $('#loading').css({'top': position.top, 'left':position.left,
                            'width': block.width(), 'height':block.height()+10,
                            'opacity':0.8});
-        $('#loading').show(100);  //alert('e[ns ;sdlk');
+        $('#loading').show();  //alert('e[ns ;sdlk');
         $.ajax({
             type: "GET",
             url: url,
@@ -94,7 +94,7 @@
                 block.html(data);
             },
             complete: function(){
-                $('#loading').hide();
+                $('#loading').hide(100);
                 setTimeout(function(){$('.error_content').fadeOut(500)}, 2000);
               //  $('a img').css('opacity', 0.5);
             }

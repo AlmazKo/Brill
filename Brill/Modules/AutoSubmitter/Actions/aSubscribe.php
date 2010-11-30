@@ -255,7 +255,8 @@ class aSubscribe extends Action{
                 $response = $curl->requestGet($urlAction)->getResponseBody();
                 $response = $curl->downloadFile(
                         'http://www.press-release.ru/cgi-bin/captcha.pl?rand=',
-                        $this->module->pathModule . 'downloads/'.$site->host . '.gif');
+                        DIR_PATH . '/img/downloads/'.$site->host . '.gif');
+                echo '<img src="'.WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif">';
 
               //  Log::dump($curl->getResponseHeaders());
              //   echo $response;

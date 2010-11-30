@@ -340,3 +340,8 @@ li {
 ul {
     padding: 0 0 10px 20px;
 }
+
+
+th img {
+    margin-right:3px;
+}

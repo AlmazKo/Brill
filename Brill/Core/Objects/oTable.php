@@ -16,7 +16,9 @@ function cmp($a, $b) {
 class oTable implements ISorting{
     const
         OPT_DEL = 'Del',
-        OPT_EDIT = 'Edit';
+        OPT_EDIT = 'Edit',
+        SORT_ASC = 'asc',
+        SORT_DESC = 'desc'    ;
     
     protected
         //текущая страница
@@ -52,7 +54,8 @@ class oTable implements ISorting{
         $viewHead = true,
         $typeSelected = false,
         $viewSorting = true,
-        $_opts = array();
+        $_opts = array(),
+        $_sort;
 
     function __construct($data) {
         if (is_array($data)) {
@@ -262,13 +265,23 @@ class oTable implements ISorting{
     /**
      * Поддержка интерфейса ISorting
      */
-    function  sort($field, $direction = null) {
+    function  sort($field, $direction = self::SORT_ASC) {
+        if (is_null($direction)) {
+            $direction = self::SORT_ASC;
+        }
         if ($this->isField($field)) {
             if($this->values) {
+                 $this->_sort = array();
+                if(self::SORT_ASC == $direction) {
+                    $this->_sort[$field] = self::SORT_DESC;
+                } else {
+                    $this->_sort[$field] = self::SORT_ASC;
+                }
+                
                 foreach ($this->values as $row) {
                     $tmp[] = $row[$field];
                 }
-                if ($direction !== 'DESC' ) {
+                if (self::SORT_DESC != $direction) {
                     asort($tmp);
                 } else {
                     arsort($tmp);
@@ -350,6 +363,23 @@ class oTable implements ISorting{
     }
 
     /**
+     * Хелпер. показывает стрелочки, направления сортировки
+     * @param <type> $field
+     * @return <type>
+     */
+    protected function _arrowSort($field) {
+        if (isset($this->_sort[$field])) {
+            if(self::SORT_ASC == $this->_sort[$field]) {
+                $img = 'desc';
+            } else {
+                $img = 'asc';
+            }
+        } else {
+            $img = 'dot';
+        }
+        return '<img src="' . WEB_PREFIX .'Brill/img/'.$img.'.png" />';
+    }
+    /**
      * Строит шапку таблицы
      * @return string верстка щапки
      */
@@ -362,7 +392,7 @@ class oTable implements ISorting{
         foreach ($this->viewCols as $i => $cell) {
             if ($this->viewSorting) {
 
-                $html .= '<th> <a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i]))).'" ajax="1">' . $this->headers[$i] . '</a></th>';
+                $html .= '<th>'.$this->_arrowSort($this->fields[$i]).'<a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i], 'order' => (isset($this->_sort[$this->fields[$i]])) ? $this->_sort[$this->fields[$i]] : self::SORT_ASC ))).'" ajax="1">' . $this->headers[$i] . '</a></th>';
             } else {
                 $html .= '<th>' . $this->headers[$i] . '</th>';
             }
