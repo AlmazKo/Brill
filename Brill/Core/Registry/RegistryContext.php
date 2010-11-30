@@ -6,8 +6,8 @@
 
 /**
  * Description of RegistryContext
- *
- * @author almaz
+  * данные и инструкции для вью
+  * @author almaz
  */
 
 class RegistryContext extends Registry {

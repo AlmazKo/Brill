@@ -1,8 +1,8 @@
 RewriteEngine on
-RewriteCond %{REQUEST_URI} !^/ba/Brill/static
-RewriteCond %{REQUEST_URI} !^/ba/index.php
-RewriteCond %{REQUEST_URI} !^/ba/daemon.php
-RewriteCond %{REQUEST_URI} !^/ba/Brill/css
-RewriteCond %{REQUEST_URI} !^/ba/Brill/img
-RewriteCond %{REQUEST_URI} !^/ba/Brill/js
-RewriteRule ^(.*)$ /ba/index.php [L]
+RewriteCond %{REQUEST_URI} !^/Brill/static
+RewriteCond %{REQUEST_URI} !^/index.php
+RewriteCond %{REQUEST_URI} !^/daemon.php
+RewriteCond %{REQUEST_URI} !^/Brill/css
+RewriteCond %{REQUEST_URI} !^/Brill/img
+RewriteCond %{REQUEST_URI} !^/Brill/js
+RewriteRule ^(.*)$ /index.php [L]

@@ -17,9 +17,10 @@ class aPages extends Action {
     }
     
     /**
-     * Основаная вьюшка
+     * Основная вьюшка
      */
     public function act_View() {
+
 
         $this->context->set('title', 'Рассылка');
 

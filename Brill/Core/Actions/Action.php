@@ -27,6 +27,7 @@ abstract class Action {
      * @param bool $view - выводить ли вью
      */
     public function execute ($view = true) {
+
         if ($this->act) {
             $this->runAct($this->act);
         } else {

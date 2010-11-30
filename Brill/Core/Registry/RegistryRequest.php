@@ -6,7 +6,6 @@
 
 /**
  * Description of RegistryParser
- *
  * @author asuslov
  */
 
@@ -33,8 +32,7 @@ class RegistryRequest extends Registry{
         if (isset($_SERVER['REQUEST_METHOD'])) {
             $this->_isConsole = false;
             foreach ($_REQUEST as $key => $val) {
-
-            $this->set($key, $val);
+                $this->set($key, $val);
             }
             //инициализация _POST
             if ($_POST) {
