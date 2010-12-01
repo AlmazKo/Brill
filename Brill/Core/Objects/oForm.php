@@ -11,6 +11,10 @@ protected $fields = array();
 protected $action;
 protected $method = 'POST';
 protected $enctype = 'multipart/form-data';
+
+protected
+    $_htmlBefore = '',
+    $_htmlAfter = '';
     function __construct(array $fields = array(), $url = array()) {
         $url = array_replace_recursive(array('GET' => array('ajax' => '1')), $url);
         $this->action = Routing::constructUrl($url);
@@ -20,6 +24,21 @@ protected $enctype = 'multipart/form-data';
         $this->fields = $fields;
     }
 
+    function setHtmlBefore($html) {
+        $this->_htmlBefore = $html;
+    }
+
+    function setHtmlAfter($html) {
+        $this->_htmlAfter = $html;
+    }
+
+    function getHtmlBefore() {
+       return $this->_htmlBefore ? '<div class="before_form">' . $this->_htmlBefore . '</div>' : '';
+    }
+
+    function getHtmlAfter() {
+        return $this->_htmlAfter ? '<div class="after_form">' . $this->_htmlAfter . '</div>' : '';
+    }
     /**
      * Строит форму
      *
@@ -28,7 +47,7 @@ protected $enctype = 'multipart/form-data';
      * @return string
      */
     public function buildHtml($idCss = 'form', $classCss = 'form', $submit = 'Отправить') {
-        $html = '';
+        $html = $this->getHtmlBefore();
         if ($this->fields) {
             $html .= '<form '.($idCss ? 'id="' . $idCss . '" ' : '').($classCss ? 'class="' . $classCss . '" ' : '').'enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
             foreach ($this->fields as $name => $settings) {
@@ -36,7 +55,7 @@ protected $enctype = 'multipart/form-data';
             }
             $html .='<label></label><input type="submit" class="submit" value="'.$submit.'"></form><div style="clear:both"></div>';
         }
-        return $html;
+        return $html . $this->getHtmlAfter();
     }
 
     /**
@@ -90,7 +109,7 @@ protected $enctype = 'multipart/form-data';
                 break;
             case 'captcha':
                 $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
-                $html .= '<img src="' . $settings['src'] . '"/><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
+                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/><img src="' . $settings['src'] . '"/>';
                 break;
             case 'submit':
                 break;

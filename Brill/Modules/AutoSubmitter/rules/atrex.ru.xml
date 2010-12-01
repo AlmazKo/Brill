@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : atrex.ru.xml
+    Created on : 2 Декабрь 2010 г., 1:49
+    Author     : almaz
+    Description:
+-->
+
+<root host="http://atrex.ru">
+    <rule url="http://atrex.ru/press/add.html">
+        <before>
+            <action type="request" url='http://atrex.ru/press/add.html' />
+        </before>
+        <get>
+
+        </get>
+        <post>
+            <field name='category' type='select' required='true' form='true' title='Раздел'>
+                <userdata name='section' />
+            </field>
+
+            <field name='title' type='text' required='true' form='true' analog='title' title='Заголовок' info=''>
+                <userdata name='title' />
+            </field>
+            <field name='company' type='text' required='true' form='true' analog='company' title='Компания'>
+                <userdata name='company' />
+            </field>
+            <field name='anons' type='textarea' required='false' form='true' analog='preview' attr='rows=3' title='Анонс' info='(не более 250 символов). В основной текст автоматически не копируется. '>
+                <userdata name='preview' />
+            </field>
+
+            <field name='content' type='textarea' required='true' form='true' analog='release' attr='rows=8' title='Содержание' info='BB-code: вкл'>
+                <userdata name='release' />
+            </field>
+
+            <field name='comments' type='textarea' required='true' attr='rows=3' form='true' title='Комментарии'>
+                <userdata name='comments' />
+            </field>
+
+            <field name='email' type='text' required='true' form='true' analog='name' title='E-mail'>
+                <userdata name='email' />
+            </field>
+
+            <field name='contactname' type='text' required='true' form='true' analog='name' title='Контактное лицо'>
+                <userdata name='author' />
+            </field>
+            
+            <field name='image' type='text' required='true' form='false' analog='file' title='Изображение'>
+                <userdata name='author' />
+            </field>
+            <field name='contactname' type='text' required='true' form='true' analog='name' title='Контактное лицо'>
+                Отправить редактору
+            </field>
+       </post>
+        <headers>
+        </headers>
+        <after>
+            <response url="http://atrex.ru/press/add.html" value="Материал будет опубликован после проверки модератором" />
+        </after>
+        <beforeHtml>
+        </beforeHtml>
+        <afterHtml>
+            
+        </afterHtml>
+    </rule>
+
+<rule></rule>
+</root>

@@ -223,12 +223,9 @@ class aSubscribe extends Action{
         }
 
         $id = (int)$this->request->get('id', 0);
-        //$this->context->set('h1','123123');
-
         $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $id)));
         if ($result) {
             $site = new as_Sites($result['site_id']);
-      //      Log::dump($site);
         }
         include_once $this->module->pathLib. 'XmlParser.php';
         include_once $this->module->pathLib. 'as_XmlMapper.php';
@@ -239,7 +236,7 @@ class aSubscribe extends Action{
 
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
-                      CURLOPT_FOLLOWLOCATION => true,
+                      CURLOPT_FOLLOWLOCATION => false,
                       CURLOPT_TIMEOUT => 20,
                       CURLOPT_COOKIEFILE => $this->module->pathModule . 'cookies/'.$site->host . '.txt',
                       CURLOPT_COOKIEJAR => $this->module->pathModule . 'cookies/'.$site->host . '.txt'
@@ -249,61 +246,37 @@ class aSubscribe extends Action{
         $mapper->getActionRule();
         $before = $mapper->getBeforeActions();
         $host = $mapper->getHost();
-        $fields = $mapper->getFields();
-       // Log::dump($before);
-        if ($before) {
-            foreach($before as $action) {
-                //Log::dump($action);
-                if ('request' == (string)$action['type']) {
-                     $response = $curl->requestGet((string)$action['url'])->getResponseBody();
-                }
-                if ('download' == (string)$action['type']) {
-                    $url = (string)$action['url'];
-                    $data[$action['name']] = $curl->downloadFile(
-                        $url,
-                        DIR_PATH . '/img/downloads/'.$site->host . '.gif');
-                    if (!$curl->getErrors()) {
-                        $fields[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif';
-                    } else {
-                        Log::dump($curl->getErrors());
+        if ($this->session->is('subscribeForm')) {
+            $gets = $mapper->getGet();
+            $posts = $mapper->getPost();
+            $headers = $mapper->getHeaders();
+        } else {
+
+            $fields = $mapper->getFields();
+            if ($before) {
+                foreach($before as $action) {
+                    if ('request' == (string)$action['type']) {
+                         $response = $curl->requestGet((string)$action['url'])->getResponseBody();
+                    }
+                    if ('download' == (string)$action['type']) {
+                        $url = (string)$action['url'];
+                        $data[$action['name']] = $curl->downloadFile(
+                            $url,
+                            DIR_PATH . '/img/downloads/'.$site->host . '.gif');
+                        if (!$curl->getErrors()) {
+                            $fields[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif';
+                        } else {
+                            Log::dump($curl->getErrors());
+                        }
                     }
                 }
             }
+            $form = new oForm($fields);
+            $form->setHtmlAfter($mapper->getAfterHtml());
+            $form->setHtmlBefore('Форма для сайта www.press-release.ru');
+            echo $form->buildHtml();
+            $this->session->set('subscribeForm', $form);
         }
-       // Log::dump($fields);
-       
-       // $added = $resp;
-        
-        $form = new oForm($fields);
-        echo $form->buildHtml();
-         die('---++----');
-        /*
-         * мержим с Subscribe()
-         * !! добавить
-         * отдаем пользователю как oForm
-         *
-         */
-        foreach($sxe->rule as $rule) {
-            $urlAction = (string)$rule->action['url'];
-            if (isset($rule->before)) {
-
-                $response = $curl->requestGet($urlAction)->getResponseBody();
-                $response = $curl->downloadFile(
-                        'http://www.press-release.ru/cgi-bin/captcha.pl?rand=',
-                        DIR_PATH . '/img/downloads/'.$site->host . '.gif');
-                echo '<img src="'.WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif">';
-
-              //  Log::dump($curl->getResponseHeaders());
-             //   echo $response;
-                //делаем запрос
-            }
-        }
-        die('-0-0');
-
-
-
-
-
 //        $site = new as_Sites();
 //        $site->getObject($this->request->get('id'));
 //        $strategy = new Strategy($site, $user);

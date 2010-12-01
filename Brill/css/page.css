@@ -345,3 +345,17 @@ ul {
 th img {
     margin-right:3px;
 }
+
+form p img {
+    margin: 0 5px;
+}
+
+.before_form {
+    width: 750px;
+    margin-bottom: 10px;
+}
+
+.after_form {
+    width: 750px;
+    margin-top: 10px;
+}

@@ -54,6 +54,7 @@ class as_XmlMapper extends XmlParser{
 
     }
     function getGet($rule = 0) {
+        
 
     }
     function getInfo($rule = 0) {
@@ -68,25 +69,67 @@ class as_XmlMapper extends XmlParser{
     }
     //$fields['interface'] = array('title' => 'Cетевой интерфейс', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
     function getFields($ruleId = 0) {
-         $aFields = array();
-         if ($this->hasRule($ruleId)) {
-             $rule = $this->getRule($ruleId);
-             foreach ($rule->post->field as $field) {
-                 if ('true' == $field['form']) {
-                    $aFields[(string)$field['htmlname']] = array('title' => (string)$field['htmlname'], 'value' => '', 'type' => (string)$field['htmltype'], 'required' => ('false' == (string)$field['required']) ? false : true);
-                    if (isset($field['analog'])) {
-                        $aFields[(string)$field['htmlname']]['analog'] = (string)$field['analog'];
+        $aFields = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            
+            foreach ($rule->post->field as $field) {
+                $aField = current($field);
+
+                if ('true' == $field['form']) {
+
+                    $name = (string)$field['name'];
+                    $aFields[$name] = array();
+                    foreach ($aField as $key => $value) {
+                        switch((string)$value) {
+                        case 'htmlname':
+                            continue;
+                        case 'required':
+                            $aFields[$name][$key] = ('false' == (string)$value) ? false : true;
+                            break;
+                        default:
+                            $aFields[$name][$key] = (string)$value;
+                        }
                     }
-                    if (isset($field['attr'])) {
-                        $aFields[(string)$field['htmlname']]['attr'] = (string)$field['attr'];
+                    if (!isset($aFields[$name]['value'])) {
+                        $aFields[$name]['value'] = '';
                     }
-                    if (isset($field['src'])) {
-                        $aFields[(string)$field['htmlname']]['src'] = (string)$field['src'];
-                    }
-                 }
+
+                }
+//                    $aFields[(string)$field['htmlname']] = array(
+//                        'title'     => (string)$field['htmlname'],
+//                        'value'     => '',
+//                        'type'      => (string)$field['htmltype'],
+//                        'required'  => ('false' == (string)$field['required']) ? false : true
+//                        'info'      => ,
+//                        );
+//                    if (isset($field['analog'])) {
+//                        $aFields[(string)$field['htmlname']]['analog'] = (string)$field['analog'];
+//                    }
+//                    if (isset($field['attr'])) {
+//                        $aFields[(string)$field['htmlname']]['attr'] = (string)$field['attr'];
+//                    }
+//                    if (isset($field['src'])) {
+//                        $aFields[(string)$field['htmlname']]['src'] = (string)$field['src'];
+//                    }
+                 //}
              }
          }
+        
          return $aFields;
     }
 
+    public function getBeforeHtml($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            return (string)$rule->beforeHtml;
+        }
+    }
+
+    public function getAfterHtml($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            return (string)$rule->afterHtml;
+        }
+    }
 }
