@@ -7,6 +7,9 @@
 require_once CORE_PATH . 'Lib/ConstCurl.php';
 
 class Curl {
+
+    public
+        $_referer='http://www.press-release.ru/';
     protected
         // ссылка на текущий курл
         $_ch,
@@ -27,25 +30,34 @@ class Curl {
         // Массив post-параметров для запроса
         $_aPost = array(),
         // Массив заголовков для запроса
-        $_aRequestHeaders,
+        $_aRequestHeaders = array(),
         // Массив файлов для запроса
-        $_aRequestFiles;
+        $_aRequestFiles,
+        //ошибки
+        $_errors = array();
 
     public function __construct() {
         $this->_ch = curl_init();
         RunTimer::addTimer('Curl');
     }
 
+    /**
+     * Скачать файл с сервера
+     * NO STABLE
+     * @param string $url - адрес картинки
+     * @param string $path - куда сохранять
+     * @return bool
+     */
     public function downloadFile($url, $path) {
         $this->setOpt(CURLOPT_URL, $url);
         if ($this->_exec()) {
+           # Log::dump($this->_info);
             $this->_parseResponse();
             $file = $this->_responseBody;
-            Log::dump($file);
         } else {
             return false;
         }
-        $fd = fopen($path, "w");
+        $fd = fopen($path, "a");
         fwrite($fd, $file);
         fclose($fd);
         return true;
@@ -58,7 +70,6 @@ class Curl {
         $this->_clean();
         $aGet = $this->_preparedGet();
 
-        $headers = $this->_preparedHeaders();
         if ($aGet) {
             $url = $url . '?' . $aGet;
         }
@@ -145,7 +156,7 @@ class Curl {
      * Задать заголовки запроса
      */
     function setHeaders(array $aHeaders) {
-        $this->_aRequestHeaders = $this->_aRequestHeaders + $array;
+        $this->_aRequestHeaders = array_replace($this->_aRequestHeaders, $aHeaders);
     }
 
     /**
@@ -153,6 +164,14 @@ class Curl {
      */
     function getHeaders() {
         return $this->_aRequestHeaders;
+    }
+    
+    /**
+     * Сбросить куки
+     * @param string $name 
+     */
+    function resetCookies($name) {
+
     }
     /**
      * Формирует строку из get-параметров
@@ -179,6 +198,14 @@ class Curl {
      * Формирует строку заголовков
      */
     protected function _preparedHeaders() {
+        if ($this->_referer) {
+            $this->setHeaders(array('Referer' => $this->_referer, 
+                'Cache-Control' => 'max-age=0',
+                'User-Agent' => 'Mozilla/5.0 (X11; U; Linux i686; ru; rv:1.9.2.12) Gecko/20101027 Ubuntu/10.10 (maverick) Firefox/3.6.12',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Keep-Alive' => '115',
+                'Connection' => 'keep-alive'));
+        }
         if ($this->_aRequestHeaders) {
             $this->setOpt(CURLOPT_HTTPHEADER, $this->_aRequestHeaders);
         }
@@ -225,8 +252,26 @@ class Curl {
          $this->_opt[$key] = $value;
     }
 
-    public function getinfo() {
-        return $this->_info = curl_getinfo($this->_ch);
+    /**
+     * Получить информацию о последнем действии
+     * @param string $key
+     * @return mixed
+     */
+    public function getinfo($key = null) {
+        $this->_info = curl_getinfo($this->_ch);
+        if($key) {
+            return $this->_info[$key];
+        } else {
+            return $this->_info;
+        }
+    }
+
+    /**
+     * получить ошибки
+     * @return array
+     */
+    public function getErrors() {
+        return $this->_errors;
     }
 
     /**
@@ -268,13 +313,20 @@ class Curl {
      * @return bool удачно или нет
      */
     protected function _exec() {
+        $this->_preparedHeaders();
         RunTimer::addPoint('Curl');
         //задаем урл
         curl_setopt_array($this->_ch, $this->_opt);
-     #   Log::dump($this->getOpts(true));
+     //   log::dump($this->getOpt(CURLOPT_HTTPHEADER));
         $this->_responseRaw = curl_exec($this->_ch);
-        Log::dump($this->_responseRaw);
-        Log::dump($this->getinfo());
+        //FIXME: сделать нормальное логирование ошибок. общее и для текущией итерации
+        $this->_errors = array();
+        $this->getinfo();
+        //сохраняем рефер
+        $this->_referer = $this->getinfo("url");
+        if (!$this->getinfo('http_code')) {
+            $this->_errors[] = 'Не удалось выполнить операцию';
+        }
         RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
@@ -288,8 +340,9 @@ class Curl {
      * /(\w+)(\;\s([a-z_-]+)(\=[a-z])?)? /
      */
     protected function _headersToArray() {
+
         $aHeaders = array();
-        $sHeaders = strtolower(StringUtf8::substr($this->_responseRaw, 0,
+        $sHeaders = strtolower(substr($this->_responseRaw, 0,
                 $this->_info['header_size']));
         $sHeaders = TFormat::winTextToLinux($sHeaders);
         $sHeaders = preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $sHeaders);
@@ -345,6 +398,7 @@ class Curl {
         // если в конфигурации стоит получение заголовков
         if ($this->isOpt(CURLOPT_HEADER)) {
             $this->_aResponseHeaders = $this->_headersToArray();
+          //  Log::dump($this->_aResponseHeaders);
         }
 
         if (!$this->isOpt(CURLOPT_NOBODY)) {

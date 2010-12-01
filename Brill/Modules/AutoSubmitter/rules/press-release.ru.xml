@@ -4,57 +4,57 @@
     Document   : Press_Release.xml
     Created on : 8 Октябрь 2010 г., 13:40
     Author     : lubyagin sergey
+    Author     : Almazko
     Description:
         Purpose of the document follows.
 -->
-<root>
+<root host="http://www.press-release.ru">
     <rule url="http://www.press-release.ru/add/">
         <action isajax="false" url="http://www.press-release.ru/add/" />
         <before>
-            <sitedata name='code' type='captcha' src='/cgi-bin/captcha.pl?rand=' />
+            <action type="request" url='http://www.press-release.ru/add/' />
+            <action type="download" url='http://www.press-release.ru/cgi-bin/captcha.pl?rand=' htmlname='code' />
         </before>
-        <parameters_for_get>
-            <field htmlname='login' htmltype='text' required='false'><userdataproject name='Fam' /></field>
-        </parameters_for_get>
-        <parameters_for_post>
-
-            <field htmlname='section' htmltype='select' required='true'>
+        <get>
+          
+        </get>
+        <post>
+            <field htmlname='section' htmltype='select' required='true' form='true'>
                 <userdata name='section' />
             </field>
 
-            <field htmlname='title' htmltype='text' required='true'>
+            <field htmlname='title' htmltype='text' required='true' form='true' analog='title'>
                 <userdata name='title' />
             </field>
 
-            <field htmlname='annot' htmltype='textarea' required='false'>
+            <field htmlname='annot' htmltype='textarea' required='false' form='true' analog='preview' attr='rows=3'>
                 <userdata name='preview' />
             </field>
 
-            <field htmlname='body' htmltype='textarea' required='true'>
+            <field htmlname='body' htmltype='textarea' required='true' form='true' analog='release' attr='rows=8'>
                 <userdata name='release' />
             </field>
 
-            <field htmlname='keywords' htmltype='textarea' required='true'>
+            <field htmlname='keywords' htmltype='textarea' required='true' form='true' attr='rows=3'>
                 <userdata name='keywords' />
             </field>
 
-            <field htmlname='author' htmltype='text' required='true'>
+            <field htmlname='author' htmltype='text' required='true' form='true' analog='name'>
                 <userdata name='name' />
             </field>
             
-            <field htmlname='org' htmltype='text' required='true'>
+            <field htmlname='org' htmltype='text' required='true' form='true' analog='company'>
                 <userdata name='company' />
             </field>
-            <field htmlname='code' htmltype='text' required='true' isCaptcha='/cgi-bin/captcha.pl?rand='>
-                <userdata name='code' />
+            <field htmlname='code' htmltype='captcha' required='true'  form='true'>
+                <userdata name='captcha' />
             </field>
-
-
-
-       </parameters_for_post>
+       </post>
         <headers>
         </headers>
-        <response url="http://www.press-release.ru/add/status_ok/" value="Материал будет опубликован после проверки модератором" />
+        <after>
+            <response url="http://www.press-release.ru/add/status_ok/" value="Материал будет опубликован после проверки модератором" />
+        </after>
     </rule>
 
 <rule></rule>

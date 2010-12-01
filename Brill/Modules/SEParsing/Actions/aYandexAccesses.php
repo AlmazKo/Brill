@@ -9,10 +9,10 @@ class aYandexAccesses extends Action{
         $sql = Stmt::prepare(se_Stmt::INTERFACES_USUAL);
         $interfaces = new oList(DBExt::selectToList($sql));
 
-        $fields['login'] = array('title' => 'Логин', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'без указания домена @yandex.ru', 'error' => false, 'attr' => '', $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['xml_key'] = array('title' => 'Xml ключ', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 'info'=>'Берется на странице http://xml.yandex.ru/stat.xml', 'error' => false, 'attr' => '', $checked = array());
-        $fields['interface_id'] = array('title' => 'Интерфейс', 'value' => '', 'data' => $interfaces, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
+        $fields['login'] = array('title' => 'Логин', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'без указания домена @yandex.ru', 'error' => false, 'attr' => '', $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['xml_key'] = array('title' => 'Xml ключ', 'value' => '', 'type'=>'textarea', 'required' => true, 'validator' => null, 'info'=>'Берется на странице http://xml.yandex.ru/stat.xml', 'error' => false, 'attr' => '', $checked = array());
+        $fields['interface_id'] = array('title' => 'Интерфейс', 'value' => '', 'data' => $interfaces, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
     
         $this->fields = $fields;
     }

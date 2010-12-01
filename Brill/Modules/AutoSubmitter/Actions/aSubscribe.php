@@ -27,7 +27,7 @@ class aSubscribe extends Action{
      * @return bool
      */
     protected function act_Add() {
-        $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $form = new oForm($fields);
         $this->context->set('form', $form);
         $this->context->set('step', 0);
@@ -92,7 +92,7 @@ class aSubscribe extends Action{
                 $subscribe->user_id = 0;
                 $subscribe->date_created = time();
                 $subscribe->save();
-                
+
                 $sites = $this->session->get('newSelectedSites');
                 $subscribeSites = new as_SubscribesSites();
                 $subscribeSites->subscribe_id = $subscribe->id;
@@ -232,26 +232,61 @@ class aSubscribe extends Action{
         }
         include_once $this->module->pathLib. 'XmlParser.php';
         include_once $this->module->pathLib. 'as_XmlMapper.php';
-        include_once CORE_PATH. 'Lib/Curl.php'; 
+        include_once CORE_PATH. 'Lib/Curl.php';
         $mapper = new as_XmlMapper($this->module->pathModule . 'rules/'. $site->host . '.xml');
-        $sxe = $mapper->_sxe;
         $curl = new Curl();
 
 
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
-                      CURLOPT_FOLLOWLOCATION => false,
-                      CURLOPT_TIMEOUT => 30,
-                      CURLOPT_COOKIEFILE => $this->module->pathModule . 'cookies/'.$site->host . '.xml',
-                      CURLOPT_COOKIEJAR => $this->module->pathModule . 'cookies/'.$site->host . '.xml'
+                      CURLOPT_FOLLOWLOCATION => true,
+                      CURLOPT_TIMEOUT => 20,
+                      CURLOPT_COOKIEFILE => $this->module->pathModule . 'cookies/'.$site->host . '.txt',
+                      CURLOPT_COOKIEJAR => $this->module->pathModule . 'cookies/'.$site->host . '.txt'
                       );
 
         $curl->setOptArray($opt);
-
+        $mapper->getActionRule();
+        $before = $mapper->getBeforeActions();
+        $host = $mapper->getHost();
+        $fields = $mapper->getFields();
+       // Log::dump($before);
+        if ($before) {
+            foreach($before as $action) {
+                //Log::dump($action);
+                if ('request' == (string)$action['type']) {
+                     $response = $curl->requestGet((string)$action['url'])->getResponseBody();
+                }
+                if ('download' == (string)$action['type']) {
+                    $url = (string)$action['url'];
+                    $data[$action['name']] = $curl->downloadFile(
+                        $url,
+                        DIR_PATH . '/img/downloads/'.$site->host . '.gif');
+                    if (!$curl->getErrors()) {
+                        $fields[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif';
+                    } else {
+                        Log::dump($curl->getErrors());
+                    }
+                }
+            }
+        }
+       // Log::dump($fields);
+       
+       // $added = $resp;
+        
+        $form = new oForm($fields);
+        echo $form->buildHtml();
+         die('---++----');
+        /*
+         * мержим с Subscribe()
+         * !! добавить
+         * отдаем пользователю как oForm
+         *
+         */
         foreach($sxe->rule as $rule) {
             $urlAction = (string)$rule->action['url'];
             if (isset($rule->before)) {
-                
+
                 $response = $curl->requestGet($urlAction)->getResponseBody();
                 $response = $curl->downloadFile(
                         'http://www.press-release.ru/cgi-bin/captcha.pl?rand=',
@@ -264,7 +299,7 @@ class aSubscribe extends Action{
             }
         }
         die('-0-0');
-    
+
 
 
 

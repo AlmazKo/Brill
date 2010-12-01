@@ -9,12 +9,12 @@ class aInterfaces extends Action{
         $types = new oList(array(array('Proxy', 'Прокси'), array('Usual', 'Обычный')));
         $proxyTypes = new oList(array(array('HTTP', 'HTTP'), array('SOCKS5', 'SOCKS5')));
 
-        $fields['interface'] = array('title' => 'Cетевой интерфейс', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
-        $fields['port'] = array('title' => 'Порт', 'value' => '', 'data' => $ports, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['type'] = array('title' => 'Тип', 'value' => '', 'data' => $types, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['proxy_type'] = array('title' => 'Тип прокси', 'value' => '', 'data' => $proxyTypes, 'type'=>'select', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['proxy_login'] = array('title' => 'Логин от прокси', 'value' => '', 'type'=>'text', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['proxy_password'] = array('title' => 'Пароль от прокси', 'value' => '', 'type'=>'text', 'requried' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['interface'] = array('title' => 'Cетевой интерфейс', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
+        $fields['port'] = array('title' => 'Порт', 'value' => '', 'data' => $ports, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['type'] = array('title' => 'Тип', 'value' => '', 'data' => $types, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['proxy_type'] = array('title' => 'Тип прокси', 'value' => '', 'data' => $proxyTypes, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['proxy_login'] = array('title' => 'Логин от прокси', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['proxy_password'] = array('title' => 'Пароль от прокси', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
 
         $this->fields = $fields;
     }
@@ -101,7 +101,7 @@ class aInterfaces extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'interfaces_add');
         }
-        $this->fields['interface'] = array('title' => 'Список интерфейсов', 'value' => '', 'type'=>'textarea', 'requried' => true, 'validator' => null, 
+        $this->fields['interface'] = array('title' => 'Список интерфейсов', 'value' => '', 'type'=>'textarea', 'required' => true, 'validator' => null,
             'info'=>'Разделитель - новая строка.<br />Может содержать номер порта после двоеточия.<br />Например: 192.168.1.1:8080<br /> Интерфейсам, у которых не указан порт, <br /> порт присвоится из указанного значения снизу.', 'error' => false, 'attr' => 'rows="10"', $checked = array());
         $form = new oForm($this->fields);
         $this->context->set('form', $form);

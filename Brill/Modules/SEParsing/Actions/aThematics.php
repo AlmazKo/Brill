@@ -5,7 +5,7 @@ class aThematics extends Action{
     protected function configure() {
         require_once $this->module->pathModels . 'sep_Thematics.php';
         $this->context->set('title', 'Тематики');
-        $fields['name'] = array('title' => 'Название тематики', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['name'] = array('title' => 'Название тематики', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $this->fields = $fields;
     }
 
