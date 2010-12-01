@@ -54,8 +54,8 @@ class aPages extends Action {
         $this->context->setTopTpl('pages_parent_html', 'Pages');
         $this->context->setTpl('content', 'pages_content_html', 'Pages');
 
-        $fields['login'] = array('title' => 'Логин', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'requried' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $fields['login'] = array('title' => 'Логин', 'required' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'required' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
         $auth = new oForm($fields);
         $this->context->set('auth', $auth);
 

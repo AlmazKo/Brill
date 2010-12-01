@@ -17,5 +17,5 @@ join `brill`.`as_Subscribes` as su on(su.id=ss.subscribe_id)
 join `brill`.`as_Sites` as si on(si.id=ss.site_id)";
 
 
-const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM brill.as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND status = 'No' limit 1";
+const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND status = 'No' limit 1";
 }

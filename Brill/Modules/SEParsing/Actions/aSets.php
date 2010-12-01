@@ -4,7 +4,7 @@ class aSets extends Action{
     protected $defaultAct = 'view';
     protected function configure() {
         require_once $this->module->pathModels . 'sep_Sets.php';
-        $fields['name'] = array('title' => 'Название сета (профиля позиций)', 'value' => '', 'type'=>'text', 'requried' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['name'] = array('title' => 'Название сета (профиля позиций)', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $this->fields = $fields;
     }
 

@@ -60,10 +60,10 @@ protected $enctype = 'multipart/form-data';
         $html = '<p>';
         switch ($settings['type']) {
             case 'text':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['requried'] ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
                 break;
             case 'textarea':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['requried'] ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';
                 break;
             case 'enum':
                 $html .= '<span>' . $settings['title'] . '</span>';
@@ -78,9 +78,9 @@ protected $enctype = 'multipart/form-data';
                 }
                 break;
             case 'select':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['requried'] ? '*' : '') . ': </label>';
-                $settings['data']->setChecking((array)$settings['value']);
-                $html .= $settings['data']->buildHtmlSelect($name);
+//                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
+//                $settings['data']->setChecking((array)$settings['value']);
+//                $html .= $settings['data']->buildHtmlSelect($name);
                 break;
             case 'multiSelect':
                 break;
@@ -88,14 +88,18 @@ protected $enctype = 'multipart/form-data';
                 break;
             case 'file':
                 break;
+            case 'captcha':
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
+                $html .= '<img src="' . $settings['src'] . '"/><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
+                break;
             case 'submit':
                 break;
         }
        
-        if ($settings['info']) {
+        if (isset($settings['info']) && $settings['info']) {
             $html .= '<span class="form_field_info">' . $settings['info'] . '</span>';
         }
-        if ($settings['error']) {
+        if (isset($settings['error']) && $settings['error']) {
             $html .= '<span class="form_field_error">' . $settings['error'] . '</span>';
         }
          $html .= '<div style="clear:both"></div>';
@@ -120,8 +124,8 @@ protected $enctype = 'multipart/form-data';
     public function isComplited() {
         $result = true;
         foreach ($this->fields as $name => $settings) {
-            if (isset($settings['requried'])) {
-                if($settings['requried'] && $settings['value'] === '') {
+            if (isset($settings['required'])) {
+                if($settings['required'] && $settings['value'] === '') {
                     $this->fields[$name]['error'] = 'Поле обязательно для заполнения';
                     $result = false;
                 }
