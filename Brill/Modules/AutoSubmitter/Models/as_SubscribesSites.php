@@ -5,12 +5,13 @@
  * класс сводной таблицы рассылок и Сайтов
  */
 class as_SubscribesSites extends Model {
-    protected $_isPk = false;
+    protected $_isPk = array('subscribe_id', 'site_id');
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'subscribe_id',
         'site_id',
-        'status'
+        'status',
+        'form'
     );
 }
 

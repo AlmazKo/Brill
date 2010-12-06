@@ -5,6 +5,8 @@
  * @author Alexander
  */
 class Routing {
+    private
+        $_iroute = false;
     private $uri;
     private $schema;
     private $site;
@@ -150,5 +152,19 @@ class Routing {
         }
         header('Location: ' . WEB_PREFIX . $url);
         die();
+    }
+
+
+    /**
+     * Синхронихирует общий роутинг с внутренним
+     * @param InternalRoute $iRoute
+     */
+    public function syncWithIRoute(InternalRoute $iRoute) {
+        $this->module = $iRoute->module;
+        $this->action = $iRoute->action;
+        $this->act = $iRoute->act;
+        $this->nav = $iRoute->nav;
+        $this->search = $iRoute->search;
+        $this->_iroute = true;
     }
 }

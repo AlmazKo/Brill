@@ -234,7 +234,7 @@ class oTable implements ISorting{
         $html = '';
         foreach ($this->_opts as $key => $value) {
             if ($key != self::OPT_DEL && $key != self::OPT_EDIT) {
-                $html .= '<a href="' . Routing::constructUrl(array('action' => $value['action'], 'act' => $value['act']), false) . '?' . $value['arg'].  '=' . $pkValue.'" ajax>'.
+                $html .= '<a href="' . Routing::constructUrl(array('action' => $value['action'], 'act' => $value['act']), false) . '?' . $value['arg'].  '=' . $pkValue.'" ajax="1">'.
                          '<img title="' . $value['title'] . '" src="' . WEB_PREFIX .'Brill/img/' . $value['image'] . '" /></a>';
             }
         }

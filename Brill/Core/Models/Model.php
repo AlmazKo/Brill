@@ -53,11 +53,17 @@ abstract class Model {
      */
     function  __set($field, $value) {
         if (in_array($field, $this->_fields)) {
-            if ($this->_isPk && $field == $this->_fields[0]) {
-                Log::warning(get_class($this) . ' Нельзя изменять первичный ключ '.$field);
+            if ($this->_isPk) {
+
+                if (!is_array($this->_isPk) && $field == $this->_fields[0]) {
+                    Log::warning(get_class($this) . ' Нельзя изменять первичный ключ '.$field);
+                }
+
+//                if (is_array($this->_isPk) && in_array($field, $this->_isPk)) {
+//                    Log::warning(get_class($this) . ' Нельзя изменять первичный ключ ('.  implode(', ', $this->_isPk) . ')');
+//                }
             }
-            //экранируем все от греха по дельше
-            $this->_values[$field] = addslashes($value);
+            $this->_values[$field] = $value;
         } else {
             Log::warning('Не возможно задать свойство. / ' . get_class($this) .'->' . $field . ' - не определено');
         }
@@ -82,13 +88,21 @@ abstract class Model {
 
     /**
      * Возвращает объект, полученный по первому полю
-     * @param string $valPk значение ключа
+     * @param mixed $valPk значение ключа
      * @return class
      */
     public function getObject($valPk) {
-        // подумать, как от этого избавиться
-        $valPk = addslashes($valPk);
-        $values = DBExt::getOneRow($this->_tblName, $this->_fields[0], $valPk);
+        if (is_array($valPk)) {
+            if (count($valPk) == count($this->_isPk)) {
+                $pk = array_combine($this->_isPk, $valPk);
+                $values = DBExt::getOneRow($this->_tblName, $pk);
+            } else {
+                Log::warning('Объект ' . get_class($this) . ' ожидает первичный ключ, состоящий из ' . count($this->_isPk) .' полей');
+            }
+        } else {
+            $values = DBExt::getOneRow($this->_tblName, $this->_fields[0], $valPk);
+        }
+        
         if (isset($values)) {
             $this->initData($values);
             return $this;
@@ -246,7 +260,13 @@ abstract class Model {
      */
     public function reset() {
         if ($this->_isPk) {
-            unset($this->_values[$this->_fields[0]]);
+            if (is_array($this->_isPk)) {
+                foreach($this->_isPk as $key => $value) {
+                     unset($this->_isPk[$key]);
+                }
+            } else {
+                unset($this->_values[$this->_fields[0]]);
+            }
         }
     }
 
@@ -261,21 +281,27 @@ abstract class Model {
      * Вставляет данные в базу
      */
     protected function _add () {
-      //  Log::dump($this->_values);
-        $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
+        if (!is_array($this->_isPk)) {
+            $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
+        } else {
+            if (!DBExt::insertOne($this->_tblName, $this->_values)) {
+             
+                
+            }
+        }
         $this->_calcCheckSum();
     }
 
     /**
      * Сохрание объекта
+     * return Model
      */
-    //сделать какойто идентификатор id каждому объекту модели
     public function save() {
-        if ($this->_isPk) {
-            if (isset($this->_values[$this->_fields[0]])) {
-                $this->_update();
-            } else {
+        if ($this->_isPk) { 
+            if ($this->isNew()) { echo '!new';
                 $this->_add();
+            } else {
+                $this->_update();
             }
         } else {
             $this->_add();
@@ -287,15 +313,40 @@ abstract class Model {
      * Обновление объекта
      */
     protected function _update () {
-        //изменения вносим в базу только если изменилась контрольная сумма
         if ($this->_checkSum != $this->_calcCheckSum()) {
-            $newValues = $this->_values;
-            $valPk = array_shift($newValues);
-            if (DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk)) {
-                //было что-то измено в базе, создаем новую чексумму
-                $this->_calcCheckSum();
+            $valPk = $this->_getPk();
+            if (is_array($valPk)) {
+//                Log::dump($valPk);
+//                Log::dump($this->_values);//die();
+                $newValues = array_diff($valPk, $this->_values);
+                foreach($newValues as $key => $val) {
+                    if (isset($valPk[$key])) {
+                        unset($newValues[$key]);
+                    }
+                }
+                if (DBExt::updateOne($this->_tblName, $newValues, $valPk)) {
+                    //было что-то измено в базе, создаем новую чексумму
+                    $this->_calcCheckSum();
+                }
+            } else {
+                $newValues = $this->_values;
+                array_shift($newValues);
+                if (DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk)) {
+                    //было что-то измено в базе, создаем новую чексумму
+                    $this->_calcCheckSum();
+                }
             }
         }
+//
+//        //изменения вносим в базу только если изменилась контрольная сумма
+//        if ($this->_checkSum != $this->_calcCheckSum()) {
+//            $newValues = $this->_values;
+//            $valPk = array_shift($newValues);
+//            if (DBExt::updateOne($this->_tblName, $newValues, $this->_fields[0], $valPk)) {
+//                //было что-то измено в базе, создаем новую чексумму
+//                $this->_calcCheckSum();
+//            }
+//        }
      }
 
      /**
@@ -373,5 +424,50 @@ abstract class Model {
      */
     public function getFields() {
         return $this->_fields;
+    }
+
+    /**
+     * Получить primary key
+     * @return mixed
+     */
+    protected function _getPk() {
+        if ($this->_isPk) {
+            if (is_array($this->_isPk)) {
+                $pk = array();
+                foreach ($this->_isPk as $field) {
+                    $pk[$field] = $this->_values[$field];
+                }
+                return $pk;
+            } else {
+                return $this->_values[$this->_fields[0]];
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Является ли объект новым, т.е не сохраненным еще в базе
+     * @return bool
+     */
+    public function isNew() {
+        if ($this->_isPk) {
+            if (is_array($this->_isPk)) { return true;
+                foreach ($this->_isPk as $field) {
+                    if (is_null($this->_values[$field])) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+               if (!isset($this->_values[$this->_fields[0]])) {
+                   return true;
+               } else {
+                   return false;
+               }
+            }
+        } else {
+            return true;
+        }
     }
 }

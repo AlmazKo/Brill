@@ -26,7 +26,8 @@ class View {
 
 
        // $this->inputHeaders();
-
+      
+##BOM echo "\xef\xbb\xbf";
         $t = $this->context;
         RunTimer::addTimer('Input');
         RunTimer::addPoint('Input');

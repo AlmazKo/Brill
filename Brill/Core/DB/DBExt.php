@@ -22,7 +22,7 @@ class DBExt extends DB{
         $aFields = self::parseFields(array_keys($values));
         $query = "insert IGNORE into `$tblName` (" . $aFields . ") "
                    . "values (" . $aValues . ")";
-
+        $query .= ' ON DUPLICATE KEY UPDATE ' . self::parseValuesWithFields($values);
         parent::query($query);
         return parent::$lnk->insert_id;
     }
@@ -55,15 +55,19 @@ class DBExt extends DB{
      * @param string/int $value
      * @return array
      */
-    public static function getOneRow($tblName, $field, $value) {
-        $where = self::simpleWhere($field, $value);
+    public static function getOneRow($tblName, $field, $value = null) {
+        if (is_array($field)) {
+            $where ='where ' . self::parseValuesWithFields($field, ' and ');
+        } else {
+            $where = self::simpleWhere($field, $value);
+        }
         $query = "select * from `$tblName` $where Limit 1";
         $result = parent::query($query);
         $values = null;
         if ($result->num_rows == 1) {
             $values = $result->fetch_assoc();
         } else if ($result->num_rows > 0) {
-            Log::warning("Получено больше одной строки");
+            Log::warning("Не найдена строка");
         }
         return $values;
     }
@@ -86,6 +90,45 @@ class DBExt extends DB{
         }
         return $values;
     }
+
+
+    /**
+     * Функция обновляет данные
+     * @param string $tblName
+     * @param string $values
+     * @param string $fields
+     * @param string $type  ignored duplicated false
+     * @return int количество затронутых строк
+     */
+    function updateOne($tblName, $values, $field, $value = null) {
+        Log::dump(func_get_args());
+        if (is_array($field)) {
+            $where ='where ' . self::parseValuesWithFields($field, ' and ');
+        } else {
+            $where = self::simpleWhere($field, $value);
+        }
+
+        $aSets = self::parseValuesWithFields($values);
+        $query = "update `$tblName` set " . $aSets . $where . " limit 1";
+        parent::query($query);
+        return parent::$lnk->affected_rows;
+    }
+
+
+
+    /**
+     * Удаляет одну строку
+     * @param string $tblName
+     * @param field $pk имя ключа
+     * @param string/int $value
+     * @return array
+     */
+    public static function deleteOneRow($tblName, $field, $value) {
+        $query = "delete from `$tblName` where $field=$value Limit 1";
+        $result = parent::query($query);
+        return parent::$lnk->affected_rows;
+    }
+
     /**
      * Возвращает массив строк
      * @param string $tblName
@@ -197,38 +240,6 @@ class DBExt extends DB{
     }
 
     /**
-     * Функция обновляет данные
-     * @param string $tblName
-     * @param string $values
-     * @param string $fields
-     * @param string $type  ignored duplicated false
-     * @return int количество затронутых строк
-     */
-    function updateOne($tblName, $values, $field, $val) {
-
-        $where = self::simpleWhere($field, $val);
-        $aSets = self::parseValuesWithFields($values);
-        $query = "update `$tblName` set " . $aSets . $where . " limit 1";
-        parent::query($query);
-        return parent::$lnk->affected_rows;
-    }
-
-
-
-    /**
-     * Удаляет одну строку
-     * @param string $tblName
-     * @param field $pk имя ключа
-     * @param string/int $value
-     * @return array
-     */
-    public static function deleteOneRow($tblName, $field, $value) {
-        $query = "delete from `$tblName` where $field=$value Limit 1";
-        $result = parent::query($query);
-        return parent::$lnk->affected_rows;
-    }
-
-    /**
      * Добавляет всем полям обратные ковычки и возвращает уже строку
      * @param array $fields
      * @return string
@@ -262,13 +273,13 @@ class DBExt extends DB{
      * @param array $values ассоциативный массив, у которого ключи это поля
      * @return string подготовленная строка
      */
-    static  function parseValuesWithFields($values) {
+    static  function parseValuesWithFields($values, $sep = ', ') {
        foreach ($values as $key => $value) {
            if (isset($value)) {
                $newValues[] ='`'.$key.'` = ' . (is_string($value) ? "'".$value."'" : (string) $value);
            }
        }
-       return implode(", ", $newValues);
+       return implode($sep, $newValues);
    }
    /**
     * Формирует простой where

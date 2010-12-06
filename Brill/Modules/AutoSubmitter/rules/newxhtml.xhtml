@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>TODO supply a title</title>
+    </head>
+    <body>
+    <form id="subscribe_form" class="form" enctype="multipart/form-data" method="POST" action="/ba/AutoSubmitter/Subscribe/Run/?id=22&ajax=1">
+        <p>
+            <div style="clear:both"></div></p>
+        <p>
+            <label for="title">Заголовок*: </label>
+            <input type="text" name="title" id="title" value = "История мебели - www.odissey.ru" autocomplete="off"/>
+            <span class="form_field_info">Пишите прописью с заглавной буквы. (Заголовки, написанные полностью БОЛЬШИМИ буквами, не публикуются)</span>
+            <div style="clear:both"></div>
+        </p>
+        <p>
+            <label for="annot">Аннотация*: </label>
+            <textarea name="annot" id="annot" rows=3>06.10.2010 Компания Odissey представляет новую статью из цикла "История мебели" - "Барная стойка: история мебели"</textarea>
+            <span class="form_field_info">(не более 250 символов). В основной текст автоматически не копируется. </span>
+            <div style="clear:both"></div>
+        </p>
+        <p>
+            <label for="body">Основной текст*: </label>
+            <textarea name="body" id="body" rows="12" cols="20">рмируют привлекательный имидж, запоминаются клиентам. Если же компания не привлекает к себе внимания, то вскоре создается впечатление, словно она вовсе не существует. Перефразируя одного философа, можно сформулировать следующий принцип «Существовать – значит быть известным и привлекательным». Компания «Одиссей» старается соответствовать этому принципу. В том числе делается ставка и на Интернет-ресурсы, среди которых заметно выделяется сайт компании, на котором часто появляется новая полезная информация, оформленная в виде интересных статей.</textarea>
+            <span class="form_field_info">(не более 250 символов). В основной текст автоматически не копируется. </span>
+            <div style="clear:both"></div>
+        </p>
+        <p>
+            <label for="keywords">Ключевые слова через запятую*: </label>
+            <textarea name="keywords" id="keywords" rows=3></textarea>
+            <div style="clear:both"></div>
+        </p>
+        <p>
+            <label for="author">Автор*: </label>
+            <input type="text" name="author" id="author" value = "Олег Гончаров" autocomplete="off"/>
+            <div style="clear:both"></div>
+        </p>
+        <p>
+            <label for="org">Организация*: </label>
+            <input type="text" name="org" id="org" value = "Одиссей" autocomplete="off"/>
+            <div style="clear:both"></div>
+        </p>
+        <p>
+            <label for="code">CAPTCHA*: </label>
+            <input type="text" name="code" id="code" value = "" autocomplete="off"/>
+            <img src="/ba/Brill/img/notfound.png"/>
+            <span class="form_field_info">Введите число, которое вы видите на картинке</span>
+            <div style="clear:both"></div>
+        </p>
+        <label></label>
+        <input type="submit" class="submit" value="Отправить" /></form><div style="clear:both" ></div>
+
+    </body>
+</html>

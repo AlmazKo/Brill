@@ -47,15 +47,51 @@ class as_XmlMapper extends XmlParser{
     function getHost() {
         return (string)$this->_sxe['host'];
     }
-    function getHeaders($rule = 0){
-
+    /**
+     * получить кодировку сайта
+     * @return string
+     */
+    function getEncoding() {
+        return (string)$this->_sxe['encoding'];
     }
-    function getPost($rule = 0) {
-
+    function getHeaders($ruleId = 0){
+        $aHeaders = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->headers->field as $field) {
+                $aField = &current($field);
+                if (isset($field->data)) {
+                    $aHeaders[$aField['name']] = (string)$field->data;
+                }
+            }
+        }
+        return $aHeaders;
     }
-    function getGet($rule = 0) {
-        
-
+    function getPost($ruleId = 0) {
+        $post = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->post->field as $field) {
+                $aField = &current($field);
+                if (isset($field->data)) {
+                    $post[$aField['name']] = (string)$field->data;
+                }
+            }
+        }
+        return $post;
+    }
+    function getGet($ruleId = 0) {
+        $get = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->get->field as $field) {
+                $aField = &current($field);
+                if (isset($field->data)) {
+                    $get[$aField['name']] = (string)$field->data;
+                }
+            }
+        }
+        return $get;
     }
     function getInfo($rule = 0) {
 
@@ -96,23 +132,6 @@ class as_XmlMapper extends XmlParser{
                     }
 
                 }
-//                    $aFields[(string)$field['htmlname']] = array(
-//                        'title'     => (string)$field['htmlname'],
-//                        'value'     => '',
-//                        'type'      => (string)$field['htmltype'],
-//                        'required'  => ('false' == (string)$field['required']) ? false : true
-//                        'info'      => ,
-//                        );
-//                    if (isset($field['analog'])) {
-//                        $aFields[(string)$field['htmlname']]['analog'] = (string)$field['analog'];
-//                    }
-//                    if (isset($field['attr'])) {
-//                        $aFields[(string)$field['htmlname']]['attr'] = (string)$field['attr'];
-//                    }
-//                    if (isset($field['src'])) {
-//                        $aFields[(string)$field['htmlname']]['src'] = (string)$field['src'];
-//                    }
-                 //}
              }
          }
         
@@ -130,6 +149,28 @@ class as_XmlMapper extends XmlParser{
         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
             return (string)$rule->afterHtml;
+        }
+    }
+
+    /**
+     * Заполняет форму пользовательскими данными
+     * @param <type> $fields
+     * @param int $ruleId
+     */
+    public function fill($fields, $ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+          // Log::dump($fields);
+            foreach ($rule->post->field as $field) {
+                $aField = &current($field);
+                if (isset($aField['name']) && isset($fields[$aField['name']])) {
+                  //  Log::dump($fields[$aField['name']] .' - '.$fields[$aField['name']]['value']);
+                    $field->addChild('data', $fields[$aField['name']]['value']);
+                    //$aField->addAttribute('value', $fields[$aField['name']]['value']);
+                } else {
+                    $field->addChild('data', $aField['value']);
+                }
+            }
         }
     }
 }

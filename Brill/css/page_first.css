@@ -299,10 +299,6 @@ td .options a {
    /* width:100%;*/
 }
 
-.block_error {
-    background:none repeat scroll 0 0 #fdd !important;
-    border:1px solid red !important;
-}
 #page_head td {
     border-bottom:1px solid #999;
 }
@@ -314,54 +310,46 @@ td .options a {
 }
 
 .mini_form p{
-    margin: 1px 0;
-    padding: 1px 0;
+margin: 1px 0;
 }
 
-.mini_form .form_content input {
-    border:1px solid #999;
-    border-radius:3px;
-    -moz-border-radius:3px;
-    -webkit-border-radius:3px;
+.mini_form input {
     float: right;
     width: 130px;
-    height: 17px;
-    font-size: 11px;
-    background-color: white;
-}
-
-.mini_form .form_content textarea {
-    float: right;
-    width: 130px;
-    height: 17px;
+    height: 15px;
     font-size: 11px;
 }
 
-.mini_form .form_content select {
+.mini_form textarea {
+    float: right;
+    width: 130px;
+    height: 15px;
+    font-size: 11px;
+}
+
+.mini_form select {
     float: right;
     width: 136px;
-    height: 17px;
+    height: 15px;
     font-size: 11px;
 }
 
-.mini_form .form_content label {
+.mini_form label {
     padding:3px;
     text-align:right;
     font-size: 11px;
     width: auto;
-
+    
 }
 
 .mini_form .submit {
     float: right;
-    width: 132px;
-    height: 23px;
+    width: 136px;
+    height: 22px;
     font-size: 11px;
-    margin-top: 2px;
+    margin-top: 0;
 }
-.mini .form_field_error {
-    font-size: 0.8em
-}
+
 li {
     list-style: none;
 }
@@ -403,19 +391,4 @@ form p img {
 .first_col div i {
     font-size: 0.8em;
     color:#9a9;
-}
-
-
-/**** страница авторизации****/
-#block_login {
-    float: left;
-    border: 1px solid rgb(153, 153, 153);
-    position: absolute;
-    top: 40%;
-    left: 38%;
-    background-color: #eee;
-    border-radius: 5px;
-    -moz-border-radius:5px;
-    -webkit-border-radius:5px;
-
 }

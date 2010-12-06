@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Press_Release.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : Almazko
+    Description:
+        Purpose of the document follows.
+-->
+<root host="http://inthepress.ru" encoding='UTF-8'>
+    <rule url="http://inthepress.ru/add_relize">
+        <action isajax="false" url="http://inthepress.ru/add_relize" />
+        <before>
+            <action type="request" url='http://inthepress.ru/add/' />
+            <action type="download" url='http://inthepress.ru/?action=Core.CaptchaImg' htmlname='__confirm-captcha[__def__]' />
+        </before>
+        <get>
+          
+        </get>
+        <post>
+            <field name='post' value='yes' />
+            <field name='addCathegotyID' type='select' required='true' form='true' title='Категория' value="1">
+            </field>
+            <field name='addHeader' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза'>
+                <userdata name='title' />
+            </field>
+            <field name='addContent' type='textarea' required='true' form='true' analog='release' attr='rows=12' title='Текст пресс-релиза' info='(не более 250 символов). В основной текст автоматически не копируется. '>
+                <userdata name='release' />
+            </field>
+
+            <field name='addCompany' type='text' required='true' form='true' analog='company' title='Компания'>
+                <userdata name='company' />
+            </field>
+            <field name='__confirm-captcha[__def__]' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке'>
+                <userdata name='captcha' />
+            </field>
+
+            <field name='addContacts' value='' />
+       </post>
+        <headers>
+        </headers>
+        <after>
+            <response url="" value="Пресс-релиз добавлен" />
+        </after>
+        <beforeHtml>
+        </beforeHtml>
+        <afterHtml>
+            Форма успешно отправлена
+        </afterHtml>
+    </rule>
+
+<rule></rule>
+</root>

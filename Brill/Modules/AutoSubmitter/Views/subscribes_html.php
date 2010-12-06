@@ -14,9 +14,13 @@ foreach($tbl->getValues() as $row) :
             <td><?php
 
         $aForm = $form->getArrayAttr(array('title', 'value'));
-        foreach ($aForm as $value) {
-          echo '<p class="form_txt_field"><b class="header_field">' . $value['title'] . ':</b> '.  TFormat::cutRight($value['value'], 500).'</p>';
-        }
+        foreach ($aForm as $value) : ?>
+            <p class="form_txt_field">
+                <b class="header_field"> <?=$value['title']?> :</b> <?=TFormat::cutCenter($value['value'], 500)?>
+            </p>
+
+        <?php endforeach;?>
+            <?
                 if ($t->get('tbl')->isOptions()) {
                     echo '<td class="options">';
                     echo $t->get('tbl')->buildOpt($row[$pk]);

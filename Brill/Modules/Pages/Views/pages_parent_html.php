@@ -4,12 +4,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
 <link href="<?=WEB_PREFIX?>Brill/css/page.css" type="text/css" rel=stylesheet />
-<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js<?=USE_CACHE ? '' : '?uid='.  uniqid() ?>"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js"></script>
 <script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form.js<?=USE_CACHE ? '' : '?uid='.  uniqid() ?>"></script>
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
-        <tr id="page_head"><td class="first_col"><img src="<?=WEB_PREFIX?>Brill/img/logo_web.png" align="middle"/></td><td>Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
+        <tr id="page_head"><td class="first_col">
+            <a href="<?=WEB_PREFIX?>">
+                <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle"/></a> <div><b>Daemonic</b><br /><i>core version: 0.1a </i></div>
+            
+        </td>
+            <td id="head_center">Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">
@@ -67,6 +72,7 @@
             <li class="yes"> <span>Новости</span> </li>
             <li class="yes"> <span>Написать сообщение</span> </li>
             </ul>
+            </td>
              <td id="page_content" colspan="2">
                <?php include_once ($t->getTpl('content'))?>
              </td>
@@ -80,7 +86,7 @@
         var position = block.position();
         var posImg = 300;
         block.append('<div id="loading"><img src="<?=WEB_PREFIX?>Brill/img/loader1.gif" style="margin-top:48px;margin-left:'+posImg+'px"></div>');
-        $('#loading').css({'top': position.top, 'left':position.left,
+        $('#loading').css({'top': position.top + 1, 'left':position.left,
                            'width': block.width(), 'height':block.height()+10,
                            'opacity':0.8});
         $('#loading').show();  //alert('e[ns ;sdlk');

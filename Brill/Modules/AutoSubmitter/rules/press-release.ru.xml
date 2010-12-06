@@ -8,7 +8,7 @@
     Description:
         Purpose of the document follows.
 -->
-<root host="http://www.press-release.ru">
+<root host="http://www.press-release.ru" encoding='cp1251'>
     <rule url="http://www.press-release.ru/add/">
         <action isajax="false" url="http://www.press-release.ru/add/" />
         <before>
@@ -19,8 +19,8 @@
           
         </get>
         <post>
-            <field name='section' type='select' required='true' form='true' title=''>
-                <userdata name='section' />
+            <field name='post' value='yes' />
+            <field name='section' type='select' required='true' form='true' title='Выберите раздел' value="economics">
             </field>
 
             <field name='title' type='text' required='true' form='true' analog='title' title='Заголовок' info='Пишите прописью с заглавной буквы. (Заголовки, написанные полностью БОЛЬШИМИ буквами, не публикуются)'>
@@ -31,11 +31,11 @@
                 <userdata name='preview' />
             </field>
 
-            <field name='body' type='textarea' required='true' form='true' analog='release' attr='rows=8' title='Основной текст' info='(не более 250 символов). В основной текст автоматически не копируется. '>
+            <field name='body' type='textarea' required='true' form='true' analog='release' attr='rows=12' title='Основной текст' info='(не более 250 символов). В основной текст автоматически не копируется. '>
                 <userdata name='release' />
             </field>
 
-            <field name='keywords' type='textarea' required='true' form='true' attr='rows=3' title='Ключевые слова через запятую'>
+            <field name='keywords' type='textarea' required='false' form='true' attr='rows=3' title='Ключевые слова через запятую'>
                 <userdata name='keywords' />
             </field>
 
@@ -46,9 +46,14 @@
             <field name='org' type='text' required='true' form='true' analog='company' title='Организация'>
                 <userdata name='company' />
             </field>
-            <field name='code' type='captcha' required='true'  form='true' title='' info='Введите число, которое вы видите на картинке'>
+            <field name='code' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке'>
                 <userdata name='captcha' />
             </field>
+
+            <field name='contact' value='' />
+            <field name='email' value='' />
+            <field name='web_url' value='' />
+            <field name='web_name' value='' />
        </post>
         <headers>
         </headers>
@@ -58,7 +63,7 @@
         <beforeHtml>
         </beforeHtml>
         <afterHtml>
-            Внимание! Материал будет опубликован на страницах ресурса только после проверки модератором. Вводя защитный код и размещая пресс-релиз, Вы подтверждаете, что ознакомились с Правилами публикации
+            Ваш пресс-релиз добавлен и проходит модерацию.
         </afterHtml>
     </rule>
 

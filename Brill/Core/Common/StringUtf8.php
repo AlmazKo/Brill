@@ -119,7 +119,7 @@ class StringUtf8 {
     );
 
 
-    /**
+    /**фываыва
      * Unicode aware replacement for strlen(). Returns the number
      * of characters in the string (not the number of bytes), replacing
      * multibyte characters with a single byte equivalent
@@ -191,6 +191,7 @@ class StringUtf8 {
      * @subpackage strings
      */
     public static function substr($str, $offset, $length = NULL) {
+        $offset = (int) $offset;
         if ($offset >= 0 && $length >= 0) {
             if ($length === NULL) {
                 $length = '*';
@@ -199,7 +200,7 @@ class StringUtf8 {
                     trigger_error('utf8_substr expects parameter 3 to be long', E_USER_WARNING);
                     return FALSE;
                 }
-                $strlen = strlen(utf8_decode($str));
+                $strlen = self::strlen($str);
                 if ($offset > $strlen) {
                     return '';
                 }
@@ -210,12 +211,6 @@ class StringUtf8 {
                     $length = '{'.$length.'}';
                 }
             }
-
-            if (!preg_match('/^[0-9]+$/', $offset)) {
-                trigger_error('utf8_substr expects parameter 2 to be long', E_USER_WARNING);
-                return FALSE;
-            }
-
             $pattern = '/^.{'.$offset.'}(.'.$length.')/us';
 
             preg_match($pattern, $str, $matches);

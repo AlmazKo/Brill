@@ -103,7 +103,10 @@ class oFormExt extends oForm {
                     $field->addAttribute($key, $value);
                 }
             }
-            $field->addAttribute('name', $name);
+            $attrs = $field->attributes();
+            if (!isset($attrs['name'])) {
+                $field->addAttribute('name', $name);
+            }
         }
         return $sxe;
     }

@@ -9,7 +9,8 @@ require_once CORE_PATH . 'Lib/ConstCurl.php';
 class Curl {
 
     public
-        $_referer='http://www.press-release.ru/';
+        $_referer='http://www.press-release.ru/',
+        $cookie;
     protected
         // ссылка на текущий курл
         $_ch,
@@ -24,7 +25,7 @@ class Curl {
         // массив заголовоков ответа
         $_aResponseHeaders,
         // кодировка ответа, если не указана - будет браться из заголовков ответа
-        $_charsetResponse = ENCODING_CODE, // can use UNKNOW, if unkonow encoding in response
+        $_charsetResponse = 'cp1251', // can use UNKNOW, if unkonow encoding in response
         // Массив get-параметров для запроса
         $_aGet = array(),
         // Массив post-параметров для запроса
@@ -37,8 +38,27 @@ class Curl {
         $_errors = array();
 
     public function __construct() {
+        $this->_session = RegistrySession::instance();
+        if ($this->_session->is('curl_refer')) {
+            $this->_referer = $this->_session->get('curl_refer');
+        }
+
+        echo 'давай!!куку!!!! ';
+        var_dump($this->_session);
+        if ($this->_session->is('cookie')) {
+            echo 'получаем куку!!!! ';
+            $this->cookie = $this->_session->get('cookie');
+        }
+         
         $this->_ch = curl_init();
         RunTimer::addTimer('Curl');
+
+    }
+
+    public function __destruct() {
+        $this->_session = RegistrySession::instance();
+
+
     }
 
     /**
@@ -52,11 +72,12 @@ class Curl {
         $this->setOpt(CURLOPT_URL, $url);
         if ($this->_exec()) {
            # Log::dump($this->_info);
-            $this->_parseResponse();
+            $this->_parseResponse(false);
             $file = $this->_responseBody;
         } else {
             return false;
         }
+        @unlink($path);
         $fd = fopen($path, "a");
         fwrite($fd, $file);
         fclose($fd);
@@ -168,9 +189,12 @@ class Curl {
     
     /**
      * Сбросить куки
-     * @param string $name 
      */
-    function resetCookies($name) {
+    function resetCookies() {
+        $this->_session = RegistrySession::instance();
+        $this->_session->del('cookie');
+        $this->cookie = null;
+
 
     }
     /**
@@ -189,7 +213,7 @@ class Curl {
     protected function _preparePost() {
         $post = array();
         foreach ($this->_aPost as $key => $value) {
-            $post[] = $key . (($value === '') ? '' : '=' . $value);
+            $post[] = $key . (($value === '') ? '=' : '=' . $value);
         }
         $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
     }
@@ -198,13 +222,16 @@ class Curl {
      * Формирует строку заголовков
      */
     protected function _preparedHeaders() {
-        if ($this->_referer) {
+        if ($this->_referer && $this->cookie) {
             $this->setHeaders(array('Referer' => $this->_referer, 
-                'Cache-Control' => 'max-age=0',
+               // 'Cache-Control' => 'max-age=0',
                 'User-Agent' => 'Mozilla/5.0 (X11; U; Linux i686; ru; rv:1.9.2.12) Gecko/20101027 Ubuntu/10.10 (maverick) Firefox/3.6.12',
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Keep-Alive' => '115',
-                'Connection' => 'keep-alive'));
+                'Connection' => 'keep-alive',
+                'Refer' =>$this->_referer
+                ));
+            $this->setOpt(CURLOPT_COOKIE, $this->cookie);
         }
         if ($this->_aRequestHeaders) {
             $this->setOpt(CURLOPT_HTTPHEADER, $this->_aRequestHeaders);
@@ -314,10 +341,10 @@ class Curl {
      */
     protected function _exec() {
         $this->_preparedHeaders();
-        RunTimer::addPoint('Curl');
+ //       RunTimer::addPoint('Curl');
         //задаем урл
         curl_setopt_array($this->_ch, $this->_opt);
-     //   log::dump($this->getOpt(CURLOPT_HTTPHEADER));
+        log::dump($this->getOpts(true));
         $this->_responseRaw = curl_exec($this->_ch);
         //FIXME: сделать нормальное логирование ошибок. общее и для текущией итерации
         $this->_errors = array();
@@ -327,7 +354,8 @@ class Curl {
         if (!$this->getinfo('http_code')) {
             $this->_errors[] = 'Не удалось выполнить операцию';
         }
-        RunTimer::endPoint('Curl');
+
+     //   RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
     /**
@@ -352,6 +380,11 @@ class Curl {
             if (count($rr) == 2) {
                 $keyHeader = $rr[0];
                 $valueHeader = $rr[1];
+                if ('set-cookie' == $keyHeader && !$this->cookie) {
+                    $ssid = explode('; ', $valueHeader, 2);
+                    $this->cookie = $ssid[0];
+                    echo 'ПОЛУЧИЛИ КУКУ '. $this->cookie;
+                }
 //                if (preg_match('/([^=]+)=(.+)/', $subject, $m2)) {
 //                    $val[$m2[1]] = $m2[2];
 //                } else {
@@ -386,6 +419,9 @@ class Curl {
 //            }
 
         }
+        echo 'сохраняем куку!!!!';
+        $this->_session->set('cookie', $this->cookie);
+        $this->_session->set('curl_refer', $this->_referer);
         return $this->_aResponseHeaders = $aHeaders;
     }
 
@@ -393,14 +429,14 @@ class Curl {
      * Парсит ответ
      * Получает массив заголовков и строку тела в UTF-8 кодировке
      */
-    protected function _parseResponse() {
+    protected function _parseResponse($convert = true) {
 
         // если в конфигурации стоит получение заголовков
         if ($this->isOpt(CURLOPT_HEADER)) {
             $this->_aResponseHeaders = $this->_headersToArray();
           //  Log::dump($this->_aResponseHeaders);
         }
-
+log::dump($this->_aResponseHeaders);
         if (!$this->isOpt(CURLOPT_NOBODY)) {
             // если не известна кодировка - получаем ее из заголовоков
 //            if (isset($this->_responseHeaders['Content-Type']['charset']) && !$this->_charsetResponse) {
@@ -411,8 +447,8 @@ class Curl {
 
            $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
            // если кодировка задана заранее
-            if ($this->_charsetResponse && ENCODING_CODE ) {
-             //   $this->_responseBody = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseBody);
+            if ($convert && $this->_charsetResponse && ENCODING_CODE ) {
+                $this->_responseBody = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseBody);
             }
         }
         $this->_responseRaw = null;
@@ -430,6 +466,13 @@ class Curl {
 
     public function close() {
         curl_close($this->_ch);
+    }
+
+    /**
+     * Задать кодировку сайта
+     */
+    public function setCharsetResponse ($charset) {
+        $this->_charsetResponse = $charset;
     }
 
 }

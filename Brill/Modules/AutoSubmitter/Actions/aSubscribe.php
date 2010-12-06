@@ -18,6 +18,8 @@ class aSubscribe extends Action{
         require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
         require_once $this->module->pathDB . 'as_Stmt.php';
+        require_once $this->module->pathLib . 'XmlParser.php';
+        require_once $this->module->pathLib . 'as_Strategy.php';
         $this->context->setTopTpl('subscribe_start_html');
     }
     /**
@@ -114,10 +116,10 @@ class aSubscribe extends Action{
         //TODO вынести в отдельный файл
 
 
-        require_once $this->module->pathLib . 'AS_xmlMapper.php';
-        require_once $this->module->pathModule . 'UserData.php';
-        require_once $this->module->pathModule . 'UserDataProject.php';
-        require_once $this->module->pathModule . 'Strategy.php';
+//        require_once $this->module->pathLib . 'AS_xmlMapper.php';
+//        require_once $this->module->pathModule . 'UserData.php';
+//        require_once $this->module->pathModule . 'UserDataProject.php';
+//        require_once $this->module->pathModule . 'Strategy.php';
   //      require_once $this->module->pathModule . 'AS_Bot.php';
 //        if ($this->request->isAjax()) {
 //           $this->context->setTopTpl('subscribe_start_html');
@@ -126,7 +128,7 @@ class aSubscribe extends Action{
 //            $this->context->setTpl('content', 'subscribe_start_html');
 //        }
 
-         $this->context->setTopTpl('subscribe_start_html');
+        $this->context->setTopTpl('subscribe_start_html');
         $step = $this->request->is('step') ? (int) $this->request->get('step') : 0;
 
         switch ($step) {
@@ -221,62 +223,55 @@ class aSubscribe extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'run_html');
         }
-
-        $id = (int)$this->request->get('id', 0);
-        $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $id)));
-        if ($result) {
-            $site = new as_Sites($result['site_id']);
-        }
-        include_once $this->module->pathLib. 'XmlParser.php';
-        include_once $this->module->pathLib. 'as_XmlMapper.php';
-        include_once CORE_PATH. 'Lib/Curl.php';
-        $mapper = new as_XmlMapper($this->module->pathModule . 'rules/'. $site->host . '.xml');
-        $curl = new Curl();
-
-
-        $opt = array (CURLOPT_HEADER => true,
-                      CURLOPT_RETURNTRANSFER => true,
-                      CURLOPT_FOLLOWLOCATION => false,
-                      CURLOPT_TIMEOUT => 20,
-                      CURLOPT_COOKIEFILE => $this->module->pathModule . 'cookies/'.$site->host . '.txt',
-                      CURLOPT_COOKIEJAR => $this->module->pathModule . 'cookies/'.$site->host . '.txt'
-                      );
-
-        $curl->setOptArray($opt);
-        $mapper->getActionRule();
-        $before = $mapper->getBeforeActions();
-        $host = $mapper->getHost();
-        if ($this->session->is('subscribeForm')) {
-            $gets = $mapper->getGet();
-            $posts = $mapper->getPost();
-            $headers = $mapper->getHeaders();
-        } else {
-
-            $fields = $mapper->getFields();
-            if ($before) {
-                foreach($before as $action) {
-                    if ('request' == (string)$action['type']) {
-                         $response = $curl->requestGet((string)$action['url'])->getResponseBody();
-                    }
-                    if ('download' == (string)$action['type']) {
-                        $url = (string)$action['url'];
-                        $data[$action['name']] = $curl->downloadFile(
-                            $url,
-                            DIR_PATH . '/img/downloads/'.$site->host . '.gif');
-                        if (!$curl->getErrors()) {
-                            $fields[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif';
-                        } else {
-                            Log::dump($curl->getErrors());
-                        }
-                    }
+        $subscribeId = (int)$this->request->get('id', 0);
+        $form = null;
+        if ($this->request->getRequestPOST('deamonic_id')) {
+            $subscribeId = (int)$this->request->get('deamonic_id', 0);
+           // Log::dump($this->request->get('POST'));
+            $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_USED_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
+            if ($result) {
+                $site = new as_Sites($result['site_id']);
+                $subscribe = new as_Subscribes($result['subscribe_id']);
+                $strategy = new as_Strategy($site, $subscribe);
+                $result = $strategy->start(($this->request->get('POST')));
+                if($result instanceof oForm) {
+                    $form = &$result;
+                    $form->setHtmlBefore('Форма для сайта '. $site->host);
+                    $form->setField('deamonic_id', array('type'=>'hidden', 'value' => $subscribeId));
+                    
                 }
+            } else {
+                 $this->context->setError('Ошибка');
             }
-            $form = new oForm($fields);
-            $form->setHtmlAfter($mapper->getAfterHtml());
-            $form->setHtmlBefore('Форма для сайта www.press-release.ru');
-            echo $form->buildHtml();
-            $this->session->set('subscribeForm', $form);
+            //запрашиваем сайт через busy
+            //отправляем фору серверу
+            //если все ок. т.е. нашли в респонесе
+            //ставим отметку что покончили с сайтом
         }
+
+        if (!$form && $this->request->getRequestGET('id')) {
+            $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
+            if ($result) {
+                $site = new as_Sites($result['site_id']);
+                $subscribe = new as_Subscribes($result['subscribe_id']);
+                $strategy = new as_Strategy($site, $subscribe);
+                $strategy->start();
+                $form = $strategy->getForm();
+
+                $form->setHtmlBefore('Форма для сайта '. $site->host);
+                $form->setField('deamonic_id', array('type'=>'hidden', 'value' => $subscribeId));
+            } else {
+               //все закончилось - ставим отметку в субскрибе и пишем об этом пользователю
+            }
+        }
+        $this->context->set('form', $form);
+               
+        /*
+         * проверка что рассылка текущего юзера
+         * тогда добавляем в список подохрительных
+         */
+
+
 //        $site = new as_Sites();
 //        $site->getObject($this->request->get('id'));
 //        $strategy = new Strategy($site, $user);

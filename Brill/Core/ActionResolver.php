@@ -75,7 +75,9 @@ class ActionResolver {
      * @param InternalRouter $route
      * @return classAction
      */
-    public function getInternalAction(InternalRoute $route) {
+    public function getInternalAction(InternalRoute $iRoute) {
+        $route = Routing::instance();
+        $route->syncWithIRoute($iRoute);
         $sep = '/';
         //узнаем загружен ли модуль (конфиг модуля)
         if (!isset(General::$loadedModules[$route->module])) {
@@ -88,6 +90,7 @@ class ActionResolver {
         if (file_exists($filePath)) {
             require_once $filePath;
             if (class_exists($classAction)) {
+
                 $action = new $classAction($module, $route->act, true);
                 $action->nav = $route->nav;
                 $action->search = $route->search;

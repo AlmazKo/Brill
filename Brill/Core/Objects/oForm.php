@@ -23,6 +23,9 @@ protected
 
         $this->fields = $fields;
     }
+    public function setField($key, array $value) {
+        $this->fields[$key] = $value;
+    }
 
     function setHtmlBefore($html) {
         $this->_htmlBefore = $html;
@@ -50,10 +53,12 @@ protected
         $html = $this->getHtmlBefore();
         if ($this->fields) {
             $html .= '<form '.($idCss ? 'id="' . $idCss . '" ' : '').($classCss ? 'class="' . $classCss . '" ' : '').'enctype="'.$this->enctype.'" method="'.$this->method.'" action="' . $this->action . '">';
+            $html .= '<div class="form_content">';
             foreach ($this->fields as $name => $settings) {
                 $html .= self::buildFieldHtml($name, $settings);
             }
-            $html .='<label></label><input type="submit" class="submit" value="'.$submit.'"></form><div style="clear:both"></div>';
+            $html .= '</div>';
+            $html .='<input type="submit" class="submit" value="'.$submit.'" /></form><div style="clear:both"></div>';
         }
         return $html . $this->getHtmlAfter();
     }
@@ -76,7 +81,10 @@ protected
      * @param <type> $settings \
      */
     private static function buildFieldHtml($name, $settings) {
-        $html = '<p>';
+        $html = '';
+        if(!isset($settings['type']) || $settings['type'] != 'hidden') {
+            $html = '<p>';
+        }
         switch ($settings['type']) {
             case 'text':
                 $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
@@ -104,12 +112,16 @@ protected
             case 'multiSelect':
                 break;
             case 'hidden':
+                $html .= '<input type="hidden" name="' . $name . '" value = "' . $settings['value'] . '"/>';
                 break;
             case 'file':
                 break;
             case 'captcha':
                 $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
-                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/><img src="' . $settings['src'] . '"/>';
+                if (!isset($settings['src'])) {
+                    $settings['src'] = WEB_PREFIX . 'Brill/img/notfound.png';
+                }
+                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off" /><img src="' . $settings['src'] . '"/>';
                 break;
             case 'submit':
                 break;
@@ -121,14 +133,15 @@ protected
         if (isset($settings['error']) && $settings['error']) {
             $html .= '<span class="form_field_error">' . $settings['error'] . '</span>';
         }
-         $html .= '<div style="clear:both"></div>';
-        $html .= '</p>';
+        if(isset($settings['type']) && $settings['type'] != 'hidden') {
+            $html .= '<div style="clear:both"></div></p>';
+        }
         return $html;
     }
 
     /**
      * Заполняет форму данными
-     * @param <type> $data
+     * @param array $data
      */
     public function fill($data) {
         foreach ($this->fields as $name => $settings) {

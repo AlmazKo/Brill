@@ -32,7 +32,12 @@ abstract class Registry{
             return false;
         }
     }
-
+    
+    public function del($key) {
+        if ($this->is($key)) {
+            unset($this->values[$key]);
+        }
+    }
     /**
      * Добавить значение в реестр
      * 

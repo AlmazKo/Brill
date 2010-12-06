@@ -55,14 +55,14 @@ class RegistryContext extends Registry {
         parent::set($key, $value, $force);
     }
 
+    public function setError($value) {
+         $this->_errors[] = $value;
+    }
+    
     public function getErrors() {
         return $this->_errors;
     }
-    public function del($key) {
-        if (self::is($key)) {
-            unset($this->values[$key]);
-        }
-    }
+
 
    public function getTpl($key) {
         if (isset($this->tpls[$key])) {

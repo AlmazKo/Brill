@@ -135,6 +135,23 @@ class RegistryRequest extends Registry{
 //        }
 //    }
 
+    public function getRequestGET($key, $defaultValue = null) {
+        $get = $this->get('GET');
+        if (isset($get[$key])) {
+            return $get[$key];
+        } else {
+            return $defaultValue;
+        }
+    }
+
+    public function getRequestPOST($key, $defaultValue = null) {
+        $get = $this->get('POST');
+        if (isset($get[$key])) {
+            return $get[$key];
+        } else {
+            return $defaultValue;
+        }
+    }
     public function get($key, $defaultValue = null) {
         if (isset($this->values[$key])) {
             return $this->values[$key];
