@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Класс от которого должны наследоваться все настройки модулей
  */
 
@@ -9,7 +9,7 @@
  * @author almaz
  */
 abstract class Modules {
-    protected 
+    protected
         $version = 0,
         $prefix = "",
         $name,
@@ -28,14 +28,14 @@ abstract class Modules {
 
             var_dump(__CLASS__);
          //   self::$instance = self::;
-            
+
         }
     }
 
     abstract protected function configure();
-    
+
     abstract public static function instance();
-    
+
     function  __construct() {
         $this->pathModule   = MODULES_PATH . $this->name . '/';
         $this->pathModels   = $this->pathModule . General::NAME_DIR_MODELS .'/';
@@ -49,7 +49,7 @@ abstract class Modules {
 
 
     /**
-     * Получение значений 
+     * Получение значений
      * @param string $field
      * @return
      */
@@ -63,5 +63,12 @@ abstract class Modules {
      */
     function  __set($field, $value) {
     //    Log::warning('Read only. Задавать значения может только сам класс '.__CLASS__);
+    }
+
+    /**
+     * Пполучить настройки прав для этого модуля
+     */
+    public function getSettingsAccess(){
+        return array();
     }
 }

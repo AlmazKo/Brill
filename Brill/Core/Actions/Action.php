@@ -62,6 +62,7 @@ abstract class Action {
         }
         $act = 'act_' . ucfirst($nameAct);
         if (method_exists ($this, $act)) {
+            General::runEvent(GENERAL::EVENT_BEFORE_RUNACT);
             return $this->$act();
         } else {
             Log::warning('В "' . __CLASS__ . '" не реализован метод: ' . $act);

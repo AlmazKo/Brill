@@ -23,6 +23,9 @@ class ConstCurl {
          */
         CURLOPT_COOKIEFILE => 'CURLOPT_COOKIEFILE',
         CURLOPT_COOKIEJAR => 'CURLOPT_COOKIEJAR',
+        /*
+         * При установке этого параметра в true CURL игнорирует все сессионные cookie (хранящиеся в оперативной памяти и лишь до момента закрытия браузера)
+         */
         CURLOPT_COOKIESESSION => 'CURLOPT_COOKIESESSION',
         CURLOPT_CRLF => 'CURLOPT_CRLF',
         CURLOPT_CUSTOMREQUEST => 'CURLOPT_CUSTOMREQUEST',

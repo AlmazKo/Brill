@@ -9,5 +9,6 @@ abstract class Lib {
      */
     public function e_InitActionInternal() {}
 
+    public function e_beforeRunAct() {}
     //TODO сделать кучу других евентов
 }

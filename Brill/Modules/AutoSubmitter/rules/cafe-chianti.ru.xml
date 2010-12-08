@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : cafe-chianti.ru.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : Almazko
+    Description:
+        Purpose of the document follows.
+-->
+<root host="http://cafe-chianti.ru" encoding='UTF-8'>
+   
+    <rule url="http://cafe-chianti.ru/feedback.html">
+        <action isajax="false" url="http://cafe-chianti.ru/feedback.html" />
+        <before>
+            <action type="request" url='http://cafe-chianti.ru' />
+            <action type="download" url='http://cafe-chianti.ru/admin/lib/randomize/rand.php' htmlname='rand_num' />
+        </before>
+        <get>
+          
+        </get>
+        <post>
+            <field name='feedback' value='Отправить' />
+            <field name='email' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='rand_num' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке' />
+       </post>
+        <headers>
+        </headers>
+        <after>
+            <response url="" value="Пресс-релиз добавлен" />
+        </after>
+        <beforeHtml>
+        </beforeHtml>
+        <afterHtml>
+            Форма успешно отправлена
+        </afterHtml>
+    </rule>
+
+<rule></rule>
+</root>

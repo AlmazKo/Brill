@@ -42,16 +42,16 @@ class Curl {
         if ($this->_session->is('curl_refer')) {
             $this->_referer = $this->_session->get('curl_refer');
         }
-
-        echo 'давай!!куку!!!! ';
-        var_dump($this->_session);
-        if ($this->_session->is('cookie')) {
-            echo 'получаем куку!!!! ';
-            $this->cookie = $this->_session->get('cookie');
-        }
-         
+//
+//        echo 'давай!!куку!!!! ';
+//        var_dump($this->_session);
+//        if ($this->_session->is('cookie')) {
+//            echo 'получаем куку!!!! ';
+//            $this->cookie = $this->_session->get('cookie');
+//        }
+//
         $this->_ch = curl_init();
-        RunTimer::addTimer('Curl');
+       # RunTimer::addTimer('Curl');
 
     }
 
@@ -213,16 +213,16 @@ class Curl {
     protected function _preparePost() {
         $post = array();
         foreach ($this->_aPost as $key => $value) {
-            $post[] = $key . (($value === '') ? '=' : '=' . $value);
+            $post[] = $key . (($value === '') ? '=' : '=' . urldecode($value));
         }
-        $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
+        $this->setOpt(CURLOPT_POSTFIELDS, implode('&3333' , $post));
     }
 
     /**
      * Формирует строку заголовков
      */
     protected function _preparedHeaders() {
-        if ($this->_referer && $this->cookie) {
+        if ($this->_referer && $this->_session->is('set-cookie')) {
             $this->setHeaders(array('Referer' => $this->_referer, 
                // 'Cache-Control' => 'max-age=0',
                 'User-Agent' => 'Mozilla/5.0 (X11; U; Linux i686; ru; rv:1.9.2.12) Gecko/20101027 Ubuntu/10.10 (maverick) Firefox/3.6.12',
@@ -231,7 +231,10 @@ class Curl {
                 'Connection' => 'keep-alive',
                 'Refer' =>$this->_referer
                 ));
-            $this->setOpt(CURLOPT_COOKIE, $this->cookie);
+
+                echo $this->_session->get('set-cookie').'---------';
+                $this->setOpt(CURLOPT_COOKIE, $this->_session->get('set-cookie'));
+           
         }
         if ($this->_aRequestHeaders) {
             $this->setOpt(CURLOPT_HTTPHEADER, $this->_aRequestHeaders);
@@ -343,12 +346,15 @@ class Curl {
         $this->_preparedHeaders();
  //       RunTimer::addPoint('Curl');
         //задаем урл
+
         curl_setopt_array($this->_ch, $this->_opt);
-        log::dump($this->getOpts(true));
+         Log::dump($this->getOpts(true));
         $this->_responseRaw = curl_exec($this->_ch);
+
         //FIXME: сделать нормальное логирование ошибок. общее и для текущией итерации
         $this->_errors = array();
-        $this->getinfo();
+         Log::dump($this->getinfo());
+
         //сохраняем рефер
         $this->_referer = $this->getinfo("url");
         if (!$this->getinfo('http_code')) {
@@ -374,16 +380,20 @@ class Curl {
                 $this->_info['header_size']));
         $sHeaders = TFormat::winTextToLinux($sHeaders);
         $sHeaders = preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $sHeaders);
+Log::dump($sHeaders);
+//        preg_match_all('~Set-Cookie: ([^\r\n]*)[\r\n]~i', $sHeaders, $mass);
+//        $this->cookie = implode(" ", $mass[1]);
+////Log::dump($this->cookie);
         $rows = explode("\n", $sHeaders);
         foreach ($rows as $row) {
             $rr = explode(': ', $row, 2);
             if (count($rr) == 2) {
                 $keyHeader = $rr[0];
                 $valueHeader = $rr[1];
-                if ('set-cookie' == $keyHeader && !$this->cookie) {
-                    $ssid = explode('; ', $valueHeader, 2);
-                    $this->cookie = $ssid[0];
-                    echo 'ПОЛУЧИЛИ КУКУ '. $this->cookie;
+                if ('set-cookie' == $keyHeader) {
+                     $this->_session->set('set-cookie', $valueHeader);
+           //         $this->cookie = $ssid[0];
+           //         echo 'ПОЛУЧИЛИ КУКУ '. $this->cookie;
                 }
 //                if (preg_match('/([^=]+)=(.+)/', $subject, $m2)) {
 //                    $val[$m2[1]] = $m2[2];
@@ -419,8 +429,8 @@ class Curl {
 //            }
 
         }
-        echo 'сохраняем куку!!!!';
-        $this->_session->set('cookie', $this->cookie);
+
+//        $this->_session->set('cookie', $this->cookie);
         $this->_session->set('curl_refer', $this->_referer);
         return $this->_aResponseHeaders = $aHeaders;
     }
@@ -436,7 +446,7 @@ class Curl {
             $this->_aResponseHeaders = $this->_headersToArray();
           //  Log::dump($this->_aResponseHeaders);
         }
-log::dump($this->_aResponseHeaders);
+
         if (!$this->isOpt(CURLOPT_NOBODY)) {
             // если не известна кодировка - получаем ее из заголовоков
 //            if (isset($this->_responseHeaders['Content-Type']['charset']) && !$this->_charsetResponse) {

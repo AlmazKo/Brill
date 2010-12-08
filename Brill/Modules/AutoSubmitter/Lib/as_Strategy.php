@@ -18,20 +18,23 @@ class as_Strategy {
         $_sendFform;
 
     public function __construct(as_Sites $site, as_Subscribes $subscribe) {
+//        readfile(General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt');
+//        echo '<hr>';
         $this->_session = RegistrySession::instance();
         
         $this->mapper = new as_XmlMapper( General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
         $curl = new Curl();
 
 
-        
         $opt = array (CURLOPT_HEADER => true,
-                     // CURLOPT_COOKIE  => true,
                       CURLOPT_RETURNTRANSFER => true,
                       CURLOPT_FOLLOWLOCATION => true,
                       CURLOPT_TIMEOUT => 8,
                       CURLOPT_CONNECTTIMEOUT => 15,
                       CURLOPT_ENCODING => 'gzip,deflate',
+                      CURLOPT_VERBOSE => 1,
+                      CURLOPT_SSL_VERIFYPEER,
+
                       CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
                       CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
                       );
@@ -44,7 +47,7 @@ class as_Strategy {
         $subscribeSite = new as_SubscribesSites($subscribe->id, $site->id);
 
         $subscribeSite->status = 'Busy';
-             Log::dump($subscribeSite->getValues());
+
         $subscribeSite->save();
         $this->_subscribeSites = $subscribeSite;
         $this->_subscribe = $subscribe;
@@ -110,8 +113,8 @@ class as_Strategy {
 
                 $url = $this->mapper->getActionRule();
                 $r= $this->_curl->requestPost($url)->getResponseBody();
+                //echo '<hr>'.$r->getResponseHeaders();
                 Log::dump($r);
-                 Log::dump($this->_curl->getinfo());
                 die( 'Форма успешно заполнена');
                 
             } else {

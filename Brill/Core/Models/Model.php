@@ -53,15 +53,13 @@ abstract class Model {
      */
     function  __set($field, $value) {
         if (in_array($field, $this->_fields)) {
-            if ($this->_isPk) {
-
+            //Ключ можно редактировать, пока он не сохранен
+            if (!$this->isNew()) {
                 if (!is_array($this->_isPk) && $field == $this->_fields[0]) {
                     Log::warning(get_class($this) . ' Нельзя изменять первичный ключ '.$field);
+                } else if (is_array($this->_isPk) && in_array($field, $this->_isPk)) {
+                    Log::warning(get_class($this) . ' Нельзя изменять первичный ключ ('.  implode(', ', $this->_isPk) . ')');
                 }
-
-//                if (is_array($this->_isPk) && in_array($field, $this->_isPk)) {
-//                    Log::warning(get_class($this) . ' Нельзя изменять первичный ключ ('.  implode(', ', $this->_isPk) . ')');
-//                }
             }
             $this->_values[$field] = $value;
         } else {
@@ -102,7 +100,7 @@ abstract class Model {
         } else {
             $values = DBExt::getOneRow($this->_tblName, $this->_fields[0], $valPk);
         }
-        
+
         if (isset($values)) {
             $this->initData($values);
             return $this;
@@ -285,8 +283,8 @@ abstract class Model {
             $this->_values[$this->_fields[0]] = DBExt::insertOne($this->_tblName, $this->_values);
         } else {
             if (!DBExt::insertOne($this->_tblName, $this->_values)) {
-             
-                
+
+
             }
         }
         $this->_calcCheckSum();
@@ -297,8 +295,8 @@ abstract class Model {
      * return Model
      */
     public function save() {
-        if ($this->_isPk) { 
-            if ($this->isNew()) { echo '!new';
+        if ($this->_isPk) {
+            if ($this->isNew()) {
                 $this->_add();
             } else {
                 $this->_update();

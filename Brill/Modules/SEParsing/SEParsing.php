@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * SEParsing
  * модуль по парсингу поисковых систем
  * а также для работы с ними
@@ -15,8 +15,27 @@ class SEParsing extends Modules {
     protected $pathActions = null;
     protected $pathViews = null;
 
+    public function getSettingsAccess() {
+        $rights = array();
+        $rights[Access::GROUP_USER] = array(
+            'Sets'=> array('View','Add','Edit', 'Del'),
+            'Regions' => array('Add', 'View', 'Edit', 'Del'),
+            'Thematics' => array('Add', 'View', 'Edit', 'Del'),
+            'Keywords' => array('Thematic', 'Pos', 'Set', 'View', 'Add', 'MassAdd'),
+
+        );
+        $rights[Access::GROUP_MANAGER] = array(
+            'Sets'=> array('View'),
+            'Regions' => array('View'),
+            'Thematic' => array('View'),
+            'Thematics' => array('View'),
+            'Keywords' => array('Thematic', 'Pos', 'Set', 'View'),
+            );
+        return $rights;
+    }
     protected function configure() {
         require_once $this->pathDB . 'se_Stmt.php';
+ 
     }
 
     /**
@@ -27,7 +46,7 @@ class SEParsing extends Modules {
         require_once $this->pathDB . 'se_StmtDaemon.php';
         require_once $this->pathLib . 'se_Lib.php';
     }
-    
+
     public  static function instance() {
         if (self::$instance === null) {
            self::$instance = new self();
