@@ -5,12 +5,13 @@
  * @author Alexander Suslov a.s.suslov@gmail.com
  */
 require_once CORE_PATH . 'Lib/ConstCurl.php';
+require_once CORE_PATH . 'Lib/Mimetypes.php';
 
 class Curl {
 
     public
-        $_referer='http://www.press-release.ru/',
-        $cookie;
+        $_referer = 'http://www.google.com',
+        $_cookie;
     protected
         // ссылка на текущий курл
         $_ch,
@@ -25,7 +26,8 @@ class Curl {
         // массив заголовоков ответа
         $_aResponseHeaders,
         // кодировка ответа, если не указана - будет браться из заголовков ответа
-        $_charsetResponse = 'cp1251', // can use UNKNOW, if unkonow encoding in response
+        $_responseCharset = 'cp1251', // can use UNKNOW, if unkonow encoding in response
+        $_responseMimeType = 'text/html',
         // Массив get-параметров для запроса
         $_aGet = array(),
         // Массив post-параметров для запроса
@@ -35,30 +37,25 @@ class Curl {
         // Массив файлов для запроса
         $_aRequestFiles,
         //ошибки
-        $_errors = array();
+        $_errors = array(),
+        $_aResponseCookies = array(),
+        $_responseLocation;
 
     public function __construct() {
-        $this->_session = RegistrySession::instance();
-        if ($this->_session->is('curl_refer')) {
-            $this->_referer = $this->_session->get('curl_refer');
+        $session = RegistrySession::instance();
+        if ($session->is('curl_referer')) {
+            $this->_referer = $session->get('curl_referer');
         }
-//
-//        echo 'давай!!куку!!!! ';
-//        var_dump($this->_session);
-//        if ($this->_session->is('cookie')) {
-//            echo 'получаем куку!!!! ';
-//            $this->cookie = $this->_session->get('cookie');
-//        }
-//
+        if ($session->is('curl_cookie')) {
+            $this->_cookie = $session->get('curl_cookie');
+        }
         $this->_ch = curl_init();
-       # RunTimer::addTimer('Curl');
-
     }
 
     public function __destruct() {
-        $this->_session = RegistrySession::instance();
-
-
+        $session = RegistrySession::instance();
+        $session->set('curl_cookie', $this->_cookie); 
+        $session->set('curl_referer', $this->_referer);
     }
 
     /**
@@ -71,7 +68,6 @@ class Curl {
     public function downloadFile($url, $path) {
         $this->setOpt(CURLOPT_URL, $url);
         if ($this->_exec()) {
-           # Log::dump($this->_info);
             $this->_parseResponse(false);
             $file = $this->_responseBody;
         } else {
@@ -83,6 +79,7 @@ class Curl {
         fclose($fd);
         return true;
     }
+    
     /**
      * Выполняет запрос и все необходимые действия
      * @return Curl
@@ -98,7 +95,9 @@ class Curl {
             $this->_preparePost();
         }
         $this->setOpt(CURLOPT_URL, $url);
+
         if ($this->_exec()) {
+            $this->_referer = $url;
             $this->_parseResponse();
         }
         return $this;
@@ -110,6 +109,7 @@ class Curl {
      */
     public function requestGet($url) {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'GET');
+        $this->setOpt(CURLOPT_POST, false);
         return $this->request($url);
     }
 
@@ -119,7 +119,7 @@ class Curl {
      */
     public function requestPost($url) {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
-        $this->setOpt(CURLOPT_POST, 1);
+        $this->setOpt(CURLOPT_POST, true);
         return $this->request($url);
     }
 
@@ -188,14 +188,14 @@ class Curl {
     }
     
     /**
-     * Сбросить куки
+     * Сбросить куки и другую информацию которую хранит курл для себя между вызовами.
      */
-    function resetCookies() {
-        $this->_session = RegistrySession::instance();
-        $this->_session->del('cookie');
-        $this->cookie = null;
-
-
+    function reset() {
+        $session = RegistrySession::instance();
+        $session->del('curl_cookie');
+        $session->del('curl_referer');
+        $this->_cookie = '';
+        $this->_referer = 'http://www.google.com';
     }
     /**
      * Формирует строку из get-параметров
@@ -213,29 +213,31 @@ class Curl {
     protected function _preparePost() {
         $post = array();
         foreach ($this->_aPost as $key => $value) {
-            $post[] = $key . (($value === '') ? '=' : '=' . urldecode($value));
+            $post[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
         }
-        $this->setOpt(CURLOPT_POSTFIELDS, implode('&3333' , $post));
+        $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
     }
 
     /**
      * Формирует строку заголовков
      */
     protected function _preparedHeaders() {
-        if ($this->_referer && $this->_session->is('set-cookie')) {
-            $this->setHeaders(array('Referer' => $this->_referer, 
-               // 'Cache-Control' => 'max-age=0',
-                'User-Agent' => 'Mozilla/5.0 (X11; U; Linux i686; ru; rv:1.9.2.12) Gecko/20101027 Ubuntu/10.10 (maverick) Firefox/3.6.12',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Keep-Alive' => '115',
-                'Connection' => 'keep-alive',
-                'Refer' =>$this->_referer
-                ));
+        $this->setHeaders(array(
+            'Accept'	 => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'User-Agent' => 'Mozilla/5.0 (X11; U; Linux i686; ru; rv:1.9.2.12) Gecko/20101027 Ubuntu/10.10 (maverick) Firefox/3.6.12',
+            'Accept-Language' => 'ru,en-us;q=0.7,en;q=0.3',
+            'Accept-Charset' =>	'windows-1251,utf-8;q=0.7,*;q=0.7',
+            'Connection' => 'keep-alive',
+            'Keep-Alive' => '115',
+            'Referer'      => $this->_referer,
+            ));
 
-                echo $this->_session->get('set-cookie').'---------';
-                $this->setOpt(CURLOPT_COOKIE, $this->_session->get('set-cookie'));
-           
-        }
+         if($this->_cookie) {
+             $this->setOpt(CURLOPT_COOKIE, $this->_cookie);
+         //    $this->setHeaders(array('Cookie' => $this->_cookie));
+         }
+
+                
         if ($this->_aRequestHeaders) {
             $this->setOpt(CURLOPT_HTTPHEADER, $this->_aRequestHeaders);
         }
@@ -345,15 +347,15 @@ class Curl {
     protected function _exec() {
         $this->_preparedHeaders();
  //       RunTimer::addPoint('Curl');
-        //задаем урл
+
 
         curl_setopt_array($this->_ch, $this->_opt);
-         Log::dump($this->getOpts(true));
+        Log::dump($this->getOpts(true));
         $this->_responseRaw = curl_exec($this->_ch);
 
         //FIXME: сделать нормальное логирование ошибок. общее и для текущией итерации
         $this->_errors = array();
-         Log::dump($this->getinfo());
+        $this->getinfo();
 
         //сохраняем рефер
         $this->_referer = $this->getinfo("url");
@@ -365,73 +367,45 @@ class Curl {
         return $this->_responseRaw ? true : false;
     }
     /**
-     * Разбирает строку хидеров на массив
+     * Парсит строку хидеров.
+     * Также пытается получить кодировку, mime-type, cookies и location
      * @param string $response
-     * @return array
-     * ~~~ /[\u21-\u7E]\:\s([^\u10\u13]+)$/
-     * /^([a-z_]+)\:\s([^\n]+)$/
-     *
-     * /(\w+)(\;\s([a-z_-]+)(\=[a-z])?)? /
+     * @return array хидеры в виде массива
      */
-    protected function _headersToArray() {
-
+    protected function _parseHeaders() {
         $aHeaders = array();
-        $sHeaders = strtolower(substr($this->_responseRaw, 0,
-                $this->_info['header_size']));
+        $sHeaders = substr($this->_responseRaw, 0, $this->_info['header_size']);
         $sHeaders = TFormat::winTextToLinux($sHeaders);
         $sHeaders = preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $sHeaders);
-Log::dump($sHeaders);
-//        preg_match_all('~Set-Cookie: ([^\r\n]*)[\r\n]~i', $sHeaders, $mass);
-//        $this->cookie = implode(" ", $mass[1]);
-////Log::dump($this->cookie);
         $rows = explode("\n", $sHeaders);
         foreach ($rows as $row) {
-            $rr = explode(': ', $row, 2);
-            if (count($rr) == 2) {
-                $keyHeader = $rr[0];
-                $valueHeader = $rr[1];
-                if ('set-cookie' == $keyHeader) {
-                     $this->_session->set('set-cookie', $valueHeader);
-           //         $this->cookie = $ssid[0];
-           //         echo 'ПОЛУЧИЛИ КУКУ '. $this->cookie;
-                }
-//                if (preg_match('/([^=]+)=(.+)/', $subject, $m2)) {
-//                    $val[$m2[1]] = $m2[2];
-//                } else {
-//                    $val[] = $match;
-//                }
-                $aHeaders[$keyHeader] = $valueHeader;
-            }
-
-
-// надо заменить на регулярку
-// http://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BA%D0%B8_HTTP#.D0.9E.D0.B1.D1.89.D0.B8.D0.B9_.D1.84.D0.BE.D1.80.D0.BC.D0.B0.D1.82
-//            if (strpos($valueHeader, '; ')) {
-//                $aValueHeader = explode('; ', $valueHeader);
-//                foreach ($aValueHeader as $value) {
-//                    if ('content-type' == $keyHeader) {
-//                        if (Mimetypes::is($value)) {
-//                            $newRow['mime'] = $value;
-//                        }
-//
-//                       if (strpos($value[1], '=')) {
-//                           $rrrr = explode('=', $value, 2);
-//                           $newRow['charset'] = $rrrr[1];
-//                       }
-//                    } else {
-//                        if (strpos($value[1], '=')) {
-//                           $rrrr = explode('=', $value, 2);
-//                           $newRow[] = $rrrr[1];
-//                       }
-//                    }
-//                }
-//
-//            }
-
+            if(preg_match('/([a-zA-Z-]+): (.+)/', $row, $matches)){
+                $headerName = strtolower($matches[1]);
+                $headerValues = preg_split("/;\s*/", $matches[2]);
+                foreach($headerValues as $subValue) {
+                    switch ($headerName) {
+                        case ConstCurl::HEADER_CONTENT_TYPE:
+                            if (preg_match('/charset=(.+)/i', $subValue, $subMatch)) {
+                                $this->_responseCharset = $subMatch[1];
+                            } else if (Mimetypes::is($subValue)){
+                                $this->_responseMimeType = $subValue;
+                            }
+                            break;
+                        case ConstCurl::HEADER_SET_COOKIE:
+                            $this->_aResponseCookies[] = $subValue;
+                            
+                            break;
+                        case ConstCurl::HEADER_LOCATION:
+                            $this->_responseLocation = $subValue;
+                    }
+                 }
+                 $aHeaders[$matches[1]] = $matches[2];
+             }
+         }
+        if (isset($this->_aResponseCookies[0])) {
+            $this->_cookie = $this->_aResponseCookies[0];
         }
 
-//        $this->_session->set('cookie', $this->cookie);
-        $this->_session->set('curl_refer', $this->_referer);
         return $this->_aResponseHeaders = $aHeaders;
     }
 
@@ -440,25 +414,15 @@ Log::dump($sHeaders);
      * Получает массив заголовков и строку тела в UTF-8 кодировке
      */
     protected function _parseResponse($convert = true) {
-
         // если в конфигурации стоит получение заголовков
         if ($this->isOpt(CURLOPT_HEADER)) {
-            $this->_aResponseHeaders = $this->_headersToArray();
-          //  Log::dump($this->_aResponseHeaders);
+            $this->_aResponseHeaders = $this->_parseHeaders();
         }
 
         if (!$this->isOpt(CURLOPT_NOBODY)) {
-            // если не известна кодировка - получаем ее из заголовоков
-//            if (isset($this->_responseHeaders['Content-Type']['charset']) && !$this->_charsetResponse) {
-//                $this->_responseRaw = @iconv($this->_responseHeaders['Content-Type']['charset'],
-//                                             ENCODING_CODE,
-//                                             $this->_responseRaw);
-//            }
-
-           $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
-           // если кодировка задана заранее
-            if ($convert && $this->_charsetResponse && ENCODING_CODE ) {
-                $this->_responseBody = @iconv($this->_charsetResponse, ENCODING_CODE, $this->_responseBody);
+            $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
+            if ($convert && $this->_responseCharset && ENCODING_CODE) {
+                $this->_responseBody = @iconv($this->_responseCharset, ENCODING_CODE, $this->_responseBody);
             }
         }
         $this->_responseRaw = null;
@@ -481,8 +445,15 @@ Log::dump($sHeaders);
     /**
      * Задать кодировку сайта
      */
-    public function setCharsetResponse ($charset) {
-        $this->_charsetResponse = $charset;
+    public function setResponseCharset($charset) {
+        $this->_responseCharset = $charset;
     }
 
+
+    /**
+     * Задать кодировку сайта
+     */
+    public function getResponseMimeType($charset) {
+        $this->_responseMimeType;
+    }
 }

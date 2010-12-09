@@ -121,7 +121,7 @@ protected
                 if (!isset($settings['src'])) {
                     $settings['src'] = WEB_PREFIX . 'Brill/img/notfound.png';
                 }
-                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off" /><img src="' . $settings['src'] . '"/>';
+                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off" /><img src="' . $settings['src'] . '?uid='.  uniqid() . '"/>';
                 break;
             case 'submit':
                 break;

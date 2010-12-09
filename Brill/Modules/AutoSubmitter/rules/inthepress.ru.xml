@@ -18,7 +18,6 @@
           
         </get>
         <post>
-            <field name='post' value='yes' />
             <field name='addCathegotyID' type='select' required='true' form='true' title='Категория' value="1">
             </field>
             <field name='addHeader' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза'>
@@ -31,11 +30,9 @@
             <field name='addCompany' type='text' required='true' form='true' analog='company' title='Компания'>
                 <userdata name='company' />
             </field>
-            <field name='__confirm-captcha[__def__]' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке'>
-                <userdata name='captcha' />
-            </field>
 
-            <field name='addContacts' value='' />
+            <field name='addContacts' type='text' required='true' form='true' analog='contacts' title='Контакты'/>
+            <field name='__confirm-captcha[__def__]' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке' />
        </post>
         <headers>
         </headers>

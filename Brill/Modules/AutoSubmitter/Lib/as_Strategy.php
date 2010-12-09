@@ -29,17 +29,17 @@ class as_Strategy {
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
                       CURLOPT_FOLLOWLOCATION => true,
-                      CURLOPT_TIMEOUT => 8,
+                      CURLOPT_TIMEOUT => 18,
                       CURLOPT_CONNECTTIMEOUT => 15,
                       CURLOPT_ENCODING => 'gzip,deflate',
-                      CURLOPT_VERBOSE => 1,
-                      CURLOPT_SSL_VERIFYPEER,
+         //             CURLOPT_VERBOSE => 1,
+          //            CURLOPT_SSL_VERIFYPEER,
 
-                      CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
-                      CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
+                 //     CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
+                //      CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
                       );
         $curl->setOptArray($opt);
-        $curl->setCharsetResponse($this->mapper->getEncoding());
+        $curl->setResponseCharset($this->mapper->getEncoding());
         $this->_curl = $curl;
 
         
@@ -64,8 +64,8 @@ class as_Strategy {
         $before = $this->mapper->getBeforeActions();
         if ($before) {
             foreach($before as $action) {
-                if ('request' == (string)$action['type']) {
-                     $this->_curl->requestGet((string)$action['url'])->getResponseBody();
+             if ('request' == (string)$action['type']) {
+                     $this->_curl->requestGet((string)$action['url']);
                      if ($this->_curl->getErrors()) {
                          return false;
                      }
@@ -76,7 +76,14 @@ class as_Strategy {
                         $url,
                         DIR_PATH . '/img/downloads/captcha/'.$this->_site->host . '.gif');
                     if (!$this->_curl->getErrors()) {
+//                        echo '<hr>';
+//                        var_dump($this->_fieldsSend);
+//                        echo '<hr>';
+//                        var_dump((string)$action['htmlname']);
                         $this->_fieldsSend[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif';
+
+
+                        //Log::dump($this->_fieldsSend);die;
                     } else {
                         return false;
                     }
@@ -110,11 +117,42 @@ class as_Strategy {
                 $this->_curl->setHeaders($aHeaders);
                 $this->_curl->setGet($aGet);
                 $this->_curl->setPost($aPost);
-
                 $url = $this->mapper->getActionRule();
-                $r= $this->_curl->requestPost($url)->getResponseBody();
+                $r = $this->_curl->requestPost($url)->getResponseBody();
                 //echo '<hr>'.$r->getResponseHeaders();
-                Log::dump($r);
+                //     Log::dump($this->_curl->getOpts(true));
+                 Log::dump($this->_curl);
+      //      die('+++');
+              //  Log::dump($r);
+
+                
+//                $curl = new Curl();
+//
+//
+//
+//                $opt = array (CURLOPT_HEADER => true,
+//                      CURLOPT_RETURNTRANSFER => true,
+//                      CURLOPT_FOLLOWLOCATION => true,
+//                      CURLOPT_TIMEOUT => 18,
+//                      CURLOPT_CONNECTTIMEOUT => 15,
+//                      CURLOPT_ENCODING => 'gzip,deflate',
+//         //             CURLOPT_VERBOSE => 1,
+//          //            CURLOPT_SSL_VERIFYPEER,
+//
+//                      CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $this->_site->host.'_' . $this->_subscribe->id . '.txt',
+//                      CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $this->_site->host.'_' . $this->_subscribe->id . '.txt',
+//                      );
+//        $curl->setOptArray($opt);
+//Log::dump($this->_curl);
+//Log::dump($curl);
+//
+//                $r= $curl->requestGet('http://nioc.mrsu.ru/modules/reg.php')->getResponseBody();
+//                 echo $r.'<hr>222';
+//                Log::dump($this->_curl->getErrors());
+//                Log::dump($this->_curl->getinfo());
+          //      die('!!!');
+              
+              //  echo $r;
                 die( 'Форма успешно заполнена');
                 
             } else {
@@ -125,7 +163,8 @@ class as_Strategy {
             //проверка в полченных данных - ожидаемых
             //иначе выводи юзеру инфу - что этот сайт лаганул
         }
-        $this->_curl->resetCookies();
+       // $this->_curl->resetCookies();
+        $this->_curl->reset();
         if (!$this->_processingBefore()) {
             $context = RegistryContext::instance();
             $context->setError('Сайт не доступен');

@@ -2,9 +2,16 @@
 /**
  * Константы настроек курла
  *
- * @author almaz
+ * @author almazKo
  */
 class ConstCurl {
+    
+    //"стратегически" важные заголовки
+    const
+        HEADER_CONTENT_TYPE = 'content-type',
+        HEADER_SET_COOKIE = 'set-cookie',
+        HEADER_LOCATION = 'location';
+
     public static $opts = array (
         CURLOPT_AUTOREFERER => 'CURLOPT_AUTOREFERER',
         CURLOPT_BINARYTRANSFER => 'CURLOPT_BINARYTRANSFER',

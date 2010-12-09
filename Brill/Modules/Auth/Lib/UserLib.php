@@ -10,6 +10,7 @@
  * @author Alexander
  */
 class UserLib extends Lib {
+    private $_session;
     private $_isLogin;
     private $_groups;
 
@@ -18,6 +19,12 @@ class UserLib extends Lib {
      * @return bool
      */
     function isLogin (){
+//        if (isset($session['user'])) {
+//
+//        } else {
+//            return false;
+//        }
+
         return true;
     }
 
@@ -36,14 +43,17 @@ class UserLib extends Lib {
     function isValidLink() {}
     function getGroups() {}
 
+
     public function e_beforeRunAct() {
-
-    }
-    public function  e_InitAction() {
-
         $module = General::getCurrentModule();
         $groups = $module->getSettingsAccess();
         foreach($groups as $name => $settings) {
+
+        }
+    }
+    public function  e_InitAction() {
+        $session = RegistrySession::instance();
+        if ($this->isLogin($session)) {
 
         }
         //если ли право на экшен меня и/или моей группы

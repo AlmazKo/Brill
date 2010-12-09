@@ -156,7 +156,7 @@ class TFormat {
     public static function prepareQueryString($values) {
         $get = array();
         foreach ($values as $key => $value) {
-            $get[] = $key . (($value === '') ? '' : '=' . urldecode($value));
+            $get[] = urlencode($key) . (($value === '') ? '' : '=' . urlencode($value));
         }
         return implode('&' , $get);
     }

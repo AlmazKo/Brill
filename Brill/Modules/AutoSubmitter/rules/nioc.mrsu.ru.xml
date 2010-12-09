@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : cafe-chianti.ru.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : Almazko
+    Description:
+        Purpose of the document follows.
+-->
+<root host="http://nioc.mrsu.ru" encoding='UTF-8'>
+   
+    <rule url="http://nioc.mrsu.ru/modules/reg.php">
+        <action isajax="false" url="http://nioc.mrsu.ru/modules/reg.php" />
+        <before>
+            <action type="request" url='http://nioc.mrsu.ru/modules/reg.php' />
+            <action type="download" url='http://nioc.mrsu.ru/modules/png1.php' htmlname='summa' />
+        </before>
+        <get>
+          
+        </get>
+        <post>
+            <field name='reg' value='1' />
+            <field name='email' type='text' required='true' form='true' analog='title' title='Заголовок' info='Почта' />
+            <field name='f' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='im' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='kk' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='login' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='o' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='pass' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='pass2' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='summa' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке' />
+       </post>
+        <headers>
+        </headers>
+        <after>
+            <response url="" value="Пресс-релиз добавлен" />
+        </after>
+        <beforeHtml>
+        </beforeHtml>
+        <afterHtml>
+            Форма успешно отправлена
+        </afterHtml>
+    </rule>
+
+<rule></rule>
+</root>

@@ -108,15 +108,15 @@ class Mimetypes {
         'application/x-pkcs7-signature' => "p7s files");
 
 
+    /**
+     * Проверка на существование mime-type
+     * @param string $nameType
+     * @return bool
+     */
     public static function is($nameType) {
-         if (is_null($this->_all)) {
-             self::$_all = self::$_application +
-                           self::$_audio +
-                           self::$_image +
-                           self::$_multipart +
-                           self::$_text +
-                           self::$_x;
-             Log::dump(self::$_all);
+         if (is_null(self::$_all)) {
+             self::$_all = array_merge(self::$_application, self::$_audio, self::$_image,
+                                       self::$_multipart, self::$_text, self::$_x);
          }
          if (isset(self::$_all[$nameType])) {
              return true;

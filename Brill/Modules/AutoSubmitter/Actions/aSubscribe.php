@@ -238,7 +238,7 @@ class aSubscribe extends Action{
                     $form = &$result;
                     $form->setHtmlBefore('Форма для сайта '. $site->host);
                     $form->setField('deamonic_id', array('type'=>'hidden', 'value' => $subscribeId));
-                    
+
                 }
             } else {
                  $this->context->setError('Ошибка');
