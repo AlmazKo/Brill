@@ -24,7 +24,7 @@ class as_Strategy {
         $curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
-                      CURLOPT_FOLLOWLOCATION => true,
+                      CURLOPT_FOLLOWLOCATION => false,
                       CURLOPT_TIMEOUT => 18,
                       CURLOPT_CONNECTTIMEOUT => 15,
                       CURLOPT_ENCODING => 'gzip,deflate',

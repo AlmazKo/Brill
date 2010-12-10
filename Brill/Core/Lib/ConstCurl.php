@@ -5,7 +5,7 @@
  * @author almazKo
  */
 class ConstCurl {
-    
+
     //"стратегически" важные заголовки
     const
         HEADER_CONTENT_TYPE = 'content-type',
@@ -20,9 +20,9 @@ class ConstCurl {
         CURLOPT_CAPATH => 'CURLOPT_CAPATH',
         CURLOPT_CLOSEPOLICY => 'CURLOPT_CLOSEPOLICY',
         CURLOPT_CONNECTTIMEOUT => 'CURLOPT_CONNECTTIMEOUT',
-        CURLOPT_CONNECTTIMEOUT_MS => 'CURLOPT_CONNECTTIMEOUT_MS',
+#       CURLOPT_CONNECTTIMEOUT_MS => 'CURLOPT_CONNECTTIMEOUT_MS',
         /*
-         * Содержимое заголовка "Cookie: ", который будет отправлен с HTTP запросом. 
+         * Содержимое заголовка "Cookie: ", который будет отправлен с HTTP запросом.
          */
         CURLOPT_COOKIE => 'CURLOPT_COOKIE',
         /*
@@ -53,8 +53,8 @@ class ConstCurl {
         CURLOPT_FRESH_CONNECT => 'CURLOPT_FRESH_CONNECT',
 
         CURLOPT_FTP_CREATE_MISSING_DIRS => 'CURLOPT_FTP_CREATE_MISSING_DIRS',
-        CURLOPT_FTP_FILEMETHOD => 'CURLOPT_FTP_FILEMETHOD',
-        CURLOPT_FTP_SKIP_PASV_IP => 'CURLOPT_FTP_SKIP_PASV_IP',
+#       CURLOPT_FTP_FILEMETHOD => 'CURLOPT_FTP_FILEMETHOD',
+#        CURLOPT_FTP_SKIP_PASV_IP => 'CURLOPT_FTP_SKIP_PASV_IP',
         CURLOPT_FTP_SSL => 'CURLOPT_FTP_SSL',
         CURLOPT_FTP_USE_EPRT => 'CURLOPT_FTP_USE_EPRT',
         CURLOPT_FTP_USE_EPSV => 'CURLOPT_FTP_USE_EPSV',
@@ -82,7 +82,7 @@ class ConstCurl {
          * Имя используемого сетевого интерфейса. Может быть именем интерфейса, IP адресом или именем хоста.
          */
         CURLOPT_INTERFACE => 'CURLOPT_INTERFACE',
-        CURLOPT_IPRESOLVE => 'CURLOPT_IPRESOLVE',
+#        CURLOPT_IPRESOLVE => 'CURLOPT_IPRESOLVE',
         CURLOPT_KRB4LEVEL => 'CURLOPT_KRB4LEVEL',
         /*
          * Задает минимальную скорость передачи в байтах в секунду.
@@ -117,7 +117,7 @@ class ConstCurl {
         CURLOPT_POSTFIELDS => 'CURLOPT_POSTFIELDS',
         CURLOPT_POSTQUOTE => 'CURLOPT_POSTQUOTE',
         CURLOPT_PRIVATE => 'CURLOPT_PRIVATE',
-        CURLOPT_PROGRESSFUNCTION => 'CURLOPT_PROGRESSFUNCTION',
+#       CURLOPT_PROGRESSFUNCTION => 'CURLOPT_PROGRESSFUNCTION',
         /*
          * Имя HTTP прокси, через который будут направляться запросы.
          */
@@ -126,7 +126,7 @@ class ConstCurl {
         CURLOPT_PROXYPORT => 'CURLOPT_PROXYPORT',
         CURLOPT_PROXYTYPE => 'CURLOPT_PROXYTYPE',
         /*
-         * Стока с именем пользователя и паролем к HTTP прокси-серверу в виде [username]:[password]. 
+         * Стока с именем пользователя и паролем к HTTP прокси-серверу в виде [username]:[password].
          */
         CURLOPT_PROXYUSERPWD => 'CURLOPT_PROXYUSERPWD',
         CURLOPT_PUT => 'CURLOPT_PUT',
@@ -170,7 +170,7 @@ class ConstCurl {
          * Задает масимальное время выполнения операции в секундах.
          */
         CURLOPT_TIMEOUT => 'CURLOPT_TIMEOUT',
-        CURLOPT_TIMEOUT_MS => 'CURLOPT_TIMEOUT_MS',
+#       CURLOPT_TIMEOUT_MS => 'CURLOPT_TIMEOUT_MS',
         CURLOPT_TIMEVALUE => 'CURLOPT_TIMEVALUE',
         CURLOPT_TRANSFERTEXT => 'CURLOPT_TRANSFERTEXT',
         CURLOPT_UNRESTRICTED_AUTH => 'CURLOPT_UNRESTRICTED_AUTH',
@@ -180,11 +180,11 @@ class ConstCurl {
          */
         CURLOPT_URL => 'CURLOPT_URL',
         /*
-         * Задает значение HTTP заголовка "User-Agent: ". 
+         * Задает значение HTTP заголовка "User-Agent: ".
          */
         CURLOPT_USERAGENT => 'CURLOPT_USERAGENT',
         /*
-         * Стока с именем пользователя и паролем в виде [username]:[password]. 
+         * Стока с именем пользователя и паролем в виде [username]:[password].
          */
         CURLOPT_USERPWD => 'CURLOPT_USERPWD',
         CURLOPT_VERBOSE => 'CURLOPT_VERBOSE',

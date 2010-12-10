@@ -4,15 +4,15 @@
 switch ($t->get('step')):
 case 0: ?>
 <?=$t->get('info_text')?>
-<?=$t->get('form')->buildHtml('UserForm')?>
+<?=$t->get('form')->buildHtml('WideForm')?>
 <?php break;?>
 <?php case 1: ?>
 <?=$t->get('info_text')?>
-<?=$t->get('form')->buildFree('UserForm', $t->get('tbl')->buildHtml())?>
+<?=$t->get('form')->buildFree('WideForm', $t->get('tbl')->buildHtml())?>
 <?php break;?>
 <?php case 2: ?>
 <?=$t->get('info_text')?>
-<?=$t->get('form')->buildHtml('UserForm')?>
+<?=$t->get('form')->buildHtml('WideForm')?>
 <?php break;?>
 <?php case 3: ?>
 Рассылка успешна добавлена.
