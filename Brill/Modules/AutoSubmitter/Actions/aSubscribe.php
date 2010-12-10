@@ -22,6 +22,53 @@ class aSubscribe extends Action{
         require_once $this->module->pathLib . 'as_Strategy.php';
         $this->context->setTopTpl('subscribe_start_html');
     }
+
+
+    function act_Edit () {
+        if ($this->request->isAjax()) {
+            $this->context->setTopTpl('subscribes_edit');
+        } else {
+            $this->_parent();
+            $this->context->setTpl('content', 'subscribes_edit');
+        }
+        
+        $id = (int)$this->request->get('id', 0);
+        if (!$id) {
+            return;
+        }
+
+        $sql = Stmt::prepare2(as_Stmt::GET_SUBSCRIBE_USER, array('id'=>$id));
+        $subscribes = new as_Subscribes();
+        
+        if ($subscribes->fillObjectFromSql($sql)) {
+            if ($this->request->is('POST')) {
+                $form = new UserSubscribeForm();
+                $form->fill($this->request->get('POST'));
+                if ($form->isComplited()) {
+                    $subscribes->form = $form->getXmlAsText();
+                    $subscribes->save();
+                    $this->context->del('form');
+                    $iRoute = new InternalRoute();
+                    $iRoute->module = 'AutoSubmitter';
+                    $iRoute->action = 'Subscribe';
+                    $actR = new ActionResolver();
+                    $act = $actR->getInternalAction($iRoute);
+                    $act->runAct();
+                }
+            } else {
+               
+                $form = new oFormExt();
+                $form->loadFromString($subscribes->form);
+                $this->context->set('form', $form);
+            }
+
+             $this->context->set('h1', 'Редактирование рассылки "'. $subscribes->name.'"');
+        } else {
+             $this->context->set('h1', 'Редактирование рассылки');
+        }
+       
+    }
+
     /**
      * первый экшен в визарде.
      * добавление названия рассылки. возможно еще каких то параметров
@@ -171,14 +218,24 @@ class aSubscribe extends Action{
             $this->context->setTpl('content', 'subscribes_html');
         }
         $subscribes = new as_Subscribes();
-        $tbl = new oTableExt(array($subscribes->getFields(), $subscribes->getArray()));
-        $tbl->viewColumns('name', 'date_begin');
-        $tbl->setNamesColumns(array('name'=>'Название',
-                                    'date_begin' => 'Статус'));
+        $fields = $subscribes->getFields();
+        array_unshift($fields, "run");
 
+        $tbl = new oTableExt(array($fields, $subscribes->getArray()));
+        $tbl->viewColumns('run', 'name', 'date_begin');
+        $tbl->setNamesColumns(array('name'=>'Название',
+                                    'run'=>'Запустить',
+                                    'date_begin' => 'Рассылка'));
+        $tbl->setViewIterator(true);
+        $tbl->setIsEdit(true);
+        $tbl->setIsDel(true);
+        $tbl->noSortColumns(array('run','date_begin'));
         $tbl->setCustomOpt('Run', 'Начать рассылку', 'start.png', 'Subscribe', 'Run', 'id');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
+//        echo '<pre>';
+//        var_dump($tbl);
+//        echo '</pre>';
     }
 
 

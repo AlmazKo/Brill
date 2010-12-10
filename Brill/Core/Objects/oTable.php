@@ -55,7 +55,8 @@ class oTable implements ISorting{
         $typeSelected = false,
         $viewSorting = true,
         $_opts = array(),
-        $_sort;
+        $_sort,
+        $_noSortColumns = array();
 
     function __construct($data) {
         if (is_array($data)) {
@@ -185,7 +186,7 @@ class oTable implements ISorting{
      * выводить ли таблицу с нумерацией
      * @param bool $view
      */
-    function setViewIterator($view = false) {
+    function setViewIterator($view = true) {
         $this->viewIterator = (bool) $view;
     }
 
@@ -193,7 +194,7 @@ class oTable implements ISorting{
      * выводить таблицу с ссылкой на редактирование
      * @param bool $view
      */
-    function setIsEdit($edit = false) {
+    function setIsEdit($edit = true) {
         if ($edit) {
             $this->_opts[self::OPT_EDIT] = true;
         } else {
@@ -262,6 +263,13 @@ class oTable implements ISorting{
 
     }
 
+    public function noSortColumns($cols = array()) {
+        if (!is_array($cols)) {
+            $cols = array($cols);
+        }
+        $this->_noSortColumns = $cols;
+    }
+    
     /**
      * Поддержка интерфейса ISorting
      */
@@ -387,10 +395,10 @@ class oTable implements ISorting{
         $html = '<tr>';
 
         if ($this->viewIterator) {
-            $html .= '<th><a href="'. Routing::constructUrl(array('nav' => array())).'">#</a></th>';
+            $html .= '<th class="col_iterator"><a href="'. Routing::constructUrl(array('nav' => array())).'" ajax="1">#</a></th>';
         }
         foreach ($this->viewCols as $i => $cell) {
-            if ($this->viewSorting) {
+            if ($this->viewSorting && !in_array($this->fields[$i], $this->_noSortColumns)) {
 
                 $html .= '<th>'.$this->_arrowSort($this->fields[$i]).'<a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i], 'order' => (isset($this->_sort[$this->fields[$i]])) ? $this->_sort[$this->fields[$i]] : self::SORT_ASC ))).'" ajax="1">' . $this->headers[$i] . '</a></th>';
             } else {

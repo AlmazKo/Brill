@@ -18,7 +18,6 @@ class as_Strategy {
         $_sendFform;
 
     public function __construct(as_Sites $site, as_Subscribes $subscribe) {
-
         $this->_session = RegistrySession::instance();
         $this->mapper = new as_XmlMapper( General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
 
@@ -52,7 +51,7 @@ class as_Strategy {
     }
 
     /**
-     *
+     * выполнение необходимых операций перед запуском основной программы текущего правила
      */
     function _processingBefore() {
         $this->_ruleId;
@@ -99,15 +98,14 @@ class as_Strategy {
         return $this->_sendFform;
     }
     public function start($post = null) {
-
         if ($post) {
-
             $siteForm = new oFormExt();
             $siteForm->loadFromString($this->_subscribeSites->form);
             $siteValues = $siteForm->getFields();
+            //пост данных "переведенный"
             $newPost = array();
             foreach ($post as $k => $val) {
-                foreach ($siteValues as $key => $value) {
+                foreach ($siteValues as $value) {
                     if (isset($value['var']) && $value['var'] == $k) {
                         $newPost[$value['name']] = $val;
                         break 1;
@@ -126,7 +124,7 @@ class as_Strategy {
                 $this->_curl->setPost($aPost);
                 $url = $this->mapper->getUrlRule();
                 $this->_curl->requestPost($url);
-                
+
                 $resultAfter = $this->_processingAfter();
                 if ($resultAfter instanceof Error) {
                     $context = RegistryContext::instance();
@@ -157,18 +155,6 @@ class as_Strategy {
         $this->_subscribeSites->save();
         $this->_sendFform = $form;
         return $form;
-       //echo 'start';die;
-                /*
-         * выполнение before функцикций
-         * заполенение формы
-         * отдаем форму пользователю
-         * проверяем форму от пользователя
-         * если все ок - отсылаем ее
-         *
-         * проверяем after
-         *
-         */
-
     }
 
     public function sendUserForm() {
@@ -196,4 +182,3 @@ class as_Strategy {
         }
     }
 }
-

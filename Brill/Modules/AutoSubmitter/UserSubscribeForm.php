@@ -5,7 +5,7 @@
  * @author Alexander
  */
 class UserSubscribeForm extends oFormExt {
-    public function __construct(array $fields = array(), $url = null) {
+    public function __construct(array $fields = array(), $url = array()) {
         $fields['title'] = array('title' => 'Заголовок', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['company'] = array('title' => 'Компания', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
         $fields['preview'] = array('title' => 'Анонс', 'value'=>'', 'type'=>'textarea', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => 'rows=4',$checked = array());

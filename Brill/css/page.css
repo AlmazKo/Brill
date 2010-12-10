@@ -73,6 +73,22 @@ form .form_field_info{
     width: 500px;
 }
 
+#WideForm input {
+    width: 500px;
+}
+
+#WideForm textarea {
+    width: 500px;
+}
+
+#WideForm select {
+    width: 506px;
+}
+
+#WideForm .submit {
+    width: 506px;
+}
+
 form input {
     float: left;
     width: 300px;
@@ -209,7 +225,6 @@ form label {
 }
 
 .header_field {
-    color: #F22;
     margin-right: 5px;
 }
 
@@ -435,4 +450,11 @@ form p img {
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
 
+}
+
+
+table .col_iterator {
+    width: 25px;
+    text-align: center;
+    
 }

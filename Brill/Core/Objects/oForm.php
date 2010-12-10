@@ -15,8 +15,8 @@ protected $enctype = 'multipart/form-data';
 protected
     $_htmlBefore = '',
     $_htmlAfter = '';
-    function __construct(array $fields = array(), $url = array()) {
-        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), $url);
+    function __construct(array $fields = array(), $urlExt = array()) {
+        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), $urlExt);
         $this->action = Routing::constructUrl($url);
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););
@@ -58,7 +58,7 @@ protected
                 $html .= self::buildFieldHtml($name, $settings);
             }
             $html .= '</div>';
-            $html .='<input type="submit" class="submit" value="'.$submit.'" /></form><div style="clear:both"></div>';
+            $html .='<label ></label><input type="submit" class="submit" value="'.$submit.'" /></form><div style="clear:both"></div>';
         }
         return $html . $this->getHtmlAfter();
     }
@@ -87,10 +87,10 @@ protected
         }
         switch ($settings['type']) {
             case 'text':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['required']) && $settings['required'] ? '*' : '') . ': </label><input type="text" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
                 break;
             case 'textarea':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['required']) && $settings['required'] ? '*' : '') . ': </label><textarea name="' . $name . '" id="' . $name . '" '.$settings['attr'].'>' . $settings['value'] . '</textarea>';
                 break;
             case 'enum':
                 $html .= '<span>' . $settings['title'] . '</span>';
@@ -179,6 +179,17 @@ protected
     }
     public function getFields() {
         return $this->fields;
+    }
+
+    /**
+      * Очищает все значения формы
+      */
+    public function clean() {
+        foreach ($this->fields as $name => $settings) {
+            if (isset($settings['value'])) {
+                $settings['value'] = '';
+            }
+        }
     }
 
     /**

@@ -54,6 +54,7 @@ class oFormExt extends oForm {
             }
         }
         $this->fields = $fields;
+      //   Log::dump($fields);
     }
     /**
      * Загрузить форму из xml файла

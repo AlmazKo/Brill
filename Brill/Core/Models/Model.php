@@ -468,4 +468,12 @@ abstract class Model {
             return true;
         }
     }
+    /**
+     * Узнает, заполнен ли объект
+     * @return return
+     */
+    public function isNull() {
+        return !(bool)$this->_checkSum;
+        
+    }
 }

@@ -37,12 +37,12 @@ class Log {
      * @param string $color
      */
     public static function dump($obj, $color = '#00a0ff', $title = 'Dump') {
-//        $b = debug_backtrace();$text = "\n" . $b[2]['file'] . ':' . $b[2]['line'];
-//        ob_start();
-//        var_dump($obj);
-//        $descr = ob_get_clean ();
-//        $descr = TFormat::highlight($text."\n" .$descr);
-//        echo self::inputLog($title, $descr, true, $color);
+        $b = debug_backtrace();$text = "\n" . $b[2]['file'] . ':' . $b[2]['line'];
+        ob_start();
+        var_dump($obj);
+        $descr = ob_get_clean ();
+        $descr = TFormat::highlight($text."\n" .$descr);
+        echo self::inputLog($title, $descr, true, $color);
     }
 
     /**

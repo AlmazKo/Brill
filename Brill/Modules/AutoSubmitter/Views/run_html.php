@@ -11,5 +11,7 @@
         });
     </script>
 <? else :?>
-<?=$t->get('text')?>
+    <? if($t->is('text')) : ?>
+    <?=$t->get('text')?>
+    <? endif ?>
 <? endif ?>

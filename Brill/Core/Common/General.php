@@ -1,10 +1,10 @@
 <?php
-
 /**
  * General
  *
  * Класс основных перменных и констант
  */
+
 class General {
     //основные эвенты, остальные надо регистрировать
     const
@@ -12,6 +12,7 @@ class General {
         EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL = 'e_InitActionInternal',
         EVENT_BEFORE_RUNACT = 'e_beforeRunAct';
 
+    //Module settings
     const
         NAME_DIR_ACTIONS = 'Actions',
         NAME_DIR_VIEWS = 'Views',
@@ -20,8 +21,13 @@ class General {
         NAME_DIR_LIB = 'Lib',
         NAME_DIR_DAEMONS = 'Daemons',
         SITE_NAME = '';
+    //UserLib стандартные группы пользователей, которые есть всегда
+    const
+        GROUP_USER = 1,
+        GROUP_MANAGER = 10,
+        GROUP_ADMIN = 100;
 
-    public static
+        public static
         //модуль по умолчанию
         $defaultModule,
         //загруженные конфиги модулей

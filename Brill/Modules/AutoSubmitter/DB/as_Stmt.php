@@ -21,4 +21,8 @@ const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.s
 #const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# limit 1";
 //список используемых рассылок
 const GET_SITE_IN_USED_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND FIND_IN_SET(status,'Busy,Error') limit 1";
+
+//получить рассылку пользователя
+const GET_SUBSCRIBE_USER = "SELECT * FROM as_Subscribes  where id=#id# limit 1";
+
 }
