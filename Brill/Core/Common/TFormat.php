@@ -166,6 +166,16 @@ class TFormat {
         foreach ($errors as $value) {
             $html .= '<div class="error_content">' . $value . '</div>';
         }
+        $html .= '<div style="clear: both;"></div>';
+        return $html;
+    }
+
+    public static function viewMessagesContent(array $message) {
+        $html = '';
+        foreach ($message as $value) {
+            $html .= '<div class="message_content">' . $value . '</div>';
+        }
+        $html .= '<div style="clear: both;"></div>';
         return $html;
     }
 }

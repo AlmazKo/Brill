@@ -1,46 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-    Document   : cafe-chianti.ru.xml
+    Document   : nioc.mrsu.ru.xml
     Created on : 8 Октябрь 2010 г., 13:40
     Author     : Almazko
-    Description:
+    Description: 2 редакция конфигурации бота автосабмитера
         Purpose of the document follows.
 -->
-<root host="http://nioc.mrsu.ru" encoding='UTF-8'>
-   
-    <rule url="http://nioc.mrsu.ru/modules/reg.php">
-        <action isajax="false" url="http://nioc.mrsu.ru/modules/reg.php" />
+<root host="http://nioc.mrsu.ru" encoding='cp1251' referer="">
+    <rule url="http://nioc.mrsu.ru/modules/reg.php" isajax="false">
         <before>
             <action type="request" url='http://nioc.mrsu.ru/modules/reg.php' />
-            <action type="download" url='http://nioc.mrsu.ru/modules/png1.php' htmlname='summa' />
+            <action type="download" url='http://nioc.mrsu.ru/modules/png1.php' for='captcha' attr='src' />
         </before>
+        <headers>
+        </headers>
         <get>
-          
         </get>
         <post>
             <field name='reg' value='1' />
-            <field name='email' type='text' required='true' form='true' analog='title' title='Заголовок' info='Почта' />
-            <field name='f' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='im' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='kk' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='login' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='o' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='pass' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='pass2' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза' />
-            <field name='summa' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке' />
+            <field name='kk' type='text' required='true' form='true' var='kk' source='title' title='Введите ключ' info='Должны Вам выдать' />
+            <field name='f' type='text' required='true' form='true' var='fam' source='title' title='Фамилия' info='Должны придумать Сами в любой форме. Нужен системе для идентификации' />
+            <field name='im' type='text' required='true' form='true' var='im' source='title' title='Имя' info='' />
+            <field name='email' type='text' required='true' form='true' var='email' source='title' title='E-mail' info='(не обязательно)' />
+            <field name='login' type='text' required='true' form='true' var='login' source='title' title='Логин' info='' />
+            <field name='o' type='text' required='true' form='true' var='otch' source='title' title='Отчество' info='' />
+            <field name='pass' type='text' required='true' form='true' var='pass' source='title' title='Пароль' info='' />
+            <field name='pass2' type='text' required='false' form='true' var='pass2' source='title' title='Повторите пароль' info='' />
+            <field name='summa' type='captcha' required='true' form='true' var='captcha' source='title' title='Введите число, которое вы видите на картинке' info='' />
        </post>
-        <headers>
-        </headers>
-        <after>
-            <response url="" value="Пресс-релиз добавлен" />
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+                Такого ключа не существует
+            </action>
         </after>
-        <beforeHtml>
-        </beforeHtml>
-        <afterHtml>
-            Форма успешно отправлена
-        </afterHtml>
     </rule>
-
-<rule></rule>
 </root>

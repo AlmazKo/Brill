@@ -15,6 +15,11 @@ class as_XmlMapper extends XmlParser{
             Log::warning('Не были найдены правила в конфигурации '.$fileXml);
         }
     }
+    /**
+     * Получить набор действий, которые должны выполниться перед основным действием
+     * @param int $ruleId
+     * @return <type>
+     */
     function getBeforeActions($ruleId = 0) {
         if ($this->hasRule($ruleId)) {
            $rule = $this->getRule($ruleId);
@@ -27,6 +32,25 @@ class as_XmlMapper extends XmlParser{
             return null;
         }
     }
+
+    /**
+     * Получить набор действий, которые должны выполниться после основного действия
+     * @param int $ruleId
+     * @return <type>
+     */
+    function getAfterActions($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+           $rule = $this->getRule($ruleId);
+           if (isset($rule->after)) {
+               return $rule->after->action;
+           } else {
+                return false;
+           }
+        } else {
+            return null;
+        }
+    }
+
     function getRule($ruleId = 0) {
         return $this->_sxe->rule[$ruleId];
     }
@@ -97,10 +121,10 @@ class as_XmlMapper extends XmlParser{
 
     }
 
-    function getActionRule($ruleId = 0) {
+    function getUrlRule($ruleId = 0) {
         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
-            return $rule->action['url'];
+            return $rule['url'];
         }
     }
     //$fields['interface'] = array('title' => 'Cетевой интерфейс', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
@@ -108,13 +132,10 @@ class as_XmlMapper extends XmlParser{
         $aFields = array();
         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
-            
             foreach ($rule->post->field as $field) {
                 $aField = current($field);
-
                 if ('true' == $field['form']) {
-
-                    $name = (string)$field['name'];
+                    $name = (string)$field['var'];
                     $aFields[$name] = array();
                     foreach ($aField as $key => $value) {
                         switch((string)$value) {
@@ -134,7 +155,7 @@ class as_XmlMapper extends XmlParser{
                 }
              }
          }
-        
+
          return $aFields;
     }
 
@@ -160,13 +181,12 @@ class as_XmlMapper extends XmlParser{
     public function fill($fields, $ruleId = 0) {
         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
-          // Log::dump($fields);
             foreach ($rule->post->field as $field) {
                 $aField = &current($field);
                 if (isset($aField['name']) && isset($fields[$aField['name']])) {
                   //  Log::dump($fields[$aField['name']] .' - '.$fields[$aField['name']]['value']);
                     $field->addChild('data', $fields[$aField['name']]['value']);
-                    //$aField->addAttribute('value', $fields[$aField['name']]['value']);
+                    $field->addAttribute('value', $fields[$aField['name']]['value']);
                 } else {
                     $field->addChild('data', $aField['value']);
                 }

@@ -196,26 +196,9 @@ class aSubscribe extends Action{
 //        }
 //    }
 
-
     /*
-     * Твой экшен
-     * поправил только подключение файлов
-     * метод должен запускать с запроса /ba/AutoSubmitter/Subscribe/Run/
-     * Обзови католог на хосте 'ba' для большей совместимости и подключи хтаксес
-     *
-     * Сделал тебе шаблон, его так включать здесь:
-     *  $this->context->set('useParentTpl', false);
-     *  $this->context->set('tpl', 'subscribe_run_html.php');
-     *
-     * все делай через аякс, по аналогии с другими методами
-     *
-     * все пути и другие статичные вещи сохрани или в константы или в свойства какого нить класса
-     *
-     * приведи все к зендовским стандартам. тяжело читать
+     * Запуск рассылки
      */
-
-
-
     public function act_Run() {
         if ($this->request->isAjax()) {
            $this->context->setTopTpl('run_html');
@@ -227,7 +210,6 @@ class aSubscribe extends Action{
         $form = null;
         if ($this->request->getRequestPOST('deamonic_id')) {
             $subscribeId = (int)$this->request->get('deamonic_id', 0);
-           // Log::dump($this->request->get('POST'));
             $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_USED_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
             if ($result) {
                 $site = new as_Sites($result['site_id']);
@@ -238,15 +220,22 @@ class aSubscribe extends Action{
                     $form = &$result;
                     $form->setHtmlBefore('Форма для сайта '. $site->host);
                     $form->setField('deamonic_id', array('type'=>'hidden', 'value' => $subscribeId));
-
+                } else {
+                    //форма успешно отправлена на сервер
+                    $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
+                    if ($result) {
+                        $this->context->set('text', 'Дальше');
+                    } else {
+                        $this->context->set('text', 'Все');
+                    }
+                    
+                    $this->context->setMessage('Форма успешно отправлена на сервер');
+                    $this->request->clean();
+                    return;
                 }
             } else {
                  $this->context->setError('Ошибка');
             }
-            //запрашиваем сайт через busy
-            //отправляем фору серверу
-            //если все ок. т.е. нашли в респонесе
-            //ставим отметку что покончили с сайтом
         }
 
         if (!$form && $this->request->getRequestGET('id')) {
@@ -265,95 +254,7 @@ class aSubscribe extends Action{
             }
         }
         $this->context->set('form', $form);
-               
-        /*
-         * проверка что рассылка текущего юзера
-         * тогда добавляем в список подохрительных
-         */
-
-
-//        $site = new as_Sites();
-//        $site->getObject($this->request->get('id'));
-//        $strategy = new Strategy($site, $user);
-//        $strategy->run();
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        include_once $this->module->pathModule. 'AS_site.php';
-//        include_once $this->module->pathModule. 'UserData.php';
-//        include_once $this->module->pathModule. 'UserDataProject.php';
-//        include_once $this->module->pathModule. 'AS_xmlMapper.php';
-//        include_once $this->module->pathModule. 'AS_Bot.php';
-//        include_once $this->module->pathModule. 'Strategy.php';
-//        include_once $this->module->pathModule. 'View.php';
-//
-//
-//
-//        if ($isForm){
-//            // input view
-//        }
-//        $obj_AS_Site = new AS_site();
-//
-//        $obj_UserDataProject = new UserDataProject();
-//
-//        $obj_Strategy = new Strategy($obj_UserDataProject, $obj_AS_Site);
-//
-//        $obj_View = new View();
-//
-//        $k = 0;
-//
-////        $this->user_send = $_POST;//для заполнения что пользователь прислал, напишем. Этот кал нужно убрать потом
-//
-////        $obj_UserDataProject->setData($this->user_send);
-//
-//        while (($obj_Strategy->end == 'NO')||(empty($obj_Strategy->end))){
-//            //если мы имеем что-то присланное от пользователя, то смотрим что имеем, пишем
-///*
-//            if ($this->user_send){
-//                $this->data = $this->user_send;
-//            }
-// *
-// */
-//            //нам нужно общаться со стратегией сообщая заполненные пользователем нулевые поля
-//            $this->data = $obj_Strategy->work($this->data);
-//            //если у нас есть что-то для отображения, то отображаем, если нет, то пусть дальше работает
-//            if ($this->data){
-//                $obj_View->stek .= $this->data;
-//                //$obj_View->Print_RData($this->data);
-//                //$obj_View->UserFormProject();
-//                //die();
-//                //echo $this->data . "<br />";
-//            };
-//            if ($obj_Strategy->end == 'NO'){
-//                //если правило которое мы выполняли - с ошибкой,то нужно предложить пользователю попробывать снова
-//                //или отказаться
-//                //die('pravilo vipolneno s oshibkoi');
-//                $obj_View->FormRepeat();
-//                break;
-//            }
-//
-//            if ($k == 10){
-//                die('diiiiieeeee LIMIT 10');
-//            };
-//            $k++;
-//        }
-//        $obj_View->PrintData();
-
     }
-
-
-
 
         /**
      * Функция-обвертка, модули уровнем выще. для отображения

@@ -20,5 +20,5 @@ join `brill`.`as_Sites` as si on(si.id=ss.site_id)";
 const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND status = 'No' limit 1";
 #const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# limit 1";
 //список используемых рассылок
-const GET_SITE_IN_USED_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND status = 'Busy' limit 1";
+const GET_SITE_IN_USED_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND FIND_IN_SET(status,'Busy,Error') limit 1";
 }

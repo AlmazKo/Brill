@@ -1,4 +1,5 @@
 <?=TFormat::viewErrorsContent($t->getErrors())?>
+<?=TFormat::viewMessagesContent($t->getMessages())?>
 <? if($t->is('form')) : ?>
     <?=$t->get('form')->buildHtml('subscribe_form')?>
     <script type="text/javascript">
@@ -9,4 +10,6 @@
             return false;
         });
     </script>
+<? else :?>
+<?=$t->get('text')?>
 <? endif ?>

@@ -14,7 +14,9 @@ class RegistryContext extends Registry {
     const ERROR = 'error';
     protected $tpls = array();
     protected $_errors = array();
+    protected $_messages = array();
     protected $_topTpl;
+    
     protected static $instance = null;
 
     public  static function instance() {
@@ -61,6 +63,13 @@ class RegistryContext extends Registry {
     
     public function getErrors() {
         return $this->_errors;
+    }
+    public function setMessage($value) {
+         $this->_messages[] = $value;
+    }
+    
+    public function getMessages() {
+        return $this->_messages;
     }
 
 

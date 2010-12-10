@@ -18,23 +18,17 @@ class as_Strategy {
         $_sendFform;
 
     public function __construct(as_Sites $site, as_Subscribes $subscribe) {
-//        readfile(General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt');
-//        echo '<hr>';
+
         $this->_session = RegistrySession::instance();
-        
         $this->mapper = new as_XmlMapper( General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
+
         $curl = new Curl();
-
-
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
                       CURLOPT_FOLLOWLOCATION => true,
                       CURLOPT_TIMEOUT => 18,
                       CURLOPT_CONNECTTIMEOUT => 15,
                       CURLOPT_ENCODING => 'gzip,deflate',
-         //             CURLOPT_VERBOSE => 1,
-          //            CURLOPT_SSL_VERIFYPEER,
-
                  //     CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
                 //      CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
                       );
@@ -42,17 +36,18 @@ class as_Strategy {
         $curl->setResponseCharset($this->mapper->getEncoding());
         $this->_curl = $curl;
 
-        
-   
+
+        $this->_fieldsSend = $this->mapper->getFields();
+
+        //ставим отметку о том что начали обработку сайта для кокретной рассылки
         $subscribeSite = new as_SubscribesSites($subscribe->id, $site->id);
-
         $subscribeSite->status = 'Busy';
-
         $subscribeSite->save();
+
+        //сохраняем все в тельце
         $this->_subscribeSites = $subscribeSite;
         $this->_subscribe = $subscribe;
         $this->_fieldsSend = $this->mapper->getFields();
-        
         $this->_site = $site;
     }
 
@@ -72,18 +67,11 @@ class as_Strategy {
                 }
                 if ('download' == (string)$action['type']) {
                     $url = (string)$action['url'];
-                    $data[$action['name']] = $this->_curl->downloadFile(
+                    $this->_curl->downloadFile(
                         $url,
                         DIR_PATH . '/img/downloads/captcha/'.$this->_site->host . '.gif');
                     if (!$this->_curl->getErrors()) {
-//                        echo '<hr>';
-//                        var_dump($this->_fieldsSend);
-//                        echo '<hr>';
-//                        var_dump((string)$action['htmlname']);
-                        $this->_fieldsSend[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif';
-
-
-                        //Log::dump($this->_fieldsSend);die;
+                        $this->_fieldsSend[(string)$action['for']]['src'] = WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif';
                     } else {
                         return false;
                     }
@@ -93,22 +81,41 @@ class as_Strategy {
         return true;
     }
 
-    function processingAfter() {
-        $this->_ruleId;
+    function _processingAfter() {
+        $after = $this->mapper->getAfterActions();
+        foreach($after as $action) {
+            if ('find' == (string)$action['type']) {
+                $find = trim((string)$action);
+                $message = $action['message'];
+                if (false === strpos($this->_curl->getResponseBody(), $find)) {
+                    return new Error($message);
+                }
+            }
+        }
+        return true;
     }
 
     public function getForm() {
         return $this->_sendFform;
     }
     public function start($post = null) {
-//        if ($this->_session->is('stepSubscribe')) {
-//            $this->_ruleId = $this->session->get('stepSubscribe');
-//        }
 
         if ($post) {
+
             $siteForm = new oFormExt();
             $siteForm->loadFromString($this->_subscribeSites->form);
-            $siteForm->fill($_POST);
+            $siteValues = $siteForm->getFields();
+            $newPost = array();
+            foreach ($post as $k => $val) {
+                foreach ($siteValues as $key => $value) {
+                    if (isset($value['var']) && $value['var'] == $k) {
+                        $newPost[$value['name']] = $val;
+                        break 1;
+                    }
+                }
+            }
+
+            $siteForm->fill($newPost);
             if ($siteForm->isComplited()) {
                 $this->mapper->fill($siteForm->getFields());
                 $aHeaders = $this->mapper->getHeaders();
@@ -117,44 +124,19 @@ class as_Strategy {
                 $this->_curl->setHeaders($aHeaders);
                 $this->_curl->setGet($aGet);
                 $this->_curl->setPost($aPost);
-                $url = $this->mapper->getActionRule();
-                $r = $this->_curl->requestPost($url)->getResponseBody();
-                //echo '<hr>'.$r->getResponseHeaders();
-                //     Log::dump($this->_curl->getOpts(true));
-                 Log::dump($this->_curl);
-      //      die('+++');
-              //  Log::dump($r);
-
+                $url = $this->mapper->getUrlRule();
+                $this->_curl->requestPost($url);
                 
-//                $curl = new Curl();
-//
-//
-//
-//                $opt = array (CURLOPT_HEADER => true,
-//                      CURLOPT_RETURNTRANSFER => true,
-//                      CURLOPT_FOLLOWLOCATION => true,
-//                      CURLOPT_TIMEOUT => 18,
-//                      CURLOPT_CONNECTTIMEOUT => 15,
-//                      CURLOPT_ENCODING => 'gzip,deflate',
-//         //             CURLOPT_VERBOSE => 1,
-//          //            CURLOPT_SSL_VERIFYPEER,
-//
-//                      CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $this->_site->host.'_' . $this->_subscribe->id . '.txt',
-//                      CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $this->_site->host.'_' . $this->_subscribe->id . '.txt',
-//                      );
-//        $curl->setOptArray($opt);
-//Log::dump($this->_curl);
-//Log::dump($curl);
-//
-//                $r= $curl->requestGet('http://nioc.mrsu.ru/modules/reg.php')->getResponseBody();
-//                 echo $r.'<hr>222';
-//                Log::dump($this->_curl->getErrors());
-//                Log::dump($this->_curl->getinfo());
-          //      die('!!!');
-              
-              //  echo $r;
-                die( 'Форма успешно заполнена');
-                
+                $resultAfter = $this->_processingAfter();
+                if ($resultAfter instanceof Error) {
+                    $context = RegistryContext::instance();
+                    $context->setError($resultAfter->message);
+                    $this->_subscribeSites->status = 'Error';
+                    $this->_subscribeSites->save();
+                } else {
+                    $this->_subscribeSites->status = 'Ok';
+                    return true;
+                }
             } else {
                 return $siteForm;
             }
@@ -173,7 +155,7 @@ class as_Strategy {
         $form = new oFormExt($this->_fieldsSend);
         $this->_subscribeSites->form = $form->getXmlAsText();
         $this->_subscribeSites->save();
-        $this->_sendFform = $form;       
+        $this->_sendFform = $form;
         return $form;
        //echo 'start';die;
                 /*
@@ -186,44 +168,11 @@ class as_Strategy {
          * проверяем after
          *
          */
-        
-//        $mapper->getActionRule();
-//        $before = $mapper->getBeforeActions();
-//        $host = $mapper->getHost();
-//        if ($this->session->is('subscribeForm')) {
-//            $gets = $mapper->getGet();
-//            $posts = $mapper->getPost();
-//            $headers = $mapper->getHeaders();
-//        } else {
-//            $fields = $mapper->getFields();
-//            if ($before) {
-//                foreach($before as $action) {
-//                    if ('request' == (string)$action['type']) {
-//                         $response = $curl->requestGet((string)$action['url'])->getResponseBody();
-//                    }
-//                    if ('download' == (string)$action['type']) {
-//                        $url = (string)$action['url'];
-//                        $data[$action['name']] = $curl->downloadFile(
-//                            $url,
-//                            DIR_PATH . '/img/downloads/capthca/'.$site->host . '.gif');
-//                        if (!$curl->getErrors()) {
-//                            $fields[(string)$action['htmlname']]['src'] = WEB_PREFIX.'Brill/img/downloads/'.$site->host . '.gif';
-//                        } else {
-//                            Log::dump($curl->getErrors());
-//                        }
-//                    }
-//                }
-//            }
-//            $form = new oForm($fields);
-//            $form->setHtmlAfter($mapper->getAfterHtml());
-//            $form->setHtmlBefore('Форма для сайта www.press-release.ru');
-//            echo $form->buildHtml();
-//            $this->session->set('subscribeForm', $form);
-//        }
+
     }
 
     public function sendUserForm() {
-        
+
     }
 
     function syncForm() {
@@ -232,10 +181,8 @@ class as_Strategy {
         $userFields = $form->getFields();
 
         foreach ($this->_fieldsSend as $key => &$value) {
-            if(isset($value['analog'])) {
-                if (isset($userFields[$value['analog']]['value'])) {
-                    $value['value'] = $userFields[$value['analog']]['value'];
-                }
+            if (isset($value['source']) && isset($userFields[$value['source']]['value'])) {
+                $value['value'] = $userFields[$value['source']]['value'];
             }
         }
     }
@@ -243,10 +190,8 @@ class as_Strategy {
     function reSyncForm($form) {
         $siteFields = $form->getFields();
         foreach ($this->_fieldsSend as $key => &$value) {
-            if(isset($value['analog'])) {
-                if (isset($userFields[$value['analog']]['value'])) {
-                    $value['value'] = $userFields[$value['analog']]['value'];
-                }
+            if (isset($userFields[$value['source']]['value'])) {
+                $value['value'] = $siteFields[$value['source']]['value'];
             }
         }
     }

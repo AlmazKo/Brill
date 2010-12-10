@@ -7,44 +7,33 @@
     Description:
         Purpose of the document follows.
 -->
-<root host="http://inthepress.ru" encoding='UTF-8'>
-    <rule url="http://inthepress.ru/add_relize">
-        <action isajax="false" url="http://inthepress.ru/add_relize" />
+
+<root host="http://inthepress.ru" encoding='cp1251' referer="">
+    <rule url="http://inthepress.ru/add_relize" isajax="false">
         <before>
-            <action type="request" url='http://inthepress.ru/add/' />
-            <action type="download" url='http://inthepress.ru/?action=Core.CaptchaImg' htmlname='__confirm-captcha[__def__]' />
+            <action type="request" url='http://inthepress.ru/add_relize' />
+            <action type="download" url='http://inthepress.ru/?action=Core.CaptchaImg' for='captcha' attr='src' />
         </before>
-        <get>
-          
-        </get>
-        <post>
-            <field name='addCathegotyID' type='select' required='true' form='true' title='Категория' value="1">
-            </field>
-            <field name='addHeader' type='text' required='true' form='true' analog='title' title='Заголовок' info='Заголовок пресс-релиза'>
-                <userdata name='title' />
-            </field>
-            <field name='addContent' type='textarea' required='true' form='true' analog='release' attr='rows=12' title='Текст пресс-релиза' info='(не более 250 символов). В основной текст автоматически не копируется. '>
-                <userdata name='release' />
-            </field>
-
-            <field name='addCompany' type='text' required='true' form='true' analog='company' title='Компания'>
-                <userdata name='company' />
-            </field>
-
-            <field name='addContacts' type='text' required='true' form='true' analog='contacts' title='Контакты'/>
-            <field name='__confirm-captcha[__def__]' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке' />
-       </post>
         <headers>
         </headers>
-        <after>
-            <response url="" value="Пресс-релиз добавлен" />
+        <get>
+        </get>
+        <post>
+            <field name='addCathegotyID' type='select' value='1' form='false' title='Категория'/>
+            <field name='addHeader' type='text' required='true' form='true' var='title' source='title' title='Заголовок' info='Заголовок пресс-релиза' />
+            <field name='addContent' type='textarea' required='true' form='true' var='release' source='release' title='Текст пресс-релиза' info='(не более 250 символов). В основной текст автоматически не копируется. '  attr='rows=12'/>
+            <field name='addCompany' type='text' required='true' form='true' var='company' source='company' title='Компания' info='' />
+            <field name='addContacts' type='text' required='true' form='true' var='contacts' source='contacts' title='Контакты' info='' />
+            <field name='login' type='text' required='true' form='true' var='login' source='title' title='Логин' info='' />
+            <field name='o' type='text' required='true' form='true' var='otch' source='title' title='Отчество' info='' />
+            <field name='pass' type='text' required='true' form='true' var='pass' source='title' title='Пароль' info='' />
+            <field name='pass2' type='text' required='false' form='true' var='pass2' source='title' title='Повторите пароль' info='' />
+            <field name='__confirm-captcha[__def__]' type='captcha' required='true' form='true' var='captcha' title='Введите число, которое вы видите на картинке' info='' />
+       </post>
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+               Форма успешно отправлена
+            </action>
         </after>
-        <beforeHtml>
-        </beforeHtml>
-        <afterHtml>
-            Форма успешно отправлена
-        </afterHtml>
     </rule>
-
-<rule></rule>
 </root>

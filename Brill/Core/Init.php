@@ -26,7 +26,7 @@ require_once CORE_PATH . 'Common/Encoding.php';
 require_once CORE_PATH . 'Common/StringUtf8.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';
-
+require_once CORE_PATH . 'Common/Error.php';
 $timer = new RunTimer();
 
 require_once 'Registry.php';

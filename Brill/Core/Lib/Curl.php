@@ -12,6 +12,7 @@ class Curl {
     public
         $_referer = 'http://www.google.com',
         $_cookie;
+    
     protected
         // ссылка на текущий курл
         $_ch,
@@ -186,16 +187,35 @@ class Curl {
     function getHeaders() {
         return $this->_aRequestHeaders;
     }
-    
+
+    function reset() {
+        $this->resetCookies();
+        $this->resetReferer();
+    }
+
+    function resetReferer() {
+        $this->setReferer();
+    }
+
+    /**
+     * Задать рефер
+     */
+    function setReferer($referer = null) {
+        $session = RegistrySession::instance();
+        if ($referer) {
+            $session->del('curl_referer');
+        } else {
+            $session->set('curl_referer', $referer);
+        }
+        $this->_referer = $referer;
+    }
     /**
      * Сбросить куки и другую информацию которую хранит курл для себя между вызовами.
      */
-    function reset() {
+    public function resetCookies() {
         $session = RegistrySession::instance();
         $session->del('curl_cookie');
-        $session->del('curl_referer');
         $this->_cookie = '';
-        $this->_referer = 'http://www.google.com';
     }
     /**
      * Формирует строку из get-параметров
@@ -229,10 +249,13 @@ class Curl {
             'Accept-Charset' =>	'windows-1251,utf-8;q=0.7,*;q=0.7',
             'Connection' => 'keep-alive',
             'Keep-Alive' => '115',
-            'Referer'      => $this->_referer,
             ));
 
-         if($this->_cookie) {
+         if ($this->_referer) {
+             $this->setHeaders(array('Referer' => $this->_referer));
+         }
+
+         if ($this->_cookie) {
              $this->setOpt(CURLOPT_COOKIE, $this->_cookie);
          //    $this->setHeaders(array('Cookie' => $this->_cookie));
          }
@@ -340,6 +363,7 @@ class Curl {
             return $this->_opt;
         }
     }
+    
     /**
      * Выполнить курл с текущими настройками
      * @return bool удачно или нет
@@ -366,11 +390,13 @@ class Curl {
      //   RunTimer::endPoint('Curl');
         return $this->_responseRaw ? true : false;
     }
+
     /**
      * Парсит строку хидеров.
      * Также пытается получить кодировку, mime-type, cookies и location
      * @param string $response
      * @return array хидеры в виде массива
+     * @todo отрефакторить цикл
      */
     protected function _parseHeaders() {
         $aHeaders = array();
@@ -435,11 +461,15 @@ class Curl {
         $this->_responseBody = null;
         $this->_aResponseHeaders = null;
         $this->_info = null;
-
     }
 
     public function close() {
-        curl_close($this->_ch);
+        if ($this->_ch) {
+            curl_close($this->_ch);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
