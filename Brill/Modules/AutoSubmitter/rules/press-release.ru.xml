@@ -1,71 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-    Document   : Press_Release.xml
-    Created on : 8 Октябрь 2010 г., 13:40
-    Author     : lubyagin sergey
+    Document   : press-release.ru.xml
     Author     : Almazko
     Description:
         Purpose of the document follows.
 -->
-<root host="http://www.press-release.ru" encoding='cp1251'>
-    <rule url="http://www.press-release.ru/add/">
-        <action isajax="false" url="http://www.press-release.ru/add/" />
+<root host="http://www.press-release.ru" encoding='cp1251' referer="">
+    <rule url="http://www.press-release.ru/add/" isajax="false">
         <before>
-            <action type="request" url='http://www.press-release.ru/add/' />
-            <action type="download" url='http://www.press-release.ru/cgi-bin/captcha.pl?rand=' htmlname='code' />
+            <action type="request" url='http://inthepress.ru/add_relize' />
+            <action type="download" url='http://www.press-release.ru/cgi-bin/captcha.pl?rand=' for='captcha' attr='src' />
         </before>
-        <get>
-          
-        </get>
+        <headers></headers>
+        <get></get>
         <post>
-            <field name='post' value='yes' />
-            <field name='section' type='select' required='true' form='true' title='Выберите раздел' value="economics">
-            </field>
-
-            <field name='title' type='text' required='true' form='true' analog='title' title='Заголовок' info='Пишите прописью с заглавной буквы. (Заголовки, написанные полностью БОЛЬШИМИ буквами, не публикуются)'>
-                <userdata name='title' />
-            </field>
-
-            <field name='annot' type='textarea' required='false' form='true' analog='preview' attr='rows=3' title='Аннотация' info='(не более 250 символов). В основной текст автоматически не копируется. '>
-                <userdata name='preview' />
-            </field>
-
-            <field name='body' type='textarea' required='true' form='true' analog='release' attr='rows=12' title='Основной текст' info='(не более 250 символов). В основной текст автоматически не копируется. '>
-                <userdata name='release' />
-            </field>
-
-            <field name='keywords' type='textarea' required='false' form='true' attr='rows=3' title='Ключевые слова через запятую'>
-                <userdata name='keywords' />
-            </field>
-
-            <field name='author' type='text' required='true' form='true' analog='name' title='Автор'>
-                <userdata name='name' />
-            </field>
-            
-            <field name='org' type='text' required='true' form='true' analog='company' title='Организация'>
-                <userdata name='company' />
-            </field>
-            <field name='code' type='captcha' required='true'  form='true' title='CAPTCHA' info='Введите число, которое вы видите на картинке'>
-                <userdata name='captcha' />
-            </field>
-
-            <field name='contact' value='' />
-            <field name='email' value='' />
-            <field name='web_url' value='' />
-            <field name='web_name' value='' />
+            <field name='post'>yes</field>
+            <field name='section' type='select' form='false' title='Выберите раздел'>economics</field>
+            <field name='title' type='text' required='true' form='true' var='title' source='title' title='Заголовок' info='Пишите прописью с заглавной буквы. (Заголовки, написанные полностью БОЛЬШИМИ буквами, не публикуются)' />
+            <field name='annot' type='textarea' required='false' form='true' var='preview' source='preview' title='Аннотация' info='(не более 250 символов). В основной текст автоматически не копируется.'  attr='rows=3'/>
+            <field name='body' type='textarea' required='true' form='true' var='release' source='release' title='Основной текст' info=''  attr='rows=12'/>
+            <field name='keywords' type='textarea' required='false' form='true' var='keywords' source='keywords' title='Ключевые слова через запятую' info=''  attr='rows=3'/>
+            <field name='author' type='text' required='true' form='true' var='name' source='name' title='Автор' info=''/>
+            <field name='org' type='text' required='true' form='true' var='company' source='company' title='Организация' info=''/>
+            <field name='code' type='captcha' required='true' form='true' var='captcha' source='captcha' title='Введите число, которое вы видите на картинке' info=''/>
        </post>
-        <headers>
-        </headers>
-        <after>
-            <response url="" value="Пресс-релиз добавлен" />
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+               Пресс-релиз добавлен
+            </action>
         </after>
-        <beforeHtml>
-        </beforeHtml>
-        <afterHtml>
-            Ваш пресс-релиз добавлен и проходит модерацию.
-        </afterHtml>
     </rule>
-
-<rule></rule>
 </root>

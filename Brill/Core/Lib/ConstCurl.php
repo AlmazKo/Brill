@@ -12,6 +12,10 @@ class ConstCurl {
         HEADER_SET_COOKIE = 'set-cookie',
         HEADER_LOCATION = 'location';
 
+    const
+        FORM_ENCTYPE_APP = 'application/x-www-form-urlencoded',
+        FORM_ENCTYPE_MULTIPART = 'multipart/form-data';
+    
     public static $opts = array (
         CURLOPT_AUTOREFERER => 'CURLOPT_AUTOREFERER',
         CURLOPT_BINARYTRANSFER => 'CURLOPT_BINARYTRANSFER',

@@ -218,14 +218,19 @@ class aSubscribe extends Action{
             $this->context->setTpl('content', 'subscribes_html');
         }
         $subscribes = new as_Subscribes();
+
         $fields = $subscribes->getFields();
+       //         Log::dump($fields);
         array_unshift($fields, "run");
 
-        $tbl = new oTableExt(array($fields, $subscribes->getArray()));
-        $tbl->viewColumns('run', 'name', 'date_begin');
+
+        $sql = Stmt::prepare2(as_Stmt::GET_SUBSCRIBES_USER, array('user_id' => 0));
+        $tbl = new oTableExt(DBExt::selectToTable($sql));
+        $tbl->addCol('run');
+        $tbl->viewColumns('run', 'name', 'form');
         $tbl->setNamesColumns(array('name'=>'Название',
                                     'run'=>'Запустить',
-                                    'date_begin' => 'Рассылка'));
+                                    'form' => 'Рассылка'));
         $tbl->setViewIterator(true);
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
@@ -233,9 +238,18 @@ class aSubscribe extends Action{
         $tbl->setCustomOpt('Run', 'Начать рассылку', 'start.png', 'Subscribe', 'Run', 'id');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
-//        echo '<pre>';
-//        var_dump($tbl);
-//        echo '</pre>';
+
+        $sqlSt = Stmt::prepare2(as_Stmt::GET_SUBSCRIBES_STATUS_USER, array('user_id' => 0));
+        $subscribesStatus = DBExt::selectToArray($sqlSt);
+        $progress = array();
+        foreach ($subscribesStatus as $value) {
+            $sites = explode(',', $value['site_ids']);
+            $statuses = explode(',', $value['status_ids']);
+            $progress[$value['subscribe_id']]  = array_combine($sites, $statuses);
+
+        }
+
+        $this->context->set('progress', $progress);
     }
 
 
@@ -263,51 +277,75 @@ class aSubscribe extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'run_html');
         }
-        $subscribeId = (int)$this->request->get('id', 0);
         $form = null;
-        if ($this->request->getRequestPOST('deamonic_id')) {
-            $subscribeId = (int)$this->request->get('deamonic_id', 0);
-            $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_USED_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
-            if ($result) {
-                $site = new as_Sites($result['site_id']);
-                $subscribe = new as_Subscribes($result['subscribe_id']);
-                $strategy = new as_Strategy($site, $subscribe);
-                $result = $strategy->start(($this->request->get('POST')));
-                if($result instanceof oForm) {
-                    $form = &$result;
-                    $form->setHtmlBefore('Форма для сайта '. $site->host);
-                    $form->setField('deamonic_id', array('type'=>'hidden', 'value' => $subscribeId));
-                } else {
-                    //форма успешно отправлена на сервер
-                    $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
-                    if ($result) {
-                        $this->context->set('text', 'Дальше');
+        $session = RegistrySession::instance();
+        $this->context->set('h1','Рассылка');
+        
+        if ($session->is('as_ss_id')) {
+            //какое идентификатор должен быть у формы
+            $subscribeSiteIdName = $session->get('as_ss_id');
+            $subscribeId = (int)$this->request->get($subscribeSiteIdName, 0);
+
+            if ($this->request->getRequestPOST($subscribeSiteIdName)) {
+         //       Log::dump($_POST);
+                $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_USED_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
+                if ($result) {
+                    $site = new as_Sites($result['site_id']);
+                    $subscribe = new as_Subscribes($result['subscribe_id']);
+                    $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
+                    $strategy = new as_Strategy($site, $subscribe);
+                    $result = $strategy->start(($this->request->get('POST')));
+                    if($result instanceof oForm) {
+                        $form = &$result;
+                        $form->setHtmlBefore('<center>Форма для сайта '. $site->host. '</center>');
+                        $subscribeSiteId = uniqid('as_ss_id');
+                        $session->set('as_ss_id', $subscribeSiteId);
+                        $form->setField($subscribeSiteId, array('type'=>'hidden', 'value' => $subscribeId));
+                    } else if($result instanceof Error) {
+                        $this->context->setError($result->message);
                     } else {
-                        $this->context->set('text', 'Все');
+                        //форма успешно отправлена на сервер
+                        $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
+                        if ($result) {
+                            $this->context->set('text', 'Дальше');
+                        } else {
+                            $this->context->set('text', 'Все');
+                        }
+                        $this->context->setMessage('Форма успешно отправлена на сервер');
+                        $this->request->clean();
+                        return;
                     }
-                    
-                    $this->context->setMessage('Форма успешно отправлена на сервер');
-                    $this->request->clean();
-                    return;
+                } else {
+                     $this->context->setError('Ошибка');
                 }
-            } else {
-                 $this->context->setError('Ошибка');
             }
         }
 
         if (!$form && $this->request->getRequestGET('id')) {
+            $subscribeId = (int)$this->request->get('id', 0);
             $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
             if ($result) {
                 $site = new as_Sites($result['site_id']);
                 $subscribe = new as_Subscribes($result['subscribe_id']);
+                $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
                 $strategy = new as_Strategy($site, $subscribe);
-                $strategy->start();
-                $form = $strategy->getForm();
+                $result = $strategy->start();
+                if($result instanceof Error) {
+                    $this->context->setError($result->message);
 
-                $form->setHtmlBefore('Форма для сайта '. $site->host);
-                $form->setField('deamonic_id', array('type'=>'hidden', 'value' => $subscribeId));
+                    $this->context->set('text', 'Повторить. Перейти к следущему сайту рассылки');
+                } else {
+                    $form = $strategy->getForm();
+                    $form->setHtmlBefore('<center>Форма для сайта '. $site->host. '</center>');
+
+                    //добавялем поле для идентификации конкретной рассылки
+                    $subscribeSiteId = uniqid('as_ss_id');
+                    $session->set('as_ss_id', $subscribeSiteId);
+                    $form->setField($subscribeSiteId, array('type'=>'hidden', 'value' => $subscribeId));
+                }
+
             } else {
-               //все закончилось - ставим отметку в субскрибе и пишем об этом пользователю
+               $this->context->setMessage('Не осталось не обработанных сайтов');
             }
         }
         $this->context->set('form', $form);

@@ -97,9 +97,7 @@ class as_XmlMapper extends XmlParser{
             $rule = $this->getRule($ruleId);
             foreach ($rule->post->field as $field) {
                 $aField = &current($field);
-                if (isset($field->data)) {
-                    $post[$aField['name']] = (string)$field->data;
-                }
+                $post[$aField['name']] = (string)$field;
             }
         }
         return $post;
@@ -127,35 +125,64 @@ class as_XmlMapper extends XmlParser{
             return $rule['url'];
         }
     }
-    //$fields['interface'] = array('title' => 'Cетевой интерфейс', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
-    function getFields($ruleId = 0) {
+
+    /**
+     * Получает способ используемый для отправки данных на сайт
+     * @param int $ruleId
+     * @return <type>
+     */
+    function getFormEnctypeRule($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            if (isset($rule['enctype'])) {
+                return $rule['enctype'];
+            } else {
+                return false;
+            }
+            
+        }
+    }
+
+    /**
+     * Получить "публичные поля" - поля которые необходимо получить от пользователя
+     *
+     * @param int $ruleId
+     * @return string
+     */
+    function getPublicFields($ruleId = 0) {
         $aFields = array();
         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
             foreach ($rule->post->field as $field) {
                 $aField = current($field);
                 if ('true' == $field['form']) {
+                     
                     $name = (string)$field['var'];
+                   
                     $aFields[$name] = array();
                     foreach ($aField as $key => $value) {
-                        switch((string)$value) {
-                        case 'htmlname':
+                        switch($key) {
+                        // Служебные поля name, source не сохраняем
+                        case 'name':
+                        case 'source':
                             continue;
+                        case 'var':
+                            $aFields[$name]['name'] = $value;
+                            break;
                         case 'required':
-                            $aFields[$name][$key] = ('false' == (string)$value) ? false : true;
+                            $aFields[$name][$key] = ('false' == $value) ? false : true;
                             break;
                         default:
-                            $aFields[$name][$key] = (string)$value;
+                            $aFields[$name][$key] = $value;
                         }
                     }
+                    //поле важное для объектов типа oForm, поэтому если не нашли его - все равно создаем
                     if (!isset($aFields[$name]['value'])) {
-                        $aFields[$name]['value'] = '';
+                        $aFields[$name]['value'] = (string)$field;
                     }
-
                 }
              }
          }
-
          return $aFields;
     }
 
@@ -179,16 +206,14 @@ class as_XmlMapper extends XmlParser{
      * @param int $ruleId
      */
     public function fill($fields, $ruleId = 0) {
-        if ($this->hasRule($ruleId)) {
+         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
             foreach ($rule->post->field as $field) {
                 $aField = &current($field);
-                if (isset($aField['name']) && isset($fields[$aField['name']])) {
-                  //  Log::dump($fields[$aField['name']] .' - '.$fields[$aField['name']]['value']);
-                    $field->addChild('data', $fields[$aField['name']]['value']);
-                    $field->addAttribute('value', $fields[$aField['name']]['value']);
-                } else {
-                    $field->addChild('data', $aField['value']);
+                if (isset($aField['var']) && isset($fields[$aField['var']]) && 'true' == $aField['form']) {
+                    $value = isset($fields[$aField['var']]['value']) ? $fields[$aField['var']]['value'] : '';
+                    $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
+                    $field[0] = $value;
                 }
             }
         }

@@ -11,7 +11,7 @@
     <table id="page" cellpadding="0" cellspacing="0">
         <tr id="page_head"><td class="first_col">
             <a href="<?=WEB_PREFIX?>">
-                <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle"/></a> <div><b>Daemonic</b><br /><i>core version: 0.1a </i></div>
+                <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle"/></a> <div><b>Daemonic</b><br /><i>core version: <?=CORE_VERSION?></i></div>
             
         </td>
             <td id="head_center">Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
@@ -101,7 +101,7 @@
             },
             complete: function(){
                 $('#loading').hide(100);
-                setTimeout(function(){$('.error_content').fadeOut(500)}, 2000);
+               // setTimeout(function(){$('.error_content').fadeOut(2000)}, 5000);
               //  $('a img').css('opacity', 0.5);
             }
         });

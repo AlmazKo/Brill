@@ -18,36 +18,87 @@ class as_Strategy {
         $_sendFform;
 
     public function __construct(as_Sites $site, as_Subscribes $subscribe) {
-        $this->_session = RegistrySession::instance();
-        $this->mapper = new as_XmlMapper( General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
 
+        /*
+         * 1. парсим rule
+         * 2. парсим SitesUsers
+         * 3. сливаем всю информацию в mapper
+         * 4. пустая ли инфа у юзера?.
+         * 4.1. получаем данные из рассылки
+         * 4.2 сливаем эти данные в mapper
+         * 4.3 формируем из mapper UserForm
+         * 5 у юзера уже есть инфа - ничего не делаем
+         */
+
+
+        /*
+         * START
+         *
+         * 1. есть ли данные из поста
+         * 1.1 заполняем UserForm
+         * 1.2 проверяем заполненность. иначе сливаем экшену с ошибками
+         * 1.3 сливаем данные в mapper
+         * 1.4 проверяем маппер, если ошибки, заново мержим userform c с mapperом и отдаем юзеру(может происходить, если юзер колодовал с формой или был изменен сам маппер)
+         * 1.5 выполняем правило
+         * 1.6 опрошиваем курла, все ли нормально, если что сливаем все как есть юзеру и пишем ошибку в лог
+         * 1.7 если да выполняем опрос курла( был ли ридирект, найдена ли фраза и т.д.). если что отадаем юзеру
+         * 2. нет поста
+         * 2.1 инициализируем курл
+         * 2.2 выполняем подготовительные данные
+         * 2.3 получаем UserForm
+         * 2.4 сливаем полученные данные в UserForm. может быть еще в mapper
+         
+         */
+
+
+
+         /*
+          * SiteRuleForm - форма для отправки текущему сайту, с
+          * SubscribeForm - форма-шаблон для сайта, используется только в начале
+          * UserForm - это упрощенная форма SiteRuleForm, которая содержит только ее публичные поля
+          * SiteUserSettings - настройки для сайта у юзера
+          */
+
+        // Прослойка для связи с маппером
+        $this->mapper = new as_XmlMapper(General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
+        /*
+         * должно происходить сохранение личных данных пользователя SiteRuleForm
+         */
+        $subscribeSite = new as_SubscribesSites(array($subscribe->id, $site->id));
+        //если первый запуск - тогда берем данные из Subscribe
+        if (!$subscribeSite->form) {
+            $subscribeForm = new oFormExt();
+            $subscribeForm->loadFromString($subscribe->form);
+            $this->mapper->fill($subscribeForm->getFields());
+        } else {
+            $userForm = new oFormExt();
+            $userForm->loadFromString($subscribeSite->form);
+            $this->mapper->fill($userForm->getFields());
+        }
+        
+        $fields = $this->mapper->getPublicFields();
+        $userForm = new oFormExt($fields);
+
+        $subscribeSite->form = $userForm->getXmlAsText();
+
+        $subscribeSite->status = 'Busy';
+        $subscribeSite->save();
+        
         $curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
                       CURLOPT_FOLLOWLOCATION => false,
-                      CURLOPT_TIMEOUT => 18,
-                      CURLOPT_CONNECTTIMEOUT => 15,
-                      CURLOPT_ENCODING => 'gzip,deflate',
-                 //     CURLOPT_COOKIEFILE => General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
-                //      CURLOPT_COOKIEJAR =>  General::$loadedModules['AutoSubmitter']->pathModule . 'cookies/'. $site->host.'_' . $subscribe->id . '.txt',
-                      );
+                      CURLOPT_TIMEOUT => 20,
+                      CURLOPT_CONNECTTIMEOUT => 7,
+                     );
+
         $curl->setOptArray($opt);
         $curl->setResponseCharset($this->mapper->getEncoding());
+        $curl->setFormEnctype($this->mapper->getFormEnctypeRule());
         $this->_curl = $curl;
-
-
-        $this->_fieldsSend = $this->mapper->getFields();
-
-        //ставим отметку о том что начали обработку сайта для кокретной рассылки
-        $subscribeSite = new as_SubscribesSites($subscribe->id, $site->id);
-        $subscribeSite->status = 'Busy';
-        $subscribeSite->save();
-
-        //сохраняем все в тельце
-        $this->_subscribeSites = $subscribeSite;
-        $this->_subscribe = $subscribe;
-        $this->_fieldsSend = $this->mapper->getFields();
+        $this->_userForm = $userForm;
         $this->_site = $site;
+        $this->_subscribeSite = $subscribeSite;
     }
 
     /**
@@ -61,7 +112,7 @@ class as_Strategy {
              if ('request' == (string)$action['type']) {
                      $this->_curl->requestGet((string)$action['url']);
                      if ($this->_curl->getErrors()) {
-                         return false;
+                         return new Error('Не удалось выполнить запрос к серверу');
                      }
                 }
                 if ('download' == (string)$action['type']) {
@@ -70,9 +121,11 @@ class as_Strategy {
                         $url,
                         DIR_PATH . '/img/downloads/captcha/'.$this->_site->host . '.gif');
                     if (!$this->_curl->getErrors()) {
-                        $this->_fieldsSend[(string)$action['for']]['src'] = WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif';
+                        if ($this->_userForm->isField((string)$action['for'])) {
+                            $this->_userForm->mergeField('captcha', array('src' => WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif'));
+                        }
                     } else {
-                        return false;
+                        return new Error('Не удалось скачать каптчу с сервера');
                     }
                 }
             }
@@ -86,6 +139,7 @@ class as_Strategy {
             if ('find' == (string)$action['type']) {
                 $find = trim((string)$action);
                 $message = $action['message'];
+                
                 if (false === strpos($this->_curl->getResponseBody(), $find)) {
                     return new Error($message);
                 }
@@ -95,27 +149,17 @@ class as_Strategy {
     }
 
     public function getForm() {
-        return $this->_sendFform;
+        return $this->_userForm;
     }
     public function start($post = null) {
         if ($post) {
-            $siteForm = new oFormExt();
-            $siteForm->loadFromString($this->_subscribeSites->form);
-            $siteValues = $siteForm->getFields();
-            //пост данных "переведенный"
-            $newPost = array();
-            foreach ($post as $k => $val) {
-                foreach ($siteValues as $value) {
-                    if (isset($value['var']) && $value['var'] == $k) {
-                        $newPost[$value['name']] = $val;
-                        break 1;
-                    }
-                }
-            }
+            $userForm = $this->_userForm;
+            $userForm->fill($post);
+            if ($userForm->isComplited()) {
 
-            $siteForm->fill($newPost);
-            if ($siteForm->isComplited()) {
-                $this->mapper->fill($siteForm->getFields());
+                $this->mapper->fill($userForm->getFields());
+
+             //   Log::dump($this->mapper);
                 $aHeaders = $this->mapper->getHeaders();
                 $aGet = $this->mapper->getGet();
                 $aPost = $this->mapper->getPost();
@@ -124,61 +168,46 @@ class as_Strategy {
                 $this->_curl->setPost($aPost);
                 $url = $this->mapper->getUrlRule();
                 $this->_curl->requestPost($url);
-
+               
+                if ($this->_curl->getErrors()) {
+                    $this->_subscribeSite->status = 'Error';
+                    $this->_subscribeSite->save();
+                    return new Error('Не удалось соединится с сервером');
+                }
                 $resultAfter = $this->_processingAfter();
                 if ($resultAfter instanceof Error) {
+                    $this->_subscribeSite->status = 'Error';
+                    $this->_subscribeSite->save();
                     $context = RegistryContext::instance();
                     $context->setError($resultAfter->message);
-                    $this->_subscribeSites->status = 'Error';
-                    $this->_subscribeSites->save();
+                    return $userForm;
                 } else {
-                    $this->_subscribeSites->status = 'Ok';
+                    $this->_subscribeSite->form = '';
+                    $this->_subscribeSite->status = 'Ok';
+                    $this->_subscribeSite->save();
                     return true;
                 }
             } else {
-                return $siteForm;
+                $this->_subscribeSite->form = $userForm->getXmlAsText();
+                $this->_subscribeSite->save();
+                return $userForm;
             }
-            //проверка формы и отсылка назад
-            //иначе формирование данных для курла и отправка
-            //проверка в полченных данных - ожидаемых
-            //иначе выводи юзеру инфу - что этот сайт лаганул
         }
-       // $this->_curl->resetCookies();
+
+
+       
+        //обнуляем память курла
         $this->_curl->reset();
-        if (!$this->_processingBefore()) {
-            $context = RegistryContext::instance();
-            $context->setError('Сайт не доступен');
+        $resultBefore = $this->_processingBefore();
+        if ($resultBefore instanceof Error) {
+            $this->_subscribeSite->status = 'Error';
+            $this->_subscribeSite->save();
+            return $resultBefore;
         }
-        $fields = $this->syncForm();
-        $form = new oFormExt($this->_fieldsSend);
-        $this->_subscribeSites->form = $form->getXmlAsText();
-        $this->_subscribeSites->save();
-        $this->_sendFform = $form;
-        return $form;
+        return $this->_userForm;
     }
 
     public function sendUserForm() {
 
-    }
-
-    function syncForm() {
-        $form = new oFormExt();
-        $form->loadFromString($this->_subscribe->form);
-        $userFields = $form->getFields();
-
-        foreach ($this->_fieldsSend as $key => &$value) {
-            if (isset($value['source']) && isset($userFields[$value['source']]['value'])) {
-                $value['value'] = $userFields[$value['source']]['value'];
-            }
-        }
-    }
-
-    function reSyncForm($form) {
-        $siteFields = $form->getFields();
-        foreach ($this->_fieldsSend as $key => &$value) {
-            if (isset($userFields[$value['source']]['value'])) {
-                $value['value'] = $siteFields[$value['source']]['value'];
-            }
-        }
     }
 }

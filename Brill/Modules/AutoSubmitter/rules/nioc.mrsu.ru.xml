@@ -18,7 +18,7 @@
         <get>
         </get>
         <post>
-            <field name='reg' value='1' />
+            <field name='reg'>1</field>
             <field name='kk' type='text' required='true' form='true' var='kk' source='title' title='Введите ключ' info='Должны Вам выдать' />
             <field name='f' type='text' required='true' form='true' var='fam' source='title' title='Фамилия' info='Должны придумать Сами в любой форме. Нужен системе для идентификации' />
             <field name='im' type='text' required='true' form='true' var='im' source='title' title='Имя' info='' />

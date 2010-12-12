@@ -1,3 +1,4 @@
+<h1><?=$t->get('h1')?></h1>
 <?=TFormat::viewErrorsContent($t->getErrors())?>
 <?=TFormat::viewMessagesContent($t->getMessages())?>
 <? if($t->is('form')) : ?>

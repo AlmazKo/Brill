@@ -16,7 +16,7 @@ h1 {
 }
 #page .first_col{
     padding-left: 10px;
-    width: 300px;
+    width: 250px;
 }
 
 #page_menu{
@@ -142,12 +142,15 @@ form label {
     border-collapse: collapse;
     width:100%;
     margin:5px;
+    border:1px solid #ccc;
 }
 .table td {
-    border: 1px solid #ccc;
     font-size:10pt;
     text-align: left;
     padding:3px;
+    border-color: #CCC #DDD;
+    border-style: solid dotted;
+    border-width: 1px;
 
 }
 .table th {
@@ -226,6 +229,7 @@ form label {
 
 .header_field {
     margin-right: 5px;
+    color: #888;
 }
 
 .form_txt_field {
@@ -262,7 +266,7 @@ a:link {
 }
 
 #page_menu li {
-    line-height: 130%;
+    line-height: 140%;
 }
 
 #page_menu li b {
@@ -399,7 +403,7 @@ li {
 }
 
 ul {
-    padding: 0 0 10px 20px;
+    padding: 0 0 10px 15px;
 }
 
 
@@ -415,6 +419,7 @@ form p img {
 .before_form {
     width: 750px;
     margin-bottom: 10px;
+    font-size: 1.1em;
 }
 
 .after_form {
@@ -457,4 +462,35 @@ table .col_iterator {
     width: 25px;
     text-align: center;
     
+}
+
+
+
+.ind_status {
+    float: left; width: 4px; height: 4px; border: 1px solid #ccc; margin: 6px 1px 1px;
+}
+
+.st_No {
+
+}
+
+.st_Busy {
+    border: 1px solid #999;
+    background-color: #ddd;
+}
+
+.st_Error {
+    border: 1px solid #c00; background-color: #ff6f6f;
+}
+
+.st_Ok {
+    border: 1px solid #090; background-color: #0c0;
+}
+
+.proress_bar {
+    margin: 5px 5px 2px 0;
+}
+
+.progress_text {
+    float: left; margin: 1px; font-size: 0.85em; color: #999;
 }

@@ -127,21 +127,21 @@ class oTable implements ISorting{
         return $str;
     }
 
-    /*
+    /**
      * Отобразить только необходимые столбцы
      * принимает список столбцов
      */
     function viewColumns () {
         $cols = func_get_args();
         $this->viewCols = array();
-        $i = 0;
-        foreach ($this->fields as $field) {
-            if (in_array($field, $cols)) {
-                $this->viewCols[$i] = $field;
+        foreach ($cols as $col) {
+            foreach($this->fields as $key => $field) {
+                if ($field == $col) {
+                     $this->viewCols[$key] = $field;
+                     continue;
+                }
             }
-            $i++;
         }
-        if(empty($this->viewCols)) $this->viewCols = $this->fields;
     }
 
     /*
@@ -399,7 +399,6 @@ class oTable implements ISorting{
         }
         foreach ($this->viewCols as $i => $cell) {
             if ($this->viewSorting && !in_array($this->fields[$i], $this->_noSortColumns)) {
-
                 $html .= '<th>'.$this->_arrowSort($this->fields[$i]).'<a href="'. Routing::constructUrl(array('nav' => array('field' => $this->fields[$i], 'order' => (isset($this->_sort[$this->fields[$i]])) ? $this->_sort[$this->fields[$i]] : self::SORT_ASC ))).'" ajax="1">' . $this->headers[$i] . '</a></th>';
             } else {
                 $html .= '<th>' . $this->headers[$i] . '</th>';
@@ -431,7 +430,6 @@ class oTable implements ISorting{
             $cols++;
         }
         if(empty($this->values)) {
-
             $html .= '<tr><td colspan="' . $cols . '" class="null_table">' . LNG_NULL_TABLE . '</td></tr>';
         } else {
             foreach ($this->values as $row) {
@@ -443,13 +441,11 @@ class oTable implements ISorting{
                     $html .= '<tr><td colspan="' . $cols . '" class="separator_table">' . ($this->separatorHeader ? $row[$this->separatorHeader] : '') . '</td></tr>';
                     $this->separatorValue = $row[$this->separator];
                 }
-                $i = 0;
-                foreach ($row as $cell) {
+                foreach ($this->viewCols as $key => $col) {
                     //включено ли ли это поле
-                    if(isset($this->viewCols[$i])) {
-                        $html .= '<td>' . $this->buildTd($cell, $this->viewCols[$i], $row) .'</td>';
+                    if(isset($row[$this->fields[$key]])) {
+                        $html .= '<td>' . $this->buildTd($cell, $col, $row) .'</td>';
                     }
-                    $i++;
                 }
                 if ($this->isOptions()) {
                     $html .= '<td class="options">';

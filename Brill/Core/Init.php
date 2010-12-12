@@ -6,8 +6,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-header('Content-type: text/html; charset=utf-8');
 define  ('ENCODING_CODE', 'utf-8');
+header('Content-type: text/html; charset=' . ENCODING_CODE);
+
 //TODO сделать нормальную для винды
 define ('DIR_PATH', str_replace("\\", "/", realpath (dirname (__FILE__) .'/..')));
 
@@ -15,6 +16,8 @@ define ('CORE_PATH', DIR_PATH . '/Core/');
 define ('MODULES_PATH', DIR_PATH . '/Modules/');
 //префикс домена, где он лежит. если прмо в корне. тут должен быть только слэш
 define ('USE_CACHE', false);
+
+define ('CORE_VERSION' ,'0.1a');
 $dirs [] = '.';
 $dirs [] = CORE_PATH . '/Registry';
 

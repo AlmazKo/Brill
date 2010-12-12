@@ -27,6 +27,22 @@ protected
         $this->fields[$key] = $value;
     }
 
+    public function setFieldValue($key, $value) {
+        $this->fields[$key]['value'] = $value;
+    }
+
+    /**
+     * Объеденяем значение поля с новыми
+     * @param string $key
+     * @param array $value
+     * @return bool
+     */
+    public function mergeField($key, array $value) {
+        $originalField = $this->isField($key) ? $this->fields[$key] : array();
+        $this->fields[$key] = array_replace($originalField, $value);
+        return true;
+    }
+
     function setHtmlBefore($html) {
         $this->_htmlBefore = $html;
     }
@@ -180,7 +196,12 @@ protected
     public function getFields() {
         return $this->fields;
     }
-
+    public function getField($key) {
+        return $this->fields[$key];
+    }
+    public function isField($key) {
+        return array_key_exists($key, $this->fields);
+    }
     /**
       * Очищает все значения формы
       */

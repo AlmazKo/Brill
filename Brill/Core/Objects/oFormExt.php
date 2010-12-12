@@ -50,11 +50,10 @@ class oFormExt extends oForm {
                 $attr = current((array)$value->attributes());
                 $v = (array)$value;
                 $fields[$attr['name']] = $attr;
-                $fields[$attr['name']]['value'] = isset($v[0]) ? $v[0] : '<i>NULL</i>' ;
+                $fields[$attr['name']]['value'] = $value ? (string)$value : '' ;
             }
         }
         $this->fields = $fields;
-      //   Log::dump($fields);
     }
     /**
      * Загрузить форму из xml файла
@@ -97,16 +96,18 @@ class oFormExt extends oForm {
     public function getXml() {
         $string = '<?xml version="1.0" encoding="UTF-8"?><document></document>';
         $sxe = simplexml_load_string($string);
-        foreach ($this->fields as $name => $settings) {
-            $field = $sxe->addChild('field', isset($settings['value']) ? $settings['value'] : '');
-            foreach($settings as $key => $value) {
-                if ($key != 'value') {
-                    $field->addAttribute($key, $value);
+        foreach ($this->fields as $name => $aField) {
+            $value = isset($aField['value']) ? $aField['value'] : '';
+            $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
+            $newField = $sxe->addChild('field', $value);
+            foreach($aField as $key => $value) {
+                if ('value' != $key) {
+                    $newField->addAttribute($key, $value);
                 }
             }
-            $attrs = $field->attributes();
+            $attrs = $newField->attributes();
             if (!isset($attrs['name'])) {
-                $field->addAttribute('name', $name);
+                $newField->addAttribute('name', $name);
             }
         }
         return $sxe;

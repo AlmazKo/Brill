@@ -40,7 +40,8 @@ class Curl {
         //ошибки
         $_errors = array(),
         $_aResponseCookies = array(),
-        $_responseLocation;
+        $_responseLocation,
+        $_formEnctype = ConstCurl::FORM_ENCTYPE_APP;
 
     public function __construct() {
         $session = RegistrySession::instance();
@@ -67,6 +68,7 @@ class Curl {
      * @return bool
      */
     public function downloadFile($url, $path) {
+        $this->_clean();
         $this->setOpt(CURLOPT_URL, $url);
         if ($this->_exec()) {
             $this->_parseResponse(false);
@@ -92,13 +94,13 @@ class Curl {
         if ($aGet) {
             $url = $url . '?' . $aGet;
         }
-        if ($this->isOpt(CURLOPT_POST)) {
+        if ($this->getOpt(CURLOPT_POST)) {
             $this->_preparePost();
         }
         $this->setOpt(CURLOPT_URL, $url);
 
         if ($this->_exec()) {
-            $this->_referer = $url;
+            $this->_referer = $this->getinfo("url");
             $this->_parseResponse();
         }
         return $this;
@@ -217,6 +219,18 @@ class Curl {
         $session->del('curl_cookie');
         $this->_cookie = '';
     }
+
+    /**
+     * Указать способ отправки данных формой
+     * @param string $encType
+     */
+    public function setFormEnctype($encType = ConstCurl::FORM_ENCTYPE_APP) {
+        if (ConstCurl::FORM_ENCTYPE_APP != $encType) {
+            $encType = ConstCurl::FORM_ENCTYPE_MULTIPART;
+        }
+        $this->_formEnctype = $encType;
+    }
+
     /**
      * Формирует строку из get-параметров
      * Применяет к параметрам urldecode
@@ -231,11 +245,24 @@ class Curl {
      * Формирует тело Post запроса
      */
     protected function _preparePost() {
-        $post = array();
-        foreach ($this->_aPost as $key => $value) {
-            $post[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
+        if ($this->getOpt(CURLOPT_POST)) {
+            $post = array();
+            if (ConstCurl::FORM_ENCTYPE_APP == $this->_formEnctype) {
+
+                foreach ($this->_aPost as $key => $value) {
+                    $post[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
+                }
+                $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
+            } else {
+                foreach ($this->_aPost as $key => $value) {
+                    $post[$key] = @iconv(ENCODING_CODE, $this->_responseCharset, $value);
+                }
+                $this->setOpt(CURLOPT_POSTFIELDS, $post);
+            }
+        } else {
+          //  $this->setOpt(CURLOPT_POSTFIELDS, '');
         }
-        $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
+
     }
 
     /**
@@ -307,6 +334,12 @@ class Curl {
          $this->_opt[$key] = $value;
     }
 
+    public function delOpt($key) {
+        if ($this->isOpt($key)) {
+            unset($this->_opt[$key]);
+        }
+    }
+
     /**
      * Получить информацию о последнем действии
      * @param string $key
@@ -370,24 +403,30 @@ class Curl {
      */
     protected function _exec() {
         $this->_preparedHeaders();
- //       RunTimer::addPoint('Curl');
-
-
         curl_setopt_array($this->_ch, $this->_opt);
-        Log::dump($this->getOpts(true));
-        $this->_responseRaw = curl_exec($this->_ch);
+       # Log::dump($this->getOpts(true));
 
+        $this->_responseRaw = curl_exec($this->_ch);
+        $this->_responseLocation = null;
         //FIXME: сделать нормальное логирование ошибок. общее и для текущией итерации
         $this->_errors = array();
         $this->getinfo();
-
+//Log::dump($this->getinfo());
         //сохраняем рефер
-        $this->_referer = $this->getinfo("url");
+        
         if (!$this->getinfo('http_code')) {
             $this->_errors[] = 'Не удалось выполнить операцию';
+            return;
+        }
+        
+        if (preg_match('/[45][0-9][0-9]/', $this->getinfo('http_code'))) {
+            $this->_errors[] = 'Сервер ответил с ошибкой '. $this->getinfo('http_code');
         }
 
+
+
      //   RunTimer::endPoint('Curl');
+
         return $this->_responseRaw ? true : false;
     }
 
@@ -431,7 +470,7 @@ class Curl {
         if (isset($this->_aResponseCookies[0])) {
             $this->_cookie = $this->_aResponseCookies[0];
         }
-
+#Log::dump($aHeaders);
         return $this->_aResponseHeaders = $aHeaders;
     }
 
@@ -444,7 +483,31 @@ class Curl {
         if ($this->isOpt(CURLOPT_HEADER)) {
             $this->_aResponseHeaders = $this->_parseHeaders();
         }
+        if ($this->_responseLocation || preg_match('/30[0-9]/', $this->getinfo('http_code'))) {
 
+            if (@parse_url($this->_responseLocation, PHP_URL_HOST)) {
+                $urlRedirect = $this->_responseLocation;
+            } else {
+                $url = $this->getinfo('url');
+                $parseUrl = @parse_url($url);
+                $urlRedirect = $parseUrl['scheme'] . '://' . $parseUrl['host'] . $this->_responseLocation;
+            }
+
+            /*
+             * http://ru.wikipedia.org/wiki/Список_кодов_состояния_HTTP
+             */
+            $this->_clean();
+            echo 'redirect '.$this->getinfo('http_code');
+            if ('302' == $this->getinfo('http_code') || '303' == $this->getinfo('http_code')) {
+                $this->_aPost = array();
+                $this->_aGet = array();
+                $this->delOpt(CURLOPT_POSTFIELDS);
+                $this->requestGet($urlRedirect);
+            } else {
+                $this->request($url);
+            }
+            return;
+        }
         if (!$this->isOpt(CURLOPT_NOBODY)) {
             $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
             if ($convert && $this->_responseCharset && ENCODING_CODE) {
@@ -474,9 +537,13 @@ class Curl {
 
     /**
      * Задать кодировку сайта
+     * @param string $charset
+     * @param bool $forcibly - применять ее принудительно или только если не смогли получить ее от сайта
      */
-    public function setResponseCharset($charset) {
+
+    public function setResponseCharset($charset, $forcibly = false) {
         $this->_responseCharset = $charset;
+        $thos->_responseEncodingForcibly = $forcibly;
     }
 
 
@@ -485,5 +552,9 @@ class Curl {
      */
     public function getResponseMimeType($charset) {
         $this->_responseMimeType;
+    }
+
+    public function ping($host) {
+        
     }
 }

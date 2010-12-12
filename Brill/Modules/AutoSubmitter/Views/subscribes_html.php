@@ -4,7 +4,7 @@
 <?php $form = new oFormExt();
 $tbl = $t->get('tbl');
 $pk = $tbl->getFields();
-$pk = $pk[1];
+$pk = $pk[0];
 $i = 1;
 foreach($tbl->getValues() as $row) :
     $form->loadFromString($row['form']);
@@ -12,7 +12,16 @@ foreach($tbl->getValues() as $row) :
         <tr>
             <td class="col_iterator"><?=$i++?></td>
             <td class="options"><?=$tbl->buildOpt($row[$pk])?></td>
-            <td><?=$row['name']?></td>
+            <td style="width: 250px;"><b><?=$row['name']?></b>
+                <?
+                $progress = $t->progress[$row[$pk]]; ?>
+                <div class="progress_bar">
+                    <div class="progress_text">Прогресс:</div>
+                    <? foreach ($progress as $site_id => $status) : ?>
+                    <div class="ind_status st_<?=$status?>"> </div>
+                    <? endforeach;?>
+                </div>
+            </td>
             <td><?php
 
         $aForm = $form->getArrayAttr(array('title', 'value'));

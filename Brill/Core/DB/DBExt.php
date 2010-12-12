@@ -194,7 +194,7 @@ class DBExt extends DB{
         $result = parent::query($query, $lnk);
         $values = $fields = array();
         while ($finfo = mysqli_fetch_field($result)) {
-            $fields [] = $finfo->name;
+            $fields[] = $finfo->name;
         }
 
         if ($result->num_rows > 0) {

@@ -14,21 +14,15 @@
             <action type="request" url='http://inthepress.ru/add_relize' />
             <action type="download" url='http://inthepress.ru/?action=Core.CaptchaImg' for='captcha' attr='src' />
         </before>
-        <headers>
-        </headers>
-        <get>
-        </get>
+        <headers></headers>
+        <get></get>
         <post>
-            <field name='addCathegotyID' type='select' value='1' form='false' title='Категория'/>
+            <field name='addCathegotyID' type='select' form='false' title='Категория'>1</field>
             <field name='addHeader' type='text' required='true' form='true' var='title' source='title' title='Заголовок' info='Заголовок пресс-релиза' />
             <field name='addContent' type='textarea' required='true' form='true' var='release' source='release' title='Текст пресс-релиза' info='(не более 250 символов). В основной текст автоматически не копируется. '  attr='rows=12'/>
             <field name='addCompany' type='text' required='true' form='true' var='company' source='company' title='Компания' info='' />
             <field name='addContacts' type='text' required='true' form='true' var='contacts' source='contacts' title='Контакты' info='' />
-            <field name='login' type='text' required='true' form='true' var='login' source='title' title='Логин' info='' />
-            <field name='o' type='text' required='true' form='true' var='otch' source='title' title='Отчество' info='' />
-            <field name='pass' type='text' required='true' form='true' var='pass' source='title' title='Пароль' info='' />
-            <field name='pass2' type='text' required='false' form='true' var='pass2' source='title' title='Повторите пароль' info='' />
-            <field name='__confirm-captcha[__def__]' type='captcha' required='true' form='true' var='captcha' title='Введите число, которое вы видите на картинке' info='' />
+            <field name='__confirm-captcha[__def__]' type='captcha' required='true' form='true' var='captcha' title='Введите число, которое вы видите на картинке' info=''></field>
        </post>
        <after>
             <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
