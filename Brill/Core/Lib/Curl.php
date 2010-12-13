@@ -56,7 +56,7 @@ class Curl {
 
     public function __destruct() {
         $session = RegistrySession::instance();
-        $session->set('curl_cookie', $this->_cookie); 
+        $session->set('curl_cookie', $this->_cookie);
         $session->set('curl_referer', $this->_referer);
     }
 
@@ -69,6 +69,7 @@ class Curl {
      */
     public function downloadFile($url, $path) {
         $this->_clean();
+        $this->_preparePost();
         $this->setOpt(CURLOPT_URL, $url);
         if ($this->_exec()) {
             $this->_parseResponse(false);
@@ -225,8 +226,8 @@ class Curl {
      * @param string $encType
      */
     public function setFormEnctype($encType = ConstCurl::FORM_ENCTYPE_APP) {
-        if (ConstCurl::FORM_ENCTYPE_APP != $encType) {
-            $encType = ConstCurl::FORM_ENCTYPE_MULTIPART;
+        if (ConstCurl::FORM_ENCTYPE_MULTIPART != $encType) {
+            $encType = ConstCurl::FORM_ENCTYPE_APP;
         }
         $this->_formEnctype = $encType;
     }
@@ -248,7 +249,6 @@ class Curl {
         if ($this->getOpt(CURLOPT_POST)) {
             $post = array();
             if (ConstCurl::FORM_ENCTYPE_APP == $this->_formEnctype) {
-
                 foreach ($this->_aPost as $key => $value) {
                     $post[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
                 }
@@ -260,9 +260,8 @@ class Curl {
                 $this->setOpt(CURLOPT_POSTFIELDS, $post);
             }
         } else {
-          //  $this->setOpt(CURLOPT_POSTFIELDS, '');
+            $this->delOpt(CURLOPT_POSTFIELDS);
         }
-
     }
 
     /**
@@ -468,7 +467,7 @@ class Curl {
              }
          }
         if (isset($this->_aResponseCookies[0])) {
-            $this->_cookie = $this->_aResponseCookies[0];
+            $this->_cookie = implode('; ', $this->_aResponseCookies);
         }
 #Log::dump($aHeaders);
         return $this->_aResponseHeaders = $aHeaders;
@@ -497,7 +496,6 @@ class Curl {
              * http://ru.wikipedia.org/wiki/Список_кодов_состояния_HTTP
              */
             $this->_clean();
-            echo 'redirect '.$this->getinfo('http_code');
             if ('302' == $this->getinfo('http_code') || '303' == $this->getinfo('http_code')) {
                 $this->_aPost = array();
                 $this->_aGet = array();

@@ -16,7 +16,6 @@ case 0: ?>
 <?php break;?>
 <?php case 3: ?>
 Рассылка успешна добавлена.
-
-<a href="#">Начать рассылку</a>
+<a href="<?=$t->linkNewSubscribe?>" ajax="1">Начать рассылку</a>
 <?php endswitch;?>
 </div>

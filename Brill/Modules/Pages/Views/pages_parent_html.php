@@ -20,12 +20,8 @@
             <ul id="menu">
                 <li> <span>Рассылки</span>
             <ul>
-            <li id="subscribes" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/List/">Активные</a></li>
-            <li class="none">Завершенные</li>
-
-            <li id="startSubscribe" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/Run/">Запустить рассылку</a></li>
-
-            <li id="startSubscribe" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/Start/">Начать новую</a></li>
+            <li id="subscribes" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/List/">Рассылки</a></li>
+            <li id="startSubscribe" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/Start/">Создать новую рассылку</a></li>
             </ul>
             </li>
             <li> <span>Сайты</span>

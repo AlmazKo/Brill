@@ -139,7 +139,7 @@ class as_Strategy {
             if ('find' == (string)$action['type']) {
                 $find = trim((string)$action);
                 $message = $action['message'];
-                
+           //     Log::dump($this->_curl->getResponseBody());
                 if (false === strpos($this->_curl->getResponseBody(), $find)) {
                     return new Error($message);
                 }
@@ -178,6 +178,12 @@ class as_Strategy {
                 if ($resultAfter instanceof Error) {
                     $this->_subscribeSite->status = 'Error';
                     $this->_subscribeSite->save();
+                    
+                    //по новой собираем данные
+                    $resultBefore = $this->_processingBefore();
+                    if ($resultBefore instanceof Error) {
+                        return $resultBefore;
+                    }
                     $context = RegistryContext::instance();
                     $context->setError($resultAfter->message);
                     return $userForm;

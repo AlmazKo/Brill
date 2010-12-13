@@ -9,8 +9,6 @@ class aSites extends Action {
 
     protected function configure() {
         require_once $this->module->pathModels . 'as_Sites.php';
-        require_once $this->module->pathViews . 'vSubscribe.php';
-      //  $this->context->setTopTpl('sites_html');
     }
 
     /**setTpl

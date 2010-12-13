@@ -9,7 +9,7 @@
 <root host="http://www.press-release.ru" encoding='cp1251' referer="">
     <rule url="http://www.press-release.ru/add/" isajax="false">
         <before>
-            <action type="request" url='http://inthepress.ru/add_relize' />
+            <action type="request" url='http://www.press-release.ru/add/' />
             <action type="download" url='http://www.press-release.ru/cgi-bin/captcha.pl?rand=' for='captcha' attr='src' />
         </before>
         <headers></headers>

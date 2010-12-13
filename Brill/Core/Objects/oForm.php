@@ -37,9 +37,12 @@ protected
      * @param array $value
      * @return bool
      */
-    public function mergeField($key, array $value) {
-        $originalField = $this->isField($key) ? $this->fields[$key] : array();
-        $this->fields[$key] = array_replace($originalField, $value);
+    public function mergeField($key, array $newValues) {
+        if ($this->isField($key)) {
+                foreach($newValues as $k => $newValue) {
+                        $this->fields[$key][$k]	= $newValue;
+                }
+        }
         return true;
     }
 

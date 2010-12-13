@@ -8,14 +8,13 @@
  */
 
 class aSubscribe extends Action{
-    protected $defaultAct = 'start';
+    protected $defaultAct = 'List';
 
     protected function configure() {
         require_once $this->module->pathModels . 'as_Sites.php';
         require_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathModels . 'as_SubscribesSites.php';
 
-        require_once $this->module->pathViews . 'vSubscribe.php';
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
         require_once $this->module->pathDB . 'as_Stmt.php';
         require_once $this->module->pathLib . 'XmlParser.php';
@@ -37,7 +36,7 @@ class aSubscribe extends Action{
             return;
         }
 
-        $sql = Stmt::prepare2(as_Stmt::GET_SUBSCRIBE_USER, array('id'=>$id));
+        $sql = Stmt::prepare2(as_Stmt::GET_SUBSCRIBE_USER, array('id'=>$id, 'user_id' => 0));
         $subscribes = new as_Subscribes();
         
         if ($subscribes->fillObjectFromSql($sql)) {
@@ -61,12 +60,27 @@ class aSubscribe extends Action{
                 $form->loadFromString($subscribes->form);
                 $this->context->set('form', $form);
             }
-
              $this->context->set('h1', 'Редактирование рассылки "'. $subscribes->name.'"');
         } else {
              $this->context->set('h1', 'Редактирование рассылки');
         }
        
+    }
+
+    function act_Del () {
+        $id = (int)$this->request->get('id', 0);
+        
+        $subscribe = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt:: GET_SUBSCRIBE_USER, array('user_id' => 0, 'id' => $id)));
+        if ($subscribe) {
+            DB::query(Stmt::prepare2(as_Stmt::DEL_SUBSCRIBES_SITES_USER, array('user_id' => 0, 'subscribe_id' => $subscribe['id'])));
+            DB::query(Stmt::prepare2(as_Stmt::DEL_SUBSCRIBE_USER, array('user_id' => 0, 'id' => $subscribe['id'])));
+        }
+        $iRoute = new InternalRoute();
+        $iRoute->module = 'AutoSubmitter';
+        $iRoute->action = 'Subscribe';
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($iRoute);
+        $act->runAct();
     }
 
     /**
@@ -149,6 +163,8 @@ class aSubscribe extends Action{
                     $subscribeSites->site_id = $siteId;
                     $subscribeSites->save();
                 }
+                $linkNewSubscribe = Routing::constructUrl(array('act' => 'Run'), false) . '?id=' . $subscribe->id;
+                $this->context->set('linkNewSubscribe', $linkNewSubscribe);
                 return true;
             }
         }
@@ -307,9 +323,10 @@ class aSubscribe extends Action{
                         //форма успешно отправлена на сервер
                         $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
                         if ($result) {
-                            $this->context->set('text', 'Дальше');
+                            $linkNewSubscribe = Routing::constructUrl(array('act' => 'Run'), false) . '?id=' . $subscribe->id;
+                            $this->context->set('text', '<a href="'.$linkNewSubscribe.'" ajax="1">Дальше</a>');
                         } else {
-                            $this->context->set('text', 'Все');
+                            $this->context->set('text', 'Рассылка завершена успешно');
                         }
                         $this->context->setMessage('Форма успешно отправлена на сервер');
                         $this->request->clean();
