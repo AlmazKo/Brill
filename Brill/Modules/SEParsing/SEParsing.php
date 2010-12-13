@@ -17,14 +17,14 @@ class SEParsing extends Modules {
 
     public function getSettingsAccess() {
         $rights = array();
-        $rights[Access::GROUP_USER] = array(
+        $rights[General::GROUP_USER] = array(
             'Sets'=> array('View','Add','Edit', 'Del'),
             'Regions' => array('Add', 'View', 'Edit', 'Del'),
             'Thematics' => array('Add', 'View', 'Edit', 'Del'),
             'Keywords' => array('Thematic', 'Pos', 'Set', 'View', 'Add', 'MassAdd'),
 
         );
-        $rights[Access::GROUP_MANAGER] = array(
+        $rights[General::GROUP_MANAGER] = array(
             'Sets'=> array('View'),
             'Regions' => array('View'),
             'Thematic' => array('View'),

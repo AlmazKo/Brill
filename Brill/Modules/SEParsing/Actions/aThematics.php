@@ -23,7 +23,7 @@ class aThematics extends Action{
         $tbl = new oTableExt(array($thematics->getFields(), $thematics->getArray()));
         $tbl->viewColumns('name');
         $tbl->setNamesColumns(array('name'=>'Тематика'));
-        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#id#">#name#</a>');
+        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#id#"  ajax="1">#name#</a>');
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));

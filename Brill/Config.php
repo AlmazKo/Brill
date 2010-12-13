@@ -4,7 +4,7 @@
  */
 // не забываем поправить .htaccess
 define ('WEB_PREFIX', '/ba/');
-Log::setLevel(0);
+Log::setLevel(1);
 //Установка дефолтного модуля
 General::$defaultModule = 'Pages';
 

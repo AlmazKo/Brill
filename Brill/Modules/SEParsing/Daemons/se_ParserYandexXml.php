@@ -27,6 +27,7 @@ class se_ParserYandexXml extends se_Parser {
         parent::__construct();
         RegistryDb::instance()->setSettings(DB::DEFAULT_LNK, array('localhost', 'root', '12345', 'brill'));
         DB::connect();
+        $this->curl->setResponseCharset(ENCODING_CODE, true);
      }
 
     protected function _configure() {
@@ -129,10 +130,11 @@ class se_ParserYandexXml extends se_Parser {
             }
             $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
             $xml_response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
-            
+            Log::dump($xml_response);
             $attempts = self::ATTEMPTS;
             while(empty($xml_response) && $attempts!=0){
                 $interface = se_Lib::getIp();
+                Log::dump($interface);
                 if ('127.0.0.1' != $interface && 'localhost' != strtolower($interface)) {
                     $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
                 }
@@ -144,7 +146,7 @@ class se_ParserYandexXml extends se_Parser {
             }
 
             if(empty($xml_response)){
-                LogInDb::notice('Error: Яндекс не ответил на данный запрос');
+                LogInDb::notice($this, 'Error: Яндекс не ответил на данный запрос');
                 return;
             }
 

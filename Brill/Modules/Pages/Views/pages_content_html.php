@@ -1,2 +1,1 @@
-mfmsdbkfsbfksndf
 <?=$t->get('content')?>

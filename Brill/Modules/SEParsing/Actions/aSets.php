@@ -85,7 +85,7 @@ class aSets extends Action{
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
         $tbl->setCustomOpt('Stat', 'Просмотреть статистику по сету', 'charts.png', 'Keywords', 'Stat', 'set_id');
-        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#id#">#name#</a>');
+        $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#id#" ajax="1">#name#</a>');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
     }

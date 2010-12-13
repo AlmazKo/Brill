@@ -48,11 +48,12 @@ class aKeywords extends Action {
         ));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#" ajax="1">#name#</a>');
         $tbl->addRulesView('set', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#s_id#" ajax="1">#set#</a>');
-        $this->context->set('h1', 'Ключевики по тематике');
+       
         $thematic = new sep_Thematics();
         $thematic->getObject($id);
         $this->context->set('thematic', $thematic->name);
-        $this->context->set('table', $tbl);
+        $this->context->set('h1', 'Ключевики по тематике: '.$thematic->name);
+        $this->context->set('tbl', $tbl);
         $this->context->set('title', 'Ключевики');
     }
 
@@ -84,10 +85,11 @@ class aKeywords extends Action {
         ));
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?id=#id#" ajax="1">#name#</a>');
         $tbl->addRulesView('thematic', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#t_id#" ajax="1">#thematic#</a>');
-        $this->context->set('h1', 'Ключевики сета');
+
         $set = new sep_Sets($id);
         $this->context->set('set', $set->name);
-        $this->context->set('table', $tbl);
+        $this->context->set('tbl', $tbl);
+        $this->context->set('h1', 'Ключевики сета: '.$set->name);
         $this->context->set('title', 'Ключевики');
     }
 
@@ -143,6 +145,7 @@ class aKeywords extends Action {
         $this->context->set('h1', 'Статистика по ключевому слову');
         $this->context->set('keyword', $keyword->name);
         $this->context->set('title', 'Ключевики');
+        $this->context->set('tbl', $tbl);
     }
 
 
@@ -152,7 +155,7 @@ class aKeywords extends Action {
         $tbl->viewColumns('name', 'yandex', 'set', 'thematic');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->setViewIterator(true);
-        $tbl->addRulesView('thematic', '<a href="newindex.php?view=keywords&thematic_id=#t_id#" ajax="1">#thematic#</a>');
+        $tbl->addRulesView('thematic', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#t_id#" ajax="1">#thematic#</a>');
 
         $this->context->set('h1', 'Все ключевые слова');
         $this->context->set('title', 'Ключевики');
@@ -168,14 +171,14 @@ class aKeywords extends Action {
         $this->context->set('tbl', $tbl);
     }
 
-    public function act_View() {
+    public function act_View() { 
         if ($this->request->isAjax()) {
-            $this->context->setTopTpl('keywords_list');
+            $this->context->setTopTpl('keywords_view');
         } else {
+            $this->context->setTpl('content', 'keywords_view');
             $this->_parent();
-            $this->context->setTpl('content', 'keywords_list');
         }
-
+       
         if ($this->request->is('id')) {
             $this->runAct('pos');
         } else if ($this->request->is('set_id')) {

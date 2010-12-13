@@ -403,7 +403,7 @@ class Curl {
     protected function _exec() {
         $this->_preparedHeaders();
         curl_setopt_array($this->_ch, $this->_opt);
-       # Log::dump($this->getOpts(true));
+   //     Log::dump($this->getOpts(true));
 
         $this->_responseRaw = curl_exec($this->_ch);
         $this->_responseLocation = null;
@@ -469,7 +469,7 @@ class Curl {
         if (isset($this->_aResponseCookies[0])) {
             $this->_cookie = implode('; ', $this->_aResponseCookies);
         }
-#Log::dump($aHeaders);
+//Log::dump($aHeaders);
         return $this->_aResponseHeaders = $aHeaders;
     }
 
@@ -508,7 +508,7 @@ class Curl {
         }
         if (!$this->isOpt(CURLOPT_NOBODY)) {
             $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
-            if ($convert && $this->_responseCharset && ENCODING_CODE) {
+            if ($convert && $this->_responseCharset && ENCODING_CODE != $this->_responseCharset) { echo' NO!!!!!'.$this->_responseCharset;
                 $this->_responseBody = @iconv($this->_responseCharset, ENCODING_CODE, $this->_responseBody);
             }
         }

@@ -444,7 +444,9 @@ class oTable implements ISorting{
                 foreach ($this->viewCols as $key => $col) {
                     //включено ли ли это поле
                     if(isset($row[$this->fields[$key]])) {
-                        $html .= '<td>' . $this->buildTd($cell, $col, $row) .'</td>';
+                        $html .= '<td>' . $this->buildTd($row[$this->fields[$key]], $col, $row) .'</td>';
+                    } else {
+                        $html .= '<td></td>';
                     }
                 }
                 if ($this->isOptions()) {

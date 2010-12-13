@@ -101,7 +101,6 @@ class DBExt extends DB{
      * @return int количество затронутых строк
      */
     function updateOne($tblName, $values, $field, $value = null) {
-        Log::dump(func_get_args());
         if (is_array($field)) {
             $where ='where ' . self::parseValuesWithFields($field, ' and ');
         } else {

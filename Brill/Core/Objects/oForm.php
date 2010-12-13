@@ -124,9 +124,9 @@ protected
                 }
                 break;
             case 'select':
-//                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
-//                $settings['data']->setChecking((array)$settings['value']);
-//                $html .= $settings['data']->buildHtmlSelect($name);
+                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
+                $settings['data']->setChecking((array)$settings['value']);
+                $html .= $settings['data']->buildHtmlSelect($name);
                 break;
             case 'multiSelect':
                 break;

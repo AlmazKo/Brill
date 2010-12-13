@@ -47,15 +47,14 @@ class aInterfaces extends Action{
 
     function act_Edit () {
         if ($this->request->isAjax()) {
-            $this->context->setTopTpl('interfaces_edit');
+            $this->context->setTopTpl('edit_html');
         } else {
             $this->_parent();
-            $this->context->setTpl('content', 'interfaces_edit');
+            $this->context->setTpl('content', 'edit_html');
         }
         $id = (int)$this->request->get('id', 0);
         $form = new oForm($this->fields, array('GET' => array('id' => $id)));
         $ints = new sep_Interfaces();
-
         if ($ints->getObject($id)) {
             if ($this->request->is('POST')) {
                 $form->fill($this->request->get('POST'));
@@ -81,6 +80,7 @@ class aInterfaces extends Action{
         }
 
         $form = new oForm($this->fields);
+
         $this->context->set('form', $form);
         if ($this->request->is('POST')) {
             $form->fill($this->request->get('POST'));
