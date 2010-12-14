@@ -34,6 +34,12 @@ class RegistrySession extends Registry{
         }
     }
 
+    public function del($key) {
+        if (isset($_SESSION[$key])) {
+            unset($_SESSION[$key]);
+        }
+    }
+
     public function is($key) {
         if (isset($_SESSION[$key])) {
             return true;

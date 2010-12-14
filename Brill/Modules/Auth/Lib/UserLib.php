@@ -19,20 +19,17 @@ class UserLib extends Lib {
      * @return bool
      */
     function isLogin (){
-//        if (isset($session['user'])) {
-//
-//        } else {
-//            return false;
-//        }
-
-        return true;
+        $session = RegistrySession::instance();
+        return $session->is('isLogin') && $session->get('isLogin');
     }
 
     function logout() {}
 
     function userInfo() {}
 
-    function login() {}
+    function login() {
+        
+    }
 
     private function _checkEmailAndPasswd() {}
 
@@ -52,9 +49,12 @@ class UserLib extends Lib {
         }
     }
     public function  e_InitAction() {
-        $session = RegistrySession::instance();
-        if ($this->isLogin($session)) {
 
+       
+        $route = Routing::instance();
+        $module = General::getCurrentModule();
+        if ($module->name != 'Auth' && !$this->isLogin()) {
+            $route->redirect('Auth/');
         }
         //если ли право на экшен меня и/или моей группы
         //если нет - редиреект
@@ -62,10 +62,7 @@ class UserLib extends Lib {
         //редирект на главную
         //
         #parent::initAction();
-        if (!$this->isLogin()) {
-            $this->isLogin = false;
-           //         $route->redirect('Brill/static/error.html'); // редирект на страницу авторизации
-        }
+
 
     }
 }

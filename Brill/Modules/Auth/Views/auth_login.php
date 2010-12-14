@@ -4,25 +4,20 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$t->get('title')?></title>
 <link href="<?=WEB_PREFIX?>Brill/css/page.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form.js<?=USE_CACHE ? '' : '?uid='.  uniqid() ?>"></script>
 </head>
 <body>
-<div id="block_login" class="">
-<table border="0">
-<tbody>
-    <tr><td style="width: 150px; height: 80px;">
-         <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle" alt="Daemonic"/>
-         <b>Daemonic</b>
-    </td>
-    <td class="last_col">
-        <?=$t->get('form')->buildHtml('auth_form','mini_form', 'Зайти')?>
-        <div style="clear: both;"></div></td>
-    </tr>
-    <tr>
-        <td>Ошибка авторизации</td>
-        <td style="text-align: right; padding: 0 6px 3px 0"><a href="#">Регистрация</a></td>
-</tr>
-</tbody></table>
-</div>
-
+    <div id="form">
+    <?php include_once ($t->getTpl('content'))?>
+    </div>
+    <script type="text/javascript">
+        $('#auth_form').live('submit', function() {
+            $(this).ajaxSubmit({
+                target: '#form'
+            });
+            return false;
+        });
+    </script>
 </body>
 </html>

@@ -14,7 +14,7 @@
                 <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle"/></a> <div><b>Daemonic</b><br /><i>core version: <?=CORE_VERSION?></i></div>
             
         </td>
-            <td id="head_center">Ситема управления ботами</td><td class="last_col"><?=$t->get('auth')->buildHtml('auth_form','mini_form', 'Зайти')?></td></tr>
+            <td id="head_center">Ситема управления ботами</td><td class="last_col"><?=$t->user->name?><br />группы: <?=$t->userGroup->name?><br /> <a href="<?=$t->urlLogout?>">Выход</a></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">

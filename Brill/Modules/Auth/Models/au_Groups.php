@@ -9,6 +9,6 @@ class au_Groups extends  Model{
     protected $_fields = array (
         'id',
         'name',
-        'title',
+        'descr',
     );
 }

@@ -46,9 +46,13 @@ class Stmt {
             LogMysql::errorQuery('Пустой sql');
         }
         $pSql = $sql;
+
         if (is_array($args)) {
             foreach ($args as $key => $value) {
                 if (!array_key_exists($key, self::$_arr)) {
+                    if (!get_magic_quotes_gpc()) {
+                        $value = addslashes($value);
+                    }
                     $pSql = str_replace("#$key#", $value, $pSql);
                 }
             }

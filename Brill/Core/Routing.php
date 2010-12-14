@@ -109,9 +109,9 @@ class Routing {
             } else {
                 $url .= $route->core ? $route->core . '/' : '';
             }
-           
-            $url .= isset($parts['module']) ? $parts['module'] . '/' : $route->module ? $route->module . '/' : '';
-            $url .= isset($parts['action']) ? $parts['action'] . '/' : $route->action ? $route->action . '/' : '';
+
+            $url .= isset($parts['module']) ? $parts['module'] . '/' : ($route->module ? $route->module . '/' : '');
+            $url .= isset($parts['action']) ? $parts['action'] . '/' : ($route->action ? $route->action . '/' : '');
             $url .= isset($parts['act']) ? ($parts['act'] . '/') : ($route->act ? $route->act . '/' : '');
 
             if (isset($parts['nav']) && is_array($parts['nav'])) {

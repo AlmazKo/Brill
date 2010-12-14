@@ -8,9 +8,10 @@ class Auth extends Modules {
     protected $version = 1;
     protected $prefix = "au_";
     protected $name = __CLASS__;
-    protected $defaultAction = 'Registration';
+    protected $defaultAction = 'aAuth';
 
     protected function configure() {
+        require_once $this->pathDB . 'au_Stmt.php';
         require_once $this->pathLib . 'UserLib.php';
         General::$libs['UserLib'] = new UserLib();
     }

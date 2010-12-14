@@ -5,7 +5,6 @@
  * @author Alexander
  */
 class au_UserGroups extends  Model{
-    protected $_isPk = false;
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'user_id',

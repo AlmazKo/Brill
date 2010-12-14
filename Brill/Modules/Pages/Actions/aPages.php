@@ -11,8 +11,10 @@ class aPages extends Action {
     protected $defaultAct = 'view';
 
     protected function configure() {
+        $authModule = General::$loadedModules['Auth'];
         require_once $this->module->pathModels .'mPages.php';
-      #  require_once $this->module->pathViews .'vPages.php';
+        require_once $authModule->pathModels . 'au_Users.php';
+        require_once $authModule->pathModels . 'au_Groups.php';
         $this->_parent();
     }
     
@@ -20,8 +22,14 @@ class aPages extends Action {
      * Основаная вьюшка
      */
     public function act_View() {
+        $urlLogout = Routing::constructUrl(array('module' => 'Auth','action' => 'Auth', 'act' => 'logout'), false);
+        $user = $this->session->get('user');
+        $group = $this->session->get('userGroup');
+        $this->context->set('user', $user);
+        $this->context->set('userGroup', $group);
+        $this->context->set('urlLogout', $urlLogout);
 
-        $this->context->set('title', 'Рассылка');
+        $this->context->set('title', '');
 
         $page = new mPages();
         if ($this->route->nav && isset($this->route->nav['id'])) {
@@ -52,12 +60,6 @@ class aPages extends Action {
     function _parent(InternalRoute $iRoute = null) {
         $this->context->setTopTpl('pages_parent_html', 'Pages');
         $this->context->setTpl('content', 'pages_content_html', 'Pages');
-
-        $fields['login'] = array('title' => 'Логин', 'required' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'required' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $auth = new oForm($fields);
-        $this->context->set('auth', $auth);
-
     }
 
 }

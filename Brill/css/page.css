@@ -383,7 +383,6 @@ td .options a {
 .mini_form .form_content label {
     padding:3px;
     text-align:right;
-    font-size: 11px;
     width: auto;
 
 }
@@ -394,6 +393,10 @@ td .options a {
     height: 23px;
     font-size: 11px;
     margin-top: 2px;
+}
+.mini_form .form_field_info,
+.mini_form .form_field_error {
+    font-size: 0.85em;
 }
 .mini .form_field_error {
     font-size: 0.8em

@@ -9,13 +9,19 @@ class au_Users extends Model {
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'id',
-        'loginEmail',
+        'login',
         'password',
         'name',
-        'publicEmail',
-        'reg_status', //статус ('Yes', 'No')
-        'date',
+        'group_id',
+        'status', //статус ('Yes', 'No')
+        'date_last',
+        'date_created',
         //хэш при проверке через почту. после удачной авторизации должен сбрасываться
-        'auth_hash'
+      //  'auth_hash'
     );
 }
+
+/*
+
+
+ */
