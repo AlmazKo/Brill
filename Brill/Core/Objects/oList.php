@@ -69,12 +69,12 @@ class oList implements ISorting {
     public function getChecking() {
         return $this->selected;
     }
-    public function buildHtmlSelect ($idCss = false, $classCss = false) {
-        $html = '<select ' . ($idCss ? 'name="'.$idCss.'" id="'.$idCss.'" ' : '').($classCss ? 'class="'.$classCss.'" ' : '').'>';
+    public function buildHtmlSelect ($idCss = false, $classCss = false, $attr = '') {
+        $html = '<select ' . ($idCss ? 'name="'.$idCss.'[]" id="'.$idCss.'" ' : '').($classCss ? 'class="'.$classCss.'" ' : '').($attr ? ' ' . $attr : '').'>';
         foreach ($this->values as $key => $value) {
             $selected = "";
             if (in_array($key, $this->selected)) {
-                $selected = "selected=selected";
+                $selected = 'selected="selected"';
             }
             $html .= '<option ' . $selected . ' value="' . $key . '">' . $value . '</option>';
         }

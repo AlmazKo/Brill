@@ -4,6 +4,11 @@ class aUsers extends Action{
     protected $defaultAct = 'list';
     protected function configure() {
         require_once $this->module->pathModels . 'au_Users.php';
+
+        $sql = Stmt::prepare2(au_Stmt::GET_LIST_GROUPS);
+        $groups = new oList(DBExt::selectToList($sql));
+
+        $fields['groups'] = array('title' => 'Группы', 'value' => '', 'data' => $groups, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'Группы, к которым принадлежит пользователь', 'error' => false, 'attr' => 'multiple="multiple" size="4"', $checked = array());
         $fields['name'] = array('title' => 'Имя', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['login'] = array('title' => 'Логин', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
@@ -51,7 +56,6 @@ class aUsers extends Action{
         
         $form = new oForm($this->fields, array('GET' => array('user_id' => $id)));
         $users = new au_Users();
-
         if ($users->getObject($id)) {
             if ($this->request->is('POST')) {
                 $form->fill($this->request->get('POST'));
