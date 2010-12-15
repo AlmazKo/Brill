@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -14,7 +14,6 @@ class aAuth extends Action {
     protected function configure() {
         require_once $this->module->pathModels . 'au_Users.php';
         require_once $this->module->pathModels . 'au_Groups.php';
-        require_once $this->module->pathModels . 'au_UserGroups.php';
     }
 
     function act_Login () {
@@ -40,11 +39,16 @@ class aAuth extends Action {
                     $user = new au_Users($result['id']);
                     $user->date_last = time();
                     $user->save();
+                    $sql = Stmt::prepare2(au_Stmt::GET_GROUPS_USER, array('user_id' => $user->id));
+                    //TODO переименовать в fetchTroArray
+                    $aGroups = DBExt::selectToArray($sql);
+
+                    $userInfo = array();
+                    $userInfo['user'] = $user->toArray();
+                    $userInfo['groups'] = $aGroups;
+
+                    $this->session->set('userInfo', $userInfo);
                     $this->context->del('form');
-                    $this->session->set('isLogin', true);
-                    $this->session->set('user', $user);
-                    $group = new au_Groups(100);
-                    $this->session->set('userGroup', $group);
                 } else {
                     $this->context->set('error', 'Не найден пользователь');
                 }
@@ -56,9 +60,7 @@ class aAuth extends Action {
     }
 
     function act_Logout() {
-        $this->session->del('isLogin');
-        $this->session->del('userId');
-        $this->session->del('userGroup');
-        $route = Routing::instance()->redirect('Auth/');
+        General::runEvent(GENERAL::EVENT_LOGOUT);
+        Routing::instance()->redirect('Auth/');
     }
 }

@@ -10,7 +10,8 @@ class General {
     const
         EVENT_AFTER_CONSTRUCT_ACTION = 'e_InitAction',
         EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL = 'e_InitActionInternal',
-        EVENT_BEFORE_RUNACT = 'e_beforeRunAct';
+        EVENT_BEFORE_RUNACT = 'e_beforeRunAct',
+        EVENT_LOGOUT = 'e_Logout';
 
     //Module settings
     const
@@ -41,7 +42,8 @@ class General {
         //доступные события
         $_events = array(self::EVENT_AFTER_CONSTRUCT_ACTION => 0,
                          self::EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL => 0,
-                         self::EVENT_BEFORE_RUNACT => 0
+                         self::EVENT_BEFORE_RUNACT => 0,
+                         self::EVENT_LOGOUT => 0
             ),
         //свершившиеся события
         $_accomplishedEvents = array();

@@ -14,10 +14,27 @@
                 <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle"/></a> <div><b>Daemonic</b><br /><i>core version: <?=CORE_VERSION?></i></div>
             
         </td>
-            <td id="head_center">Ситема управления ботами</td><td class="last_col"><?=$t->user->name?><br />группы: <?=$t->userGroup->name?><br /> <a href="<?=$t->urlLogout?>">Выход</a></td></tr>
+            <td id="head_center" colspan="2"><div class="welcome">Приветствуем Вас на нашем сервисе!</div><?php include ($t->getTpl('user_block'))?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">
+            <li> <span>Настройки</span>
+            <ul>
+            <li id="subscribes" class="yes"><a href="<?=WEB_PREFIX?>Auth/Users/List/">Пользователи</a>
+            <b class="opt"><a href="<?=WEB_PREFIX?>Auth/Users/Add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+
+            </li>
+            </ul>
+            </li>
+            <li> <span>Сайты</span>
+            <ul>
+            <li class="yes" id="listSites"><a href="<?=WEB_PREFIX?>AutoSubmitter/Sites/List/">Сконфигурированные</a></li>
+            <li class="yes" id="addSites"><a href="<?=WEB_PREFIX?>AutoSubmitter/Sites/Add/">Добавить</a></li>
+            </ul>
+
+            </li>
+
+
                 <li> <span>Рассылки</span>
             <ul>
             <li id="subscribes" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/List/">Рассылки</a></li>
@@ -70,7 +87,7 @@
             </ul>
             </td>
              <td id="page_content" colspan="2">
-               <?php include_once ($t->getTpl('content'))?>
+               <?php include ($t->getTpl('content'))?>
              </td>
              </tr>
          <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?><br />This product includes PHP software, freely available from http://www.php.net/software/</td></tr>

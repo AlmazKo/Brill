@@ -20,15 +20,18 @@ class UserLib extends Lib {
      */
     function isLogin (){
         $session = RegistrySession::instance();
-        return $session->is('isLogin') && $session->get('isLogin');
+        return $session->is('userInfo') && $session->get('userInfo');
     }
 
-    function logout() {}
+    function e_Logout() {
+        $session = RegistrySession::instance();
+        $session->del('userInfo');
+    }
 
     function userInfo() {}
 
     function login() {
-        
+
     }
 
     private function _checkEmailAndPasswd() {}
@@ -50,7 +53,7 @@ class UserLib extends Lib {
     }
     public function  e_InitAction() {
 
-       
+
         $route = Routing::instance();
         $module = General::getCurrentModule();
         if ($module->name != 'Auth' && !$this->isLogin()) {

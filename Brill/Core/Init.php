@@ -17,7 +17,7 @@ define ('MODULES_PATH', DIR_PATH . '/Modules/');
 //префикс домена, где он лежит. если прмо в корне. тут должен быть только слэш
 define ('USE_CACHE', false);
 
-define ('CORE_VERSION' ,'0.1a');
+define ('CORE_VERSION' ,'0.1b');
 $dirs [] = '.';
 $dirs [] = CORE_PATH . '/Registry';
 

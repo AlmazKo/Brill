@@ -17,19 +17,25 @@ class aPages extends Action {
         require_once $authModule->pathModels . 'au_Groups.php';
         $this->_parent();
     }
-    
+
     /**
      * Основаная вьюшка
      */
     public function act_View() {
-        $urlLogout = Routing::constructUrl(array('module' => 'Auth','action' => 'Auth', 'act' => 'logout'), false);
-        $user = $this->session->get('user');
-        $group = $this->session->get('userGroup');
-        $this->context->set('user', $user);
-        $this->context->set('userGroup', $group);
-        $this->context->set('urlLogout', $urlLogout);
 
+        $urlLogout = Routing::constructUrl(array('module' => 'Auth','action' => 'Auth', 'act' => 'logout'), false);
+        $userInfo = $this->session->get('userInfo');
+        $aGroups = array();
+        foreach ($userInfo['groups'] as $id => $group) {
+            $aGroups[] = $group['name'];
+        }
+        
+        $sGroups = implode(', ', $aGroups);
+        $this->context->set('userInfo', $userInfo);
+        $this->context->set('sGroups', $sGroups);
         $this->context->set('title', '');
+        $this->context->set('urlLogout', $urlLogout);
+        $this->context->setTpl('user_block', 'user_block', 'Pages');
 
         $page = new mPages();
         if ($this->route->nav && isset($this->route->nav['id'])) {

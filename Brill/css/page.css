@@ -33,7 +33,7 @@ h1 {
 }
 
 #page_head td{
-    background-color: #DDD;
+    background-color: #CECFCE;
 
 }
 
@@ -340,7 +340,7 @@ td .options a {
     border:1px solid red !important;
 }
 #page_head td {
-    border-bottom:1px solid #999;
+    border-bottom:2px ridge #CCC;
 }
 
 .mini_form {
@@ -442,7 +442,8 @@ form p img {
 
 .first_col div i {
     font-size: 0.8em;
-    color:#9a9;
+    color: #778;
+    text-shadow: 0 0 3px white;
 }
 
 
@@ -496,4 +497,49 @@ table .col_iterator {
 
 .progress_text {
     float: left; margin: 1px; font-size: 0.85em; color: #999;
+}
+
+.user_block {
+    -moz-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px;
+    background: url("/ba/Brill/img/bg_gradient2.png") repeat-x 0 0 #EFEFEF;
+    border: 1px solid #777;
+    float: right;
+    height: 70px;
+    margin: 5px 4px 3px;
+    padding: 2px 6px;
+    width: 300px;
+
+}
+
+.user_block p{
+    margin:1px 0;
+}
+
+.user_block i{
+    color: #999;
+    font-size: 0.8em;
+}
+
+.user_block a{
+    margin:0 2px;
+}
+
+
+.first_col b {
+    text-shadow: #FFCA6F 1px 1px 1px;
+    font-size: 1.4em;
+    color: #000000;
+    font-weight: normal;
+    text-shadow: 1px 1px 0 #EEEEEE;
+    font-family: georgia,"times new roman",times,serif;
+}
+
+
+.welcome {
+    font-family: georgia,"times new roman",times,serif;
+    font-size: 1.2em;
+    margin: 30px 0;
+    float:left;
+    text-shadow:1px 1px 0 #EEEEEE;
 }
