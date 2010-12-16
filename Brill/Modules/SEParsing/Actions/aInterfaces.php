@@ -5,9 +5,9 @@ class aInterfaces extends Action{
     protected function configure() {
         require_once $this->module->pathModels . 'sep_Interfaces.php';
 
-        $ports = new oList(array(array('80', '80'), array('8080', '8080')));
-        $types = new oList(array(array('Proxy', 'Прокси'), array('Usual', 'Обычный')));
-        $proxyTypes = new oList(array(array('HTTP', 'HTTP'), array('SOCKS5', 'SOCKS5')));
+        $ports = new oList(array('80' => '80', '8080' => '8080'));
+        $types = new oList(array('Proxy' => 'Прокси', 'Usual' => 'Обычный'));
+        $proxyTypes = new oList(array('HTTP' => 'HTTP', 'SOCKS5' => 'SOCKS5'));
 
         $fields['interface'] = array('title' => 'Cетевой интерфейс', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Может быть именем интерфейса, IP адресом или именем хоста', 'error' => false, 'attr' => '', $checked = array());
         $fields['port'] = array('title' => 'Порт', 'value' => '', 'data' => $ports, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
@@ -15,7 +15,6 @@ class aInterfaces extends Action{
         $fields['proxy_type'] = array('title' => 'Тип прокси', 'value' => '', 'data' => $proxyTypes, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['proxy_login'] = array('title' => 'Логин от прокси', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['proxy_password'] = array('title' => 'Пароль от прокси', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-
         $this->fields = $fields;
     }
 
@@ -87,6 +86,7 @@ class aInterfaces extends Action{
             if ($form->isComplited()) {
                 $ints = new sep_Interfaces();
                 $ints->fillObjectFromArray($form->getValues());
+
                 $ints->save();
                 $this->context->del('form');
             }

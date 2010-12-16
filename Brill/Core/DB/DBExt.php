@@ -232,7 +232,7 @@ class DBExt extends DB{
         $values = array();
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_row()) {
-                $values[] = $row;
+                $values[$row[0]] = $row[1];
             }
         }
         return $values;
@@ -259,7 +259,11 @@ class DBExt extends DB{
    static  function parseValues($values) {
        foreach ($values as $value) {
            if (isset($value)) {
+               if (is_array($value)) {
+                   $value = implode(',', $value);
+               }
                $newValues[] = is_string($value) ? "'".$value."'" : (string) $value;
+
            } else {
                $newValues[] = 'NULL';
            }
@@ -275,6 +279,9 @@ class DBExt extends DB{
     static  function parseValuesWithFields($values, $sep = ', ') {
        foreach ($values as $key => $value) {
            if (isset($value)) {
+               if (is_array($value)) {
+                   $value = implode(',', $value);
+               }
                $newValues[] ='`'.$key.'` = ' . (is_string($value) ? "'".$value."'" : (string) $value);
            }
        }

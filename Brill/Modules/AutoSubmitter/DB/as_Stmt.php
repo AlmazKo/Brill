@@ -35,5 +35,4 @@ GROUP BY subscribe_id;";
 
 const DEL_SUBSCRIBES_SITES_USER = "DELETE from as_SubscribesSites where subscribe_id=#subscribe_id#";
 const DEL_SUBSCRIBE_USER = "DELETE from as_Subscribes where id=#id# and user_id=#user_id#";
-
 }

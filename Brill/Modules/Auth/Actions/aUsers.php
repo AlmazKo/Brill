@@ -7,11 +7,11 @@ class aUsers extends Action{
 
         $sql = Stmt::prepare2(au_Stmt::GET_LIST_GROUPS);
         $groups = new oList(DBExt::selectToList($sql));
-
-        $fields['groups'] = array('title' => 'Группы', 'value' => '', 'data' => $groups, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'Группы, к которым принадлежит пользователь', 'error' => false, 'attr' => 'multiple="multiple" size="4"', $checked = array());
+        $groups->setMulti();
+        $fields['groups'] = array('title' => 'Группы', 'value' => '', 'data' => $groups, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'Можно выбрать несколько значений', 'error' => false, 'attr' => 'multiple="multiple" size="4"', $checked = array());
         $fields['name'] = array('title' => 'Имя', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['login'] = array('title' => 'Логин', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['login'] = array('title' => 'Логин', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $this->fields = $fields;
     }
 
@@ -22,15 +22,24 @@ class aUsers extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'edit_html');
         }
-
+        $this->fields['password']['required'] = true;
         $form = new oForm($this->fields);
         $this->context->set('form', $form);
         if ($this->request->is('POST')) {
             $form->fill($this->request->get('POST'));
             if ($form->isComplited()) {
-                $users = new au_Users();
-                $users->fillObjectFromArray($form->getValues());
-                $users->save();
+                $user = new au_Users();
+                $user->fillObjectFromArray($form->getValues());
+                $user->password = md5($user->password);
+                $user->status = 'Active';
+                $user->save();
+                $groups = $form->getField('groups');
+                $listGroups = $groups['data'];
+                $aGroups = $listGroups->getSelected();
+                foreach($aGroups as $groupId) {
+                     $sql = Stmt::prepare2(au_Stmt::ADD_USERS_GROUPS, array('user_id'=>$user->id, 'group_id' => $groupId));
+                     DB::query($sql);
+                }
                 $this->context->del('form');
                 $iRoute = new InternalRoute();
                 $iRoute->module = 'Auth';
@@ -53,15 +62,32 @@ class aUsers extends Action{
         }
         $this->context->set('h1', 'Редактирование пользователя', false);
         $id = (int)$this->request->get('user_id', 0);
-        
+$this->fields['password']['info'] = 'Если оставить поле пустым, пароль останется прежним';
         $form = new oForm($this->fields, array('GET' => array('user_id' => $id)));
-        $users = new au_Users();
-        if ($users->getObject($id)) {
+        $user = new au_Users();
+
+        if ($user->getObject($id)) {
             if ($this->request->is('POST')) {
                 $form->fill($this->request->get('POST'));
+                $password = $user->password;
                 if ($form->isComplited()) {
-                    $users->fillObjectFromArray($form->getValues());
-                    $users->save();
+                    $user->fillObjectFromArray($form->getValues());
+                    $user->status = 'Active';
+                    if ('' === $user->password) {
+                        $user->password = $password;
+                    } else {
+                        $user->password = md5($user->password);
+                    }
+
+                    $user->save();
+
+                    DB::query(Stmt::prepare2(au_Stmt::DEL_USERS_GROUPS_USER, array('user_id' => $user->id)));
+                    $groups = $form->getFieldValue('groups');
+                    foreach($groups as $groupId) {
+                         $sql = Stmt::prepare2(au_Stmt::ADD_USERS_GROUPS, array('user_id'=>$user->id, 'group_id' => $groupId));
+                         DB::query($sql);
+                    }
+                    
                     $this->context->del('form');
                     $iRoute = new InternalRoute();
                     $iRoute->module = 'Auth';
@@ -71,11 +97,14 @@ class aUsers extends Action{
                     $act->runAct();
                 }
             } else {
-                $form->fill($users->toArray());
+                $sql = Stmt::prepare2(au_Stmt::GET_GROUPS_USER, array('user_id' => $user->id));
+                $aGroups = DBExt::selectToList($sql);
+                $user->password = '';
+                $form->fill($user->toArray() + array('groups' => array_keys($aGroups)));
                 $this->context->set('form', $form);
             }
         }
-        
+
     }
 
     function act_List () {
@@ -102,17 +131,20 @@ class aUsers extends Action{
 
 
     function act_Del () {
-        $id = (int)$this->request->get('id', 0);
-        $sql = Stmt::prepare(se_Stmt::KEYWORDS_BY_REGION_YANDEX, array('r_id' => $id, Stmt::LIMIT => 1));
-        if (DBExt::isData($sql)) {
-            $this->context->set('error', 'Нельзя удалить сет пока в нем есть ключевики');
+        $id = (int)$this->request->get('user_id', 0);
+        $user = new au_Users();
+
+        if ($user->getObject($id)) {
+            $user->status = 'Deleted';
+            $user->save();
+            $this->context->setMessage('Пользователь удален');
         } else {
-            $regions = new sep_Regions((int)$this->request->get('id'));
-            $regions->delete();
+            $this->context->setError('Не существует такого пользователя');
         }
+
         $iRoute = new InternalRoute();
-        $iRoute->module = 'SEParsing';
-        $iRoute->action = 'Regions';
+        $iRoute->module = 'Auth';
+        $iRoute->action = 'Users';
         $actR = new ActionResolver();
         $act = $actR->getInternalAction($iRoute);
         $act->runAct();
@@ -128,4 +160,3 @@ class aUsers extends Action{
         $act->runParentAct();
     }
 }
-

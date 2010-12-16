@@ -133,6 +133,9 @@ protected
             case 'hidden':
                 $html .= '<input type="hidden" name="' . $name . '" value = "' . $settings['value'] . '"/>';
                 break;
+            case 'password':
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['required']) && $settings['required'] ? '*' : '') . ': </label><input type="password" name="' . $name . '" id="' . $name . '" value = "' . $settings['value'] . '" autocomplete="off"/>';
+                break;
             case 'file':
                 break;
             case 'captcha':
@@ -145,7 +148,7 @@ protected
             case 'submit':
                 break;
         }
-       
+
         if (isset($settings['info']) && $settings['info']) {
             $html .= '<span class="form_field_info">' . $settings['info'] . '</span>';
         }
@@ -165,7 +168,13 @@ protected
     public function fill($data) {
         foreach ($this->fields as $name => $settings) {
             if (isset($data[$name])) {
-                $this->fields[$name]['value'] = $data[$name];
+                if ('select' == $settings['type']) {
+                    $list = $settings['data'];
+                    $list->fill($data[$name]);
+                    $this->fields[$name]['value'] = $list->getSelected();
+                } else {
+                    $this->fields[$name]['value'] = (string) $data[$name];
+                }
             }
         }
     }
@@ -175,10 +184,13 @@ protected
     public function isComplited() {
         $result = true;
         foreach ($this->fields as $name => $settings) {
-            if (isset($settings['required'])) {
-                if($settings['required'] && $settings['value'] === '') {
-                    $this->fields[$name]['error'] = 'Поле обязательно для заполнения';
+            if (isset($settings['required']) && $settings['required']) {
+                if ('select' == $settings['type'] && !$settings) {
                     $result = false;
+                    $this->fields[$name]['error'] = 'Необходимо выбрать';
+                } else if($settings['value'] === '') {
+                    $result = false;
+                    $this->fields[$name]['error'] = 'Поле обязательно для заполнения';
                 }
             }
         }

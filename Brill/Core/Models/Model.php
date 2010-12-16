@@ -403,9 +403,10 @@ abstract class Model {
      * Создает чек сумму объекта.
      * Нужна, чтобы избежать лишних апдейтов
      * @return int сгенерированная новая чек-сумма
+     * @TODO ИСПРАВИТЬ СОБАЧКУ
      */
     protected function _calcCheckSum() {
-       return $this->_checkSum = crc32(implode($this->_values));
+       return $this->_checkSum = crc32(@implode($this->_values));
     }
 
     /**

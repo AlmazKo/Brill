@@ -26,7 +26,7 @@ class aAuth extends Action {
         }
         $fields = array();
         $fields['login'] = array('title' => 'Логин', 'required' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
-        $fields['password'] = array('title' => 'Пароль', 'required' => true, 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'required' => true, 'value'=>'', 'type'=>'password', 'validator' => null, 'info'=>'', 'error' => false, $checked = array());
         $form = new oForm($fields);
         $this->context->set('form', $form);
 

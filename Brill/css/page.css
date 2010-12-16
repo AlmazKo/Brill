@@ -442,8 +442,8 @@ form p img {
 
 .first_col div i {
     font-size: 0.8em;
-    color: #778;
-    text-shadow: 0 0 3px white;
+    color: #eee;
+    text-shadow: 0 0 2px #444;
 }
 
 
@@ -452,13 +452,15 @@ form p img {
     float: left;
     border: 1px solid rgb(153, 153, 153);
     position: absolute;
-    top: 40%;
-    left: 38%;
+    top: 50%;
+    left: 50%;
     background-color: #eee;
     border-radius: 5px;
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
-
+    margin-left: -183px;
+    margin-top: -70px;
+    width:365px;
 }
 
 
@@ -525,6 +527,9 @@ table .col_iterator {
     margin:0 2px;
 }
 
+.user_block b{
+text-shadow: 1px 1px 0 #FFFFFF;
+}
 
 .first_col b {
     text-shadow: #FFCA6F 1px 1px 1px;
