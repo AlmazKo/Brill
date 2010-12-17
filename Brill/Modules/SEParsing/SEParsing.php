@@ -10,32 +10,36 @@ class SEParsing extends Modules {
     protected $version = 1;
     protected $prefix = "sep_";
     protected $name = __CLASS__;
-    protected $defaultAction = 'aKeywords';
+    protected $defaultAction = 'Keywords';
     protected $pathModels = null;
     protected $pathActions = null;
     protected $pathViews = null;
 
+    /**
+     * дефольные значения прав доступа на модуль
+     * @return array
+     */
     public function getSettingsAccess() {
         $rights = array();
-        $rights[General::GROUP_USER] = array(
+        $rights[General::GROUP_MANAGER] = array(
             'Sets'=> array('View','Add','Edit', 'Del'),
             'Regions' => array('Add', 'View', 'Edit', 'Del'),
             'Thematics' => array('Add', 'View', 'Edit', 'Del'),
-            'Keywords' => array('Thematic', 'Pos', 'Set', 'View', 'Add', 'MassAdd'),
+            'Keywords' => array('All', 'Thematic', 'Pos', 'Set', 'View', 'Add', 'MassAdd'),
 
         );
-        $rights[General::GROUP_MANAGER] = array(
+        $rights[General::GROUP_USER] = array(
             'Sets'=> array('View'),
             'Regions' => array('View'),
             'Thematic' => array('View'),
             'Thematics' => array('View'),
-            'Keywords' => array('Thematic', 'Pos', 'Set', 'View'),
+            'Keywords' => array('All', 'Thematic', 'Pos', 'Set', 'View'),
             );
         return $rights;
     }
     protected function configure() {
         require_once $this->pathDB . 'se_Stmt.php';
- 
+
     }
 
     /**

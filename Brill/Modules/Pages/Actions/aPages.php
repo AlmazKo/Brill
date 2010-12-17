@@ -27,7 +27,7 @@ class aPages extends Action {
         $userInfo = $this->session->get('userInfo');
         $aGroups = array();
         foreach ($userInfo['groups'] as $id => $group) {
-            $aGroups[] = $group['name'];
+            $aGroups[] = $group;
         }
         
         $sGroups = implode(', ', $aGroups);

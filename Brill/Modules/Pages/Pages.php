@@ -8,7 +8,7 @@ class Pages extends Modules {
     protected $version = 1;
     protected $prefix = "pg_";
     protected $name = __CLASS__;
-    protected $defaultAction = 'aPages';
+    protected $defaultAction = 'Pages';
     protected $requiredModules = array ('Auth');
 
     protected function configure() {}

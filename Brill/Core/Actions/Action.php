@@ -21,6 +21,7 @@ abstract class Action {
     protected $isInternal;
     public $search = null;
     public $route;
+    private $_user = null;
 
     /*
      * Запускаем экт и выводим вьюшку
@@ -60,6 +61,9 @@ abstract class Action {
         if (!$nameAct) {
             $nameAct = $this->defaultAct;
         }
+        $route = Routing::instance();
+        $route->set('act', ucfirst($nameAct));
+        
         $act = 'act_' . ucfirst($nameAct);
         if (method_exists ($this, $act)) {
             General::runEvent(GENERAL::EVENT_BEFORE_RUNACT);
@@ -86,12 +90,7 @@ abstract class Action {
         $this->configure();
         $this->session = RegistrySession::instance();
 
-        //срабатывание эвента
-        if (!$isInternal) {
-            General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION);
-        } else {
-            General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL);
-        }
+
 
     }
 

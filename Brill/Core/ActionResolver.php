@@ -42,11 +42,14 @@ class ActionResolver {
 
         // указан ли в запросе экшен, если нет - берется дефолтный для текущего модуля
         if ($route->action) {
-            $classAction = 'a' . $route->action;
+            $classAction = $route->action;
         } else {
             $classAction = $module->defaultAction;
         }
 
+        $route->set('action', $classAction);
+        $classAction = 'a' . $classAction;
+        
         $filePath = MODULES_PATH . $route->module . $sep . General::NAME_DIR_ACTIONS . $sep . $classAction . '.php';
        
         if (file_exists($filePath)) {
@@ -56,6 +59,15 @@ class ActionResolver {
                 if (!is_subclass_of($action, 'Action')) {
                     Log::warning($classAction . ' должен быть унаследован от Action');
                 }
+                General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION);
+
+                if ($action->session->is('userInfo')) {
+                    $action->userInfo = $action->session->get('userInfo');
+                } else {
+                    $action->userInfo = null;
+                }
+
+
                 $action->nav = $route->nav;
                 $action->search = $route->search;
                 $action->route = $route;
@@ -92,6 +104,10 @@ class ActionResolver {
             if (class_exists($classAction)) {
 
                 $action = new $classAction($module, $route->act, true);
+                if (!is_subclass_of($action, 'Action')) {
+                    Log::warning($classAction . ' должен быть унаследован от Action');
+                }
+                General::runEvent(GENERAL::EVENT_AFTER_CONSTRUCT_ACTION_INTERNAL);
                 $action->nav = $route->nav;
                 $action->search = $route->search;
                 $action->route = $route;

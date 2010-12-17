@@ -8,7 +8,7 @@ class Auth extends Modules {
     protected $version = 1;
     protected $prefix = "au_";
     protected $name = __CLASS__;
-    protected $defaultAction = 'aAuth';
+    protected $defaultAction = 'Auth';
 
     protected function configure() {
         require_once $this->pathDB . 'au_Stmt.php';
@@ -21,5 +21,20 @@ class Auth extends Modules {
            self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    /**
+     * дефольные значения прав доступа на модуль
+     * @return array
+     */
+    public function getSettingsAccess() {
+        $rights = array();
+        $rights[General::GROUP_MANAGER] = array(
+            'Users'=> array('List'),
+        );
+        $rights[General::GROUP_USER] = array(
+            'Users'=> array(),
+            );
+        return $rights;
     }
 }
