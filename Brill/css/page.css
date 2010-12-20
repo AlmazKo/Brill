@@ -33,7 +33,7 @@ h1 {
 }
 
 #page_head td{
-    background-color: #CECFCE;
+    background-color: #CFCFCF;
 
 }
 
@@ -323,13 +323,33 @@ td .options a {
    /* width:100%;*/
 }
 
+.error {
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    color: black;
+    float: left;
+    margin:25px 5px;
+    font-size: 1.15em;
+    padding: 8px 8px 8px 30px;
+
+}
+.notice {
+    background: url("/ba/Brill/img/notice.png") no-repeat scroll 7px center #FFE59F;
+    border: 1px solid black;
+    cursor: pointer;
+}
+.warning {
+    background: url("/ba/Brill/img/warning.png") no-repeat scroll 7px center #FFAFAF;
+    border: 1px solid #BF0000;
+}
+
 .message_content {
     -moz-border-radius:2px;
     -webkit-border-radius:2px;
     border-radius: 2px;
     background:none repeat scroll 0 0 #eee;
     border:1px solid #999;
-    margin:5px;
+    margin:25px 5px;
     padding:5px;
     float:left;
    /* width:100%;*/
@@ -547,4 +567,40 @@ text-shadow: 1px 1px 0 #FFFFFF;
     margin: 30px 0;
     float:left;
     text-shadow:1px 1px 0 #EEEEEE;
+}
+
+/** blockUI**/
+
+.blockMsg {
+    background: #fff;
+    border: 1px solid #333;
+    padding: 2px;
+    background-color:#fff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.blockMsg h1 {
+    -moz-border-radius: 3px 3px 0 0;
+    background: none repeat scroll 0 0 #CCCCCC;
+    color: #333333;
+    font-size: 1.15em;
+    font-weight: normal;
+    margin: 0;
+    padding: 5px;
+    text-align: left;
+    text-shadow: 1px 1px 0 #DDDDDD;
+}
+
+
+
+
+.yandex {
+    color:black;
+    font-weight: normal !important;
+}
+
+.yandex span {
+    color:red;
+    font-weight: normal !important;
 }

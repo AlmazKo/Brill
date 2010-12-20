@@ -88,7 +88,10 @@ class Front {
         if (General::$loadedModules['Auth']) {
             //$auth = ne;
         }
-
-        $act->execute();
+        if (!$act) {
+            //исключительная ситация, где-то в коде сработал обработчик ошибок
+        } else {
+            $act->execute();
+        }
     }
 }

@@ -451,7 +451,6 @@ class oTable implements ISorting{
                 }
                 if ($this->isOptions()) {
                     $html .= '<td class="options">';
-                    
                     $html .= $this->buildOpt($row[$this->fields[0]]);
                     if (isset($this->_opts[self::OPT_EDIT])) {
                         $html .= '<a href="' . Routing::constructUrl(array('act' => 'edit'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax="1"><img src="' . WEB_PREFIX .'Brill/img/edit.png" /></a>';
@@ -459,7 +458,6 @@ class oTable implements ISorting{
                     if (isset($this->_opts[self::OPT_DEL])) {
                         $html .= '<a href="' . Routing::constructUrl(array('act' => 'del'), false) . '?' .$this->fields[0].  '=' . $row[$this->fields[0]].'" ajax_areusure="1"><img src="' . WEB_PREFIX .'Brill/img/del.png" /></a>';
                     }
-                    
                     $html .= '</td>';
                 }
                 $idRow++;

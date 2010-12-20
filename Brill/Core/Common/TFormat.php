@@ -163,10 +163,24 @@ class TFormat {
 
     public static function viewErrorsContent(array $errors) {
         $html = '';
-        foreach ($errors as $value) {
-            $html .= '<div class="error_content">' . $value . '</div>';
+
+        foreach ($errors as $error) {
+            if ($error instanceof Error) {
+
+                $cssClass = 'notice';
+                if ($error->isWarning()) {
+                    $cssClass = 'warning';
+                }
+                $html .= '<div class="error '.$cssClass.'">' . $error->getMessage() . '</div>';
+            } else {
+                $html .= '<div class="error_content">' . $error . '</div>';
+            }
+            
         }
-        $html .= '<div style="clear: both;"></div>';
+
+        if ($html) {
+            $html .= '<div style="clear: both;"></div>';
+        }
         return $html;
     }
 

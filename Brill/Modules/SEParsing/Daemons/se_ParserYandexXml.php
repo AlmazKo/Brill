@@ -118,7 +118,6 @@ class se_ParserYandexXml extends se_Parser {
      * @return <type>
      */
     protected function parsing(sep_Keywords $k, $conf = 0) {
-
         $query = $k->name . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
         $query = Xml::prepareTextForXml($query);
         $finded = false;
@@ -177,9 +176,12 @@ class se_ParserYandexXml extends se_Parser {
 
         $sql = Stmt::prepare(se_StmtDaemon::GET_KEYWORDS, array('limit' => 1));
         $keywords = Model::getObjectsFromSql('sep_Keywords', $sql);
+        Log::dump($keywords[0]->toArray());
+
         if (!$keywords) {
             die ();//'Закончились ключевики');
         }
+
         $this->curl->setGet(array('user' => 'alexandersuslov',
                                   'key'  => '03.16530698:0be40b9b36e8180e342b869c26086871'));
 

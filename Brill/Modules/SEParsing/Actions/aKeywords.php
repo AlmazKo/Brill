@@ -19,16 +19,23 @@ class aKeywords extends Action {
 
 
         $sqlT = Stmt::prepare(se_Stmt::ALL_THEMATICS, array (Stmt::ORDER => 'name'));
-        $sqlR = Stmt::prepare(se_Stmt::ALL_REGIONS, array (Stmt::ORDER => 'name'));
+        $sqlR = Stmt::prepare2(se_Stmt::ALL_REGIONS, array(), array (Stmt::ORDER => 'sort'));
         $listThematics = new oList(DBExt::selectToList($sqlT));
         $listRegions = new oList(DBExt::selectToList($sqlR));
-
         $fields['thematics'] = array('title' => 'Тематика', 'value' => '', 'data' => $listThematics, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['region'] = array('title' => 'Регион', 'value' => '', 'data' => $listRegions, 'type'=>'select', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['set'] = array('title' => 'Название сета', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['keywords'] = array('title' => 'Ключевик', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['url'] = array('title' => 'Url', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $this->fields = $fields;
+
+
+        if ($this->request->isAjax()) {
+            $this->context->setTopTpl('keywords_view');
+        } else {
+            $this->context->setTpl('content', 'keywords_view');
+            $this->_parent();
+        }
     }
 
     protected function act_Thematic () {
@@ -150,6 +157,7 @@ class aKeywords extends Action {
 
 
     protected function act_All () {
+        $this->context->setTopTpl('keywords_view');
         $sql = Stmt::prepare(se_Stmt::ALL_KEYWORDS, array(Stmt::ORDER => 'name'));
         $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->viewColumns('name', 'yandex', 'set', 'thematic');

@@ -14,6 +14,11 @@ class UserLib extends Lib {
     private $_isLogin;
     private $_groups;
 
+    /*
+     * Список исключений, к которым не применяются проверка прав доступа
+     * каждое исключение имеет вид: array(NameModule, NameAction)
+     */
+    private $_exclude = array(array('Auth', 'Auth'), array('Pages', 'Error'));
     /**
      * Проверяем авторизхован ли пользователь
      * @return bool
@@ -23,12 +28,31 @@ class UserLib extends Lib {
         return $session->is('userInfo') && $session->get('userInfo');
     }
 
+    /**
+     * Проверка надо ли применять правили проверки достпа
+     * @param string $moduleName 
+     * @param string $actionName
+     * @return bool
+     */
+    function isExclude($moduleName, $actionName) {
+        foreach ($this->_exclude as $exclude) {
+            if ($exclude[0] == $moduleName && $exclude[1] == $actionName) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Есть ли у текущего пользователя админские права
+     * @return bool
+     */
     function isAdmin (){
         if ($this->isLogin()) {
             $session = RegistrySession::instance();
             $userInfo = $session->get('userInfo');
             if (array_key_exists(General::GROUP_ADMIN, $userInfo['groups'])) {
-                return false;
+                return true;
             }
         }
 
@@ -61,9 +85,9 @@ class UserLib extends Lib {
      */
     public function e_beforeRunAct() {
         $route = Routing::instance();
-        if(!('Auth' == $route->module && 'Auth' == $route->action)) {
+        if(!$this->isExclude($route->module, $route->action)) {
             if ($this->isAdmin()) {
-                return true;
+                return;
             }
             $session = RegistrySession::instance();
             $module = General::getCurrentModule();
@@ -72,13 +96,14 @@ class UserLib extends Lib {
             $access = false;
             if ($accessModules) {
                 foreach($accessModules as $groupId => $action) {
-                   if (isset($userInfo['groups'][$groupId]) && in_array($route->act, $action[$route->action])) {
+                   if (isset($userInfo['groups'][$groupId]) && isset($action[$route->action]) &&
+                       in_array($route->act, $action[$route->action])) {
                        $access = true;
                        break;
                    }
                 }
                 if (!$access) {
-                    die ('У вас нет прав на это действие '.$route->act);
+                   return new Error('У вас нет прав на это действие '.$route->act);
                 }
             }
         }
@@ -88,19 +113,17 @@ class UserLib extends Lib {
      * Проверка прав доступа пользователя на конкретный Action
      * @return bool
      */
-    public function  e_InitAction() {
+     public function  e_InitAction() {
         $route = Routing::instance();
+
+       
         $request = RegistryRequest::instance();
-        if ('Auth' != $route->module && 'Auth' != $route->action && !$this->isLogin()) {
-            if($request->isAjax()) {
-                die ('Нажмите F5');
-            } else {
+        if (!$this->isExclude($route->module, $route->action)) {
+            if (!$this->isLogin()) {
                 $route->redirect('Auth/');
             }
-        } else if(!('Auth' == $route->module && 'Auth' == $route->action)) {
-           
             if ($this->isAdmin()) {
-                return true;
+                return;
             }
             $session = RegistrySession::instance();
             $module = General::getCurrentModule();
@@ -115,10 +138,12 @@ class UserLib extends Lib {
                        break;
                    }
                 }
-               
-            } else {
-                    die ('У вас нет прав на этот Раздел');
+                if (!$access) {
+                    return new Error('У вас нет прав на этот Раздел');
                 }
-        } 
+            } else {
+                return new Error('У вас нет прав на этот Раздел');
+            }
+        }
     }
 }

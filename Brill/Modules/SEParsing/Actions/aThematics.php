@@ -26,6 +26,7 @@ class aThematics extends Action{
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?thematic_id=#id#"  ajax="1">#name#</a>');
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
+        $tbl->setViewIterator(true);
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('h1', 'Все тематики');
         $this->context->set('tbl', $tbl);

@@ -25,7 +25,7 @@ class Routing {
         $this->uri = $_SERVER["REQUEST_URI"];
         $this->get = $_GET;
     }
-    
+
     final public  static function instance() {
         if (self::$instance === null) {
            self::$instance = new self();
@@ -62,7 +62,7 @@ class Routing {
          */
         $searchStrategy = '(?:search(&[a-zA-Z0-9_-]+\=[^\/]*)+\/)?';
         $navStrategy = '(?:nav(?:&([a-z]+\=[^\/]*))+\/)?';
-        
+
         if (WEB_PREFIX == '/') {
             $stdRule = '/(\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
         } else {
@@ -134,6 +134,8 @@ class Routing {
                     $queryString = TFormat::prepareQueryString($aGet);
                 }
                 $queryString = $queryString ? $queryString : $route->queryString;
+            } elseif ($useQueryString) {
+                $queryString = $route->queryString;
             }
             return  $url . ($queryString ? '?' . $queryString : '');
         } else {
@@ -143,15 +145,23 @@ class Routing {
 
 
     /**
-     *
+     * Редирект
      * @param object $url
      */
-    public static function redirect($url) {
+    public static function redirect($url = '') {
         if (is_array($url)) {
             $url = self::constructUrl($url);
         }
-        header('Location: ' . WEB_PREFIX . $url);
-        die();
+        $request = RegistryRequest::instance();
+        if ($request->isAjax()) {
+            //требование сделать редирект всей страниц
+            header("HTTP/1.1 303 Update Page");
+            die(WEB_PREFIX . $url);
+        } else {
+            header("HTTP/1.1 303 See other");
+            header('Location: ' . WEB_PREFIX . $url);
+            die;
+        }
     }
 
 

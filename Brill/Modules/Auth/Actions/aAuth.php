@@ -40,7 +40,7 @@ class aAuth extends Action {
                     $user->date_last = time();
                     $user->save();
                     $sql = Stmt::prepare2(au_Stmt::GET_GROUPS_USER, array('user_id' => $user->id));
-                    //TODO переименовать в fetchTroArray
+                    //TODO selectToArray переименовать в fetchTroArray
                     $aGroups = DBExt::selectToList($sql);
 
                     $userInfo = array();

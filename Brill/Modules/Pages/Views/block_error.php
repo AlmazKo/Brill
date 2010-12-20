@@ -1,0 +1,1 @@
+<?=TFormat::viewErrorsContent($t->getErrors())?>

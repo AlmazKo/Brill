@@ -64,12 +64,30 @@ class General {
                  * и вызываем их обработчики на это событие
                  */
                 foreach (General::$libs as $lib) {
-                    $lib->$nameEvent();
+                    $result = $lib->$nameEvent();
+                    if (isset($result)) {
+                        if ($result instanceof Error) {
+                            /**
+                             * внутреннее делегирование полномочий
+                             * на страницу ошибок
+                             */
+                            $context = RegistryContext::instance();
+                            $context->setError($result);
+                            $iRoute = new InternalRoute();
+                            $iRoute->module = 'Pages';
+                            $iRoute->action = 'Error';
+                            $actR = new ActionResolver();
+                            $act = $actR->getInternalAction($iRoute);
+                            $act->execute();
+                            die;
+                        }
+                    }
                 }
                 self::$_events[$nameEvent]++;
         } else {
             Log::warning("Событие $nameEvent не определено");
         }
+        return true;
     }
 
     public static function getCurrentModule() {

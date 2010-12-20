@@ -41,9 +41,7 @@ abstract class Action {
     }
 
     public function runParentAct() {
-
         $parentAct = '_parent';
-      //  Log::dump($parentAct);
         if (method_exists ($this, $parentAct)) {
             return $this->$parentAct();
         } else {
@@ -57,7 +55,7 @@ abstract class Action {
      * @param string $nameAct Имя акта
      * @param array $settings Массив, мозможных настроек, если вызывается другим актом
      */
-    final function runAct($nameAct =  null, $settings = array()) {
+    final function runAct($nameAct =  null, $settings = array()) { 
         if (!$nameAct) {
             $nameAct = $this->defaultAct;
         }
@@ -66,8 +64,8 @@ abstract class Action {
         
         $act = 'act_' . ucfirst($nameAct);
         if (method_exists ($this, $act)) {
-            General::runEvent(GENERAL::EVENT_BEFORE_RUNACT);
-            return $this->$act();
+           General::runEvent(GENERAL::EVENT_BEFORE_RUNACT);
+           return $this->$act();
         } else {
             Log::warning('В "' . __CLASS__ . '" не реализован метод: ' . $act);
             return false;

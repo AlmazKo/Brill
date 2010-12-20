@@ -12,22 +12,23 @@ class Pages extends Modules {
     protected $requiredModules = array ('Auth');
 
     protected function configure() {}
-    
+
       public  static function instance() {
         if (self::$instance === null) {
            self::$instance = new self();
         }
         return self::$instance;
     }
-    /**
-     * Заготовка для будущих инсталяций
-     */
-    protected function install () {
-        //        $page->name = 'Главная страница';
-        //        $page->content = 'Контент для главной страницы';
-        //        $page->save();
+
+    public function getSettingsAccess() {
+        $rights = array();
+        $rights[General::GROUP_MANAGER] = array(
+            'Pages'=> array(true),
+
+        );
+        $rights[General::GROUP_USER] = array(
+            'Pages'=> array(true),
+            );
+        return $rights;
     }
-    
 }
-
-

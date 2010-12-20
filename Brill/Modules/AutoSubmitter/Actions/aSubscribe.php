@@ -89,9 +89,10 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_Add() {
-        $fields['name'] = array('title' => 'Название', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $form = new oForm($fields);
+    private function _addStep1() {
+        $this->context->set('info_text', '');
+        $fields['name'] = array('title' => 'Название рассылки', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $form = new oForm($fields, array('step' => '0'));
         $this->context->set('form', $form);
         $this->context->set('step', 0);
         if ($this->request->is('POST')) {
@@ -100,10 +101,10 @@ class aSubscribe extends Action{
                 $subscribe = new as_Subscribes();
                 $subscribe->name = $form->getFieldValue('name');
                 $this->session->set('newSubscribe', $subscribe);
+                $this->request->clean();
                 return true;
             }
         }
-        $this->context->set('info_text', '');
     }
 
     /**
@@ -112,9 +113,9 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_SelectSite() {
+    private function _addStep2() {
         $sites = new as_Sites;
-        $form = new oFormExt(array(), array('GET' => array('step'=>'1')));
+        $form = new oFormExt(array(), array('step'=>'1'));
         $tbl = new oTableExt(array($sites->getFields(), $sites->getArray('config_status', 'Yes')));
         if ($this->request->is('POST')) {
             $post = $this->request->get('POST');
@@ -131,7 +132,7 @@ class aSubscribe extends Action{
             $this->context->set('tbl', $tbl);
             $this->context->set('form', $form);
             $this->context->set('tpl', 'subscribe_start_html.php');
-            $this->context->set('info_text', 'Выберите сайты');
+            $this->context->set('info_text', 'Выберите сайты, на которых хотите разместить пресс-релиз');
             $this->context->set('step', 1);
         }
     }
@@ -142,8 +143,8 @@ class aSubscribe extends Action{
      * @param RegistryContext $context
      * @return bool
      */
-    protected function act_FillForm() {
-        $form = new UserSubscribeForm(array(), array('GET' => array('step'=>'2')));
+    private function _addStep3() {
+        $form = new UserSubscribeForm(array(), array('step'=>'2'));
         $this->context->set('form', $form);
         $this->context->set('info_text', 'Внимательно заполните форму');
         $this->context->set('step', 2);
@@ -174,45 +175,29 @@ class aSubscribe extends Action{
      * Wizzard создания новой рассылки
      * @param RegistryContext $context
      */
-    public function act_Start() {
-
-        //TODO вынести в отдельный файл
-
-
-//        require_once $this->module->pathLib . 'AS_xmlMapper.php';
-//        require_once $this->module->pathModule . 'UserData.php';
-//        require_once $this->module->pathModule . 'UserDataProject.php';
-//        require_once $this->module->pathModule . 'Strategy.php';
-  //      require_once $this->module->pathModule . 'AS_Bot.php';
-//        if ($this->request->isAjax()) {
-//           $this->context->setTopTpl('subscribe_start_html');
-//        } else {
-//            $this->_parent();
-//            $this->context->setTpl('content', 'subscribe_start_html');
-//        }
-
+    public function act_Add() {
         $this->context->setTopTpl('subscribe_start_html');
         $step = $this->request->is('step') ? (int) $this->request->get('step') : 0;
-
         switch ($step) {
+            /*
+             * Очищаем пост при удачном выполнении,
+             * чтобы эти данные не попали следующему экшену
+             */
             case 0:
-                 if ($this->runAct('add')) {
-                     /*
-                      * Очищаем пост при удачном выполнении,
-                      * чтобы эти данные не попали следующему экшену
-                      */
+                 if ($this->_addStep1()) {
                      $this->request->clean();
                  } else {
                      break;
                  }
             case 1:
-                if ($this->runAct('SelectSite')) {
+                if ($this->_addStep2()) {
                     $this->request->clean();
                 } else {
                     break;
                 }
+
             case 2:
-                if ($this->runAct('FillForm')) {
+                if ($this->_addStep3()) {
                     $this->request->clean();
                 } else {
                     break;

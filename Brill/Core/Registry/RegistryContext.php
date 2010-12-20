@@ -88,6 +88,7 @@ class RegistryContext extends Registry {
      * @param string $module
      */
     public function setTpl($key, $nameTpl, $module = false) {
+
         if ($module) {
             $pathTpl = General::$loadedModules[$module]->pathViews . $nameTpl . '.php';
         } else {
@@ -108,7 +109,6 @@ class RegistryContext extends Registry {
     * @param <type> $module
     */
    public function setTopTpl($nameTpl, $module = false) {
-      
         if ($module) {
             $pathTpl = General::$loadedModules[$module]->pathViews . $nameTpl . '.php';
         } else {
@@ -120,7 +120,7 @@ class RegistryContext extends Registry {
         if (file_exists($pathTpl)) {
             $this->_topTpl = $pathTpl;
         } else {
-            Log::warning("Шаблон '$nameTpl' не найден по адресу: $pathTpl");
+            Log::warning("Родительский шаблон '$nameTpl' не найден по адресу: $pathTpl");
         }
    }
 

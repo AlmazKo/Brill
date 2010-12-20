@@ -6,19 +6,20 @@
 <link href="<?=WEB_PREFIX?>Brill/css/page.css" type="text/css" rel=stylesheet />
 <script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery-1.4.3.min.js"></script>
 <script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.form.js<?=USE_CACHE ? '' : '?uid='.  uniqid() ?>"></script>
+<script type="text/javascript" src="<?=WEB_PREFIX?>Brill/js/jquery.blockUI.js"></script>
 </head>
 <body>
     <table id="page" cellpadding="0" cellspacing="0">
         <tr id="page_head"><td class="first_col">
             <a href="<?=WEB_PREFIX?>">
                 <img src="<?=WEB_PREFIX?>Brill/img/logo_default.png" align="middle"/></a> <div><b>Daemonic</b><br /><i>core version: <?=CORE_VERSION?></i></div>
-            
+
         </td>
             <td id="head_center" colspan="2"><div class="welcome">Приветствуем Вас на нашем сервисе!</div><?php include ($t->getTpl('user_block'))?></td></tr>
          <tr id="page_body"><td id="page_menu">
 
             <ul id="menu">
-            <li> <span>Настройки</span>
+            <li> <span>Пользователи и доступы</span>
             <ul>
             <li id="subscribes" class="yes"><a href="<?=WEB_PREFIX?>Auth/Users/List/">Пользователи</a>
             <b class="opt"><a href="<?=WEB_PREFIX?>Auth/Users/Add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
@@ -26,19 +27,11 @@
             </li>
             </ul>
             </li>
-            <li> <span>Сайты</span>
-            <ul>
-            <li class="yes" id="listSites"><a href="<?=WEB_PREFIX?>AutoSubmitter/Sites/List/">Сконфигурированные</a></li>
-            <li class="yes" id="addSites"><a href="<?=WEB_PREFIX?>AutoSubmitter/Sites/Add/">Добавить</a></li>
-            </ul>
-
-            </li>
-
 
                 <li> <span>Рассылки</span>
             <ul>
             <li id="subscribes" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/List/">Рассылки</a></li>
-            <li id="startSubscribe" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/Start/">Создать новую рассылку</a></li>
+            <li id="startSubscribe" class="yes"><a href="<?=WEB_PREFIX?>AutoSubmitter/Subscribe/Add/">Создать новую рассылку</a></li>
             </ul>
             </li>
             <li> <span>Сайты</span>
@@ -49,8 +42,12 @@
 
             </li>
 
-            <li> <span>Парсинг</span>
+            <li> <span>SE парсинг</span>
             <ul>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Projects/">Проекты</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Projects/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+            </li>
+
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a>
                 <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Sets/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
             </li>
@@ -64,26 +61,49 @@
                 </b>
             </li>
             <li class="sep"></li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/">Интерфейсы бота</a>
-                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Interfaces/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a>
-                <a href="<?=WEB_PREFIX?>SEParsing/Interfaces/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/mass_add.png" /></a></b>
-            </li>
 
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/">Доступы к Яндексу</a>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/">Аккаунты <span class="yandex"><span>Y</span>andex</span></a>
                 <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/YandexAccesses/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
             </li>
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Regions/">Регионы</a>
                 <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Regions/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
             </li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Hosts/">Источники</a></li>
-            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Limits/">Ограничения</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/StatsToday/">Статистика за сегодня</a></li>
-            <li class="no"><a href="<?=WEB_PREFIX?>SEParsing/Errors/">Ошибки</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Отчет по демонам</a></li>
+
+                <li> <span>Демона</span>
+                    <ul>
+                        <li class="yes">KeywordsYandexXML</li>
+                        <li class="yes">KeywordsDotYandexXML</li>
+                        <li class="yes">FullPagesYandexXML</li>
+                        <li class="yes">KeywordsGoogle</li>
+                        <li class="yes">KeywordsRambler</li>
+                        <li class="yes">KeywordsWordstat</li>
+                    </ul>
+
+                </li>
+            </ul>
+            </li>
+            
+            
+            
+            
+            
+            
+            <li> <span>Настройки</span>
+            <ul>
+            <li class="yes"><a href="<?=WEB_PREFIX?>Settings/Interfaces/">Интерфейсы бота</a>
+                <b class="opt"><a href="<?=WEB_PREFIX?>Settings/Interfaces/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a>
+                <a href="<?=WEB_PREFIX?>Settings/Interfaces/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/mass_add.png" /></a></b>
+            </li>
+            <li class="no"><a href="<?=WEB_PREFIX?>Settings/StatsToday/">Статистика за сегодня</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>Settings/Hosts/">Источники</a></li>
+            <li class="yes"><a href="<?=WEB_PREFIX?>Settings/Limits/">Ограничения</a></li>
+            <li class="no"><a href="<?=WEB_PREFIX?>Settings/Errors/">Ошибки</a></li>
             </ul>
 
             </li>
-            <li class="yes"> <span>Новости</span> </li>
-            <li class="yes"> <span>Написать сообщение</span> </li>
+ 
+            
             </ul>
             </td>
              <td id="page_content" colspan="2">
@@ -98,10 +118,10 @@
     function loadBlock (block, url) {
         var position = block.position();
         var posImg = 300;
-        block.append('<div id="loading"><img src="<?=WEB_PREFIX?>Brill/img/loader1.gif" style="margin-top:48px;margin-left:'+posImg+'px"></div>');
-        $('#loading').css({'top': position.top + 1, 'left':position.left,
-                           'width': block.width(), 'height':block.height()+10,
-                           'opacity':0.8});
+        block.append('<div id="loading">Загрузка...</div>');
+        $('#loading').css({'top': position.top + 1, 'left':position.left, 'right': '0',
+                           'height':block.height()+10,
+                           'opacity':0.9});
         $('#loading').show();  //alert('e[ns ;sdlk');
         $.ajax({
             type: "GET",
@@ -109,11 +129,53 @@
             stop:function(data, textStatus){
               //  $('#loading').hide();
             },
-            success: function(data, textStatus){
+            error: function(XHR, textStatus, errorThrown){
+                if (303 == XHR.status) {
+                    window.location.href=XHR.responseText;
+                }
+                if (403 == XHR.status) {
+                    block.html(XHR.responseText);
+                }
+            },
+            success: function(data, textStatus, XHR){
+                block.hide();
                 block.html(data);
+                block.fadeIn(200);
+//alert('!');
+//
+//                 $.blockUI({
+//            theme:     false,
+//            message: data,
+//            fadeIn: 500,
+//            fadeOut: 500,
+//            showOverlay: true,
+//            centerX: true,
+//            focusInput: true,
+//            css: {
+//                top: '100px',
+//                border: '1px solid #999',
+//                padding: '2px',
+//                backgroundColor: '#fff',
+//                '-webkit-border-radius': '5px',
+//                '-moz-border-radius': '5px',
+//                opacity: 1,
+//                cursor: 'default'
+//            },
+//          	overlayCSS:  {
+//                backgroundColor: '#000',
+//                opacity:	  	 0.6,
+//                cursor:		  	 'wait'
+//            }
+//        });
+
+
+
+
+
+
             },
             complete: function(){
-                $('#loading').hide(100);
+              //  $('#loading').fadeOut(200);
                // setTimeout(function(){$('.error_content').fadeOut(2000)}, 5000);
               //  $('a img').css('opacity', 0.5);
             }
@@ -122,6 +184,10 @@
 }
 
 $(document).ready(function(){
+
+$.blockUI.defaults.overlayCSS.backgroundColor = '#ff0'; 
+
+
 
     $('form').live('submit', function() {
         $(this).ajaxSubmit({
@@ -141,7 +207,7 @@ $(document).ready(function(){
 //    $('a img').live("mouseout", function(){
 //        $(this).css('opacity', 0.5);
 //    });
-    
+
     $('li .yes').hover(function(e) {
         $(this).css({'color':'red'});
         $(this).children('b').css({'display': 'inline'});
@@ -177,6 +243,9 @@ $(document).ready(function(){
         }
     });
 
+    $('.notice').live("click", function(){
+        $(this).fadeOut(200);
+    });
 
     $('#page_menu a').click(function() {
         var block = $("#page_content");

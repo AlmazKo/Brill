@@ -13,7 +13,8 @@ class Underworld {
      * @param string $daemon
      * @return Daemon
      */
-    public function summon($daemon = 'se_ParserYandexXml') {
+    //public function summon($daemon = 'se_ParserYandexXml') {
+    public function summon($daemon = 'se_FullPagesYandex') {
         $sep = '/';
 /*
  * module=se daemon=ParserYandexXml

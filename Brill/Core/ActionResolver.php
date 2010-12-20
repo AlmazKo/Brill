@@ -51,7 +51,6 @@ class ActionResolver {
         $classAction = 'a' . $classAction;
         
         $filePath = MODULES_PATH . $route->module . $sep . General::NAME_DIR_ACTIONS . $sep . $classAction . '.php';
-       
         if (file_exists($filePath)) {
             require_once $filePath;
             if (class_exists($classAction)) {
@@ -66,8 +65,6 @@ class ActionResolver {
                 } else {
                     $action->userInfo = null;
                 }
-
-
                 $action->nav = $route->nav;
                 $action->search = $route->search;
                 $action->route = $route;
@@ -111,7 +108,6 @@ class ActionResolver {
                 $action->nav = $route->nav;
                 $action->search = $route->search;
                 $action->route = $route;
-                //TODO проверка subclass От Actions
                 return $action;
             } else {
                  Log::warning('Не найден класс '.$classAction);

@@ -34,7 +34,8 @@ class View {
         if (file_exists($this->context->getTopTpl())) {
             include $this->context->getTopTpl();
         } else {
-            Log::warning('Не найден файл шаблона ' . $this->context->getTopTpl());
+            Log::dump(Routing::instance());
+            Log::warning('Не найден файл родительского шаблона ' . $this->context->getTopTpl());
         }
         
         $r = RegistryRequest::instance();

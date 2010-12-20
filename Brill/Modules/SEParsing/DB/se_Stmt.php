@@ -42,6 +42,10 @@ left join `sep_Thematics` as t on (t.id=k.thematic_id)
 left join `sep_UrlKeywords` as uk on (uk.id=k.url_id)
 where s.id=#s_id#";
 
+
+const GET_SETS_PROJECT = "SELECT id, name, search_type FROM `sep_Sets` where project_id=#project_id#";
+
+
 const URLS_AND_POS_FOR_SET = "SELECT k.id AS k_id, k.name as k_name, st.id as set_id, s.id AS site_id, s.name, p.pos, u.url, p.pos_dot
 FROM `Positions` AS p
 JOIN Sites AS s ON ( s.id = p.site_id )
@@ -65,19 +69,19 @@ const ALL_THEMATICS = "SELECT id, name FROM `sep_Thematics`";
 const ALL_REGIONS = "SELECT id, name FROM `sep_Regions`";
 
 // получить все сеты
-const ALL_SETS = "SELECT id, name FROM `Sets`";
+const ALL_SETS = "SELECT id, name FROM `sep_Sets`";
 
 
 
 const LIMITS_HOSTS = "SELECT l.id, h.name, every_day, every_hour, every_min, l.date from sep_LimitsIpForHosts as l
 INNER JOIN sep_Hosts as h on (l.host_id=h.id)";
 
-const INTERFACES_USUAL = "SELECT id,interface FROM sep_Interfaces WHERE type='Usual'";
+const INTERFACES_USUAL = "SELECT id,interface FROM st_Interfaces WHERE type='Usual'";
 
 const YANDEX_ACCESSES = "SELECT y.id, y.login, y.password, y.xml_key, i.interface, y.date from sep_YandexAccesses as y
-INNER JOIN sep_Interfaces as i on (y.interface_id=i.id)";
+INNER JOIN st_Interfaces as i on (y.interface_id=i.id)";
 
-const STATS_CALLS_TODAY = "SELECT h.name as `host`, i.interface, it.count, it.last_date from sep_InterfaceCountCallToday as it
+const STATS_CALLS_TODAY = "SELECT h.name as `host`, i.interface, it.count, it.last_date from st_InterfaceCountCallToday as it
 JOIN sep_Hosts as h on (it.host_id=h.id)
-JOIN sep_Interfaces as i on (it.interface_id=i.id)";
+JOIN st_Interfaces as i on (it.interface_id=i.id)";
 }

@@ -7,7 +7,6 @@
  */
 class oForm {
 protected $fields = array();
-//TODO сделать как роутинг ссылку на экшен. а в верстке делать конструкУРл
 protected $action;
 protected $method = 'POST';
 protected $enctype = 'multipart/form-data';
@@ -16,7 +15,11 @@ protected
     $_htmlBefore = '',
     $_htmlAfter = '';
     function __construct(array $fields = array(), $urlExt = array()) {
-        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), $urlExt);
+        if ($urlExt) {
+            $urlExt = array('GET' => $urlExt);
+        }
+        //$url = array_replace_recursive(array('GET' => array('ajax' => '1')), $urlExt);
+        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), array('GET' => array('id' => '6')));
         $this->action = Routing::constructUrl($url);
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););

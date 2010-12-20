@@ -68,7 +68,6 @@ class aSets extends Action{
                 $this->context->set('form', $form);
             }
         }
-        
     }
 
     function act_View () {
@@ -84,6 +83,7 @@ class aSets extends Action{
         $tbl->setNamesColumns(array('name'=>'Сет'));
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);
+        $tbl->setViewIterator(true);
         $tbl->setCustomOpt('Stat', 'Просмотреть статистику по сету', 'charts.png', 'Keywords', 'Stat', 'set_id');
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#id#" ajax="1">#name#</a>');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
@@ -95,7 +95,7 @@ class aSets extends Action{
         $id = (int)$this->request->get('id', 0);
         $sql = Stmt::prepare(se_Stmt::ALL_KEYWORDS_SET, array('s_id' => $id, Stmt::LIMIT => 1));
         if (DBExt::isData($sql)) {
-            $this->context->set('error', 'Нельзя удалить сет пока в нем есть ключевики');
+            $this->context->setError(new Error('Нельзя удалить сет пока в нем есть ключевики', Error::TYPE_NOTICE));
         } else {
             $sets = new sep_Sets((int)$this->request->get('id'));
             $sets->delete();
@@ -119,4 +119,3 @@ class aSets extends Action{
         $act->runParentAct();
     }
 }
-
