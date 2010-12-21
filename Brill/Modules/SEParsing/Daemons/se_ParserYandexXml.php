@@ -6,15 +6,10 @@
  * Парсит Yandex.Xml
  * @author almaz
  */
-class se_ParserYandexXml extends se_Parser {
+class se_ParserYandexXml extends se_YandexXml {
     const
-        TBL_IP = 'z_routeip',
-        //url yandex XML
-        URL_YA_SEARCH = 'http://xmlsearch.yandex.ru/xmlsearch',
         CONF_NULL = 0,
-        CONF_WITH_DOT = 1,
-        //сколько попыток сделать один запрос
-        ATTEMPTS = 2;
+        CONF_WITH_DOT = 1;
 
     protected
         $_lnk2;
@@ -41,21 +36,6 @@ class se_ParserYandexXml extends se_Parser {
         require_once $this->_module->pathModels . 'sep_Urls.php';
     }
 
-//    /**
-//     * Получить Ip
-//     * @return string
-//     */
-//    protected function  _getIp() {
-//        $sql = Stmt::prepare(se_StmtDaemon::GET_IP, null);
-//        $result = DBExt::selectToArray($sql, $this->_lnk2);
-//        if ($result->num_rows > 0){
-//            $row = $result->fetch_assoc();
-//            Db::query('UPDATE ' . se_Tbl::IP . ' SET ri_quota=ri_quota - 1 WHERE ri_id = ' . $row['ri_id'], self::$lnk2);
-//            return $row['ri_ip'];
-//        } else {
-//            Log::warning('Закончились IP');
-//        }
-//    }
 
     /**
      * Constructing Xml request for Yandex.ru
