@@ -27,8 +27,13 @@ class General {
         GROUP_USER = 1,
         GROUP_MANAGER = 10,
         GROUP_ADMIN = 100;
-
-        public static
+    const
+        // максимальное количество одновременно работающих демонов одного класса
+        DAEMON_MAX_RUN = 5,
+        // максимально количество одновременно работающих демнов
+        DAEMON_MAX_ALL = 10;
+    
+    public static
         //модуль по умолчанию
         $defaultModule,
         //загруженные конфиги модулей

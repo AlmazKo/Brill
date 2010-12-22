@@ -35,8 +35,6 @@ class FrontDeamon {
      */
     private function init() {
 
-    
-
     }
 
     /**
@@ -47,14 +45,9 @@ class FrontDeamon {
         if ($request->isConsole()) {
             $daemonR = new Underworld();
             $daemon = $daemonR->summon();
-            $daemon->start();
-        } else {
-            
-            // очень странно будет если ктото сюда попадет
+            if (Underworld::countRunningDaemons($daemon) <= $daemon->maxCountRun()) {
+                 $daemon->start();
+            }
         }
-        
-//      $context = RegistryContext::instance();
-        // фабрика демонов
-
     }
 }

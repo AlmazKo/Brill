@@ -156,7 +156,7 @@ protected
             $html .= '<span class="form_field_info">' . $settings['info'] . '</span>';
         }
         if (isset($settings['error']) && $settings['error']) {
-            $html .= '<span class="form_field_error">' . $settings['error'] . '</span>';
+            $html .= '<br/><span class="form_field_error">' . $settings['error'] . '</span>';
         }
         if(isset($settings['type']) && $settings['type'] != 'hidden') {
             $html .= '<div style="clear:both"></div></p>';

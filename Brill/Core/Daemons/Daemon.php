@@ -4,7 +4,7 @@
  * Родительский класс всех демонов, пауков, ботов и прочей нечисти
  */
 abstract class Daemon {
-    /*
+    /* ПЛАНИРУЕМЫЕ
      * инициализация
      * просмотр списка демонов
      * просмотр списка запущенных демонов
@@ -33,5 +33,16 @@ abstract class Daemon {
 
     public function setModule($module) {
         $this->_module = $module;
+    }
+
+
+    public function setParams($params) {
+        $this->_params = $params;
+    }
+    /**
+     * Сколько копий дмено можно запусать одновременно
+     */
+    public function maxCountRun(){
+        return 4;
     }
 }

@@ -13,10 +13,7 @@ class sep_Keywords extends Model {
         'region_id',
         'set_id',
         'thematic_id',
-        'url_id',
-        'yandex',
-        'google',
-        'rambler'
+        'url_id'
     );
     /*
      * сделать еще чтото вроде $extFields - в нем будут хранится настройки полей, и отображения

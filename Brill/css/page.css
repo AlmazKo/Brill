@@ -556,7 +556,7 @@ text-shadow: 1px 1px 0 #FFFFFF;
     font-size: 1.4em;
     color: #000000;
     font-weight: normal;
-    text-shadow: 1px 1px 0 #EEEEEE;
+    text-shadow: 1px 1px 0 #EDEDED;
     font-family: georgia,"times new roman",times,serif;
 }
 
@@ -566,7 +566,8 @@ text-shadow: 1px 1px 0 #FFFFFF;
     font-size: 1.2em;
     margin: 30px 0;
     float:left;
-    text-shadow:1px 1px 0 #EEEEEE;
+    color: #222;
+    text-shadow:1px 1px 0 #EDEDED;
 }
 
 /** blockUI**/
@@ -589,7 +590,7 @@ text-shadow: 1px 1px 0 #FFFFFF;
     margin: 0;
     padding: 5px;
     text-align: left;
-    text-shadow: 1px 1px 0 #DDDDDD;
+    text-shadow: 1px 1px 0 #EDEDED;
 }
 
 

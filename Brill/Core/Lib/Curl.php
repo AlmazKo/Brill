@@ -27,7 +27,7 @@ class Curl {
         // массив заголовоков ответа
         $_aResponseHeaders,
         // кодировка ответа, если не указана - будет браться из заголовков ответа
-        $_responseCharset = 'cp1251', // can use UNKNOW, if unkonow encoding in response
+        $_responseCharset = 'cp1251', 
         $_responseMimeType = 'text/html',
         // Массив get-параметров для запроса
         $_aGet = array(),
@@ -41,7 +41,8 @@ class Curl {
         $_errors = array(),
         $_aResponseCookies = array(),
         $_responseLocation,
-        $_formEnctype = ConstCurl::FORM_ENCTYPE_APP;
+        $_formEnctype = ConstCurl::FORM_ENCTYPE_APP,
+        $_prepare = false;
 
     public function __construct() {
         $session = RegistrySession::instance();
@@ -150,7 +151,7 @@ class Curl {
      * @param array $array
      */
     function setPost (array $array) {
-        $this->_aPost = $this->_aPost + $array;
+        $this->_aPost = array_replace($this->_aPost, $array);
     }
 
     /**
@@ -166,7 +167,7 @@ class Curl {
      * @param array $array
      */
     function setGet(array $array) {
-        $this->_aGet = $this->_aGet + $array;
+        $this->_aGet = array_replace($this->_aGet, $array);
     }
 
     /**
@@ -231,26 +232,45 @@ class Curl {
         }
         $this->_formEnctype = $encType;
     }
-
+    
+    /**
+     * Производить конвертирование запроса в urlencode()
+     * @param string $encType
+     */
+    public function setPrepared($value = true) {
+        $this->_prepare = (bool) $value;
+    }
     /**
      * Формирует строку из get-параметров
      * Применяет к параметрам urldecode
      * например key1=123&key2=a%20b&key2
      * @return string
      */
-    protected function _preparedGet() {
-        return TFormat::prepareQueryString($this->_aGet);
+    protected function _preparedGet($prepare = true) {
+        $get = array();
+        foreach ($this->_aGet as $key => $value) {
+            if ($this->_prepare) {
+                $get[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
+            } else {
+                $get[] = $key . (($value === '') ? '=' : '=' . $value);
+            }
+        }
+        return implode('&' , $get);
     }
 
     /**
      * Формирует тело Post запроса
      */
-    protected function _preparePost() {
+    protected function _preparePost($prepare = true) {
         if ($this->getOpt(CURLOPT_POST)) {
             $post = array();
             if (ConstCurl::FORM_ENCTYPE_APP == $this->_formEnctype) {
                 foreach ($this->_aPost as $key => $value) {
-                    $post[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
+                    if ($this->_prepare) {
+                        $post[] = urlencode($key) . (($value === '') ? '=' : '=' . urlencode($value));
+                    } else {
+                        $post[] = $key . (($value === '') ? '=' : '=' . $value);
+                    }
                 }
                 $this->setOpt(CURLOPT_POSTFIELDS, implode('&' , $post));
             } else {
@@ -403,7 +423,7 @@ class Curl {
     protected function _exec() {
         $this->_preparedHeaders();
         curl_setopt_array($this->_ch, $this->_opt);
-   //     Log::dump($this->getOpts(true));
+     //   Log::dump($this->getOpts(true));
 
         $this->_responseRaw = curl_exec($this->_ch);
         $this->_responseLocation = null;
@@ -411,6 +431,8 @@ class Curl {
         $this->_errors = array();
         $this->getinfo();
 //Log::dump($this->getinfo());
+//Log::dump($this->_responseRaw);
+
         //сохраняем рефер
         
         if (!$this->getinfo('http_code')) {
@@ -443,7 +465,7 @@ class Curl {
         $sHeaders = preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $sHeaders);
         $rows = explode("\n", $sHeaders);
         foreach ($rows as $row) {
-            if(preg_match('/([a-zA-Z-]+): (.+)/', $row, $matches)){
+            if (preg_match('/([a-zA-Z-]+): (.+)/', $row, $matches)) {
                 $headerName = strtolower($matches[1]);
                 $headerValues = preg_split("/;\s*/", $matches[2]);
                 foreach($headerValues as $subValue) {

@@ -80,4 +80,8 @@ INNER JOIN st_Interfaces as i on (y.interface_id=i.id)";
 const STATS_CALLS_TODAY = "SELECT h.name as `host`, i.interface, it.count, it.last_date from st_InterfaceCountCallToday as it
 JOIN st_Hosts as h on (it.host_id=h.id)
 JOIN st_Interfaces as i on (it.interface_id=i.id)";
+
+const GET_ALL_ERRORS = "select * from `mErrors` order by id desc";
+
+const GET_ALL_RUNNER_DAEMONS = "SELECT * FROM `brill`.`st_RunnerDaemons` order by id desc";
 }

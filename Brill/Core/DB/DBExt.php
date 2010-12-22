@@ -27,6 +27,17 @@ class DBExt extends DB{
         return parent::$lnk->insert_id;
     }
 
+    /**
+     * Пытается вставит строки.
+     * @todo !! должно быть в транзакции
+     * @param string $sql
+     * @param int $count - сколько должно вставится
+     * @return bool
+     */
+    static function tryInsert($sql, $count = 1) {
+        parent::query($sql);
+        return parent::$lnk->affected_rows == $count;
+    }
    /*
      * Получает значения по полю
      * used for only unique fields

@@ -6,9 +6,6 @@ class aProjects extends Action{
     protected function configure() {
         require_once $this->module->pathModels . 'sep_Projects.php';
 
-        $sql = Stmt::prepare(se_Stmt::INTERFACES_USUAL);
-        $interfaces = new oList(DBExt::selectToList($sql));
-
         $fields['name'] = array('title' => 'Название', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['site'] = array('title' => 'Полное название сайта', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Адрес сайта, именно как раскручивается', 'error' => false, 'attr' => '', $checked = array());
         $fields['descr'] = array('title' => 'Описание', 'value' => '', 'type'=>'textarea', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
@@ -89,7 +86,7 @@ class aProjects extends Action{
         }
         $form = new oForm($this->fields, array('GET' => array('id' => $id)));
         $yaAccess = new sep_Projects();
-
+Log::dump($yaAccess);
         if ($yaAccess->getObject($id)) {
             if ($this->request->is('POST')) {
                 $form->fill($this->request->get('POST'));

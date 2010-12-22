@@ -8,42 +8,59 @@ require_once CORE_PATH . 'Daemons/Daemon.php';
 
 class Underworld {
 
+    public static function countRunningDaemons() {
+        return 0;
+    }
     /**
-     * Вызывать демона
+     * Вызвать демона
      * @param string $daemon
      * @return Daemon
      */
-    //public function summon($daemon = 'se_ParserYandexXml') {
-    public function summon($daemon = 'se_FullPagesYandex') {
-        $sep = '/';
-/*
- * module=se daemon=ParserYandexXml
- */
-        $module = 'SEParsing';
-        $modulePath = MODULES_PATH . 'SEParsing' . $sep . $module . '.php';
-        require_once $modulePath;
-        $module = new $module();
-        $module->configureDaemon();
-        $filePath = MODULES_PATH . 'SEParsing' . $sep . General::NAME_DIR_DAEMONS . $sep . $daemon . '.php';
-        if (file_exists($filePath)) {
+    public function summon() {
+        $request = RegistryRequest::instance();
+        
+        // временный костыль, а так все должнол получаться из консоли
+        $params = $_GET;
+        $nameDaemon = $params['name'];
+        unset($params['name']);
+        //-------------------
 
-            require_once $filePath;
-            
-            if (class_exists($daemon)) {
-                $daemon = new $daemon();
-                if (!is_subclass_of($daemon, 'Daemon')) {
-                    Log::warning($classAction . ' должен быть унаследован от Daemon');
-                }
-                $daemon->setModule($module);
-                return $daemon;
-            } else {
-                 Log::warning('Не найден класс '.$daemon);
-            }
-        } else {
-            Log::warning('Не найден файл: '.$filePath);
+        $module = $this->_loadModuleDaemon($nameDaemon);
+        $daemon = new $nameDaemon();
+
+        if (!is_subclass_of($daemon, 'Daemon')) {
+            Log::warning($nameDaemon . ' должен быть унаследован от  Daemon');
         }
-
+        $daemon->setModule($module);
+        $daemon->setParams($params);
+        return $daemon;
     }
 
     function  __construct() {}
+
+
+
+    /**
+     * Ищет по всем модуляем демона, если его находит подключает его файл и возвращает путь на модуль
+     * @param string $pathModule
+     */
+        private static function _loadModuleDaemon($nameDaemon) {
+        $dirsModules = scandir(MODULES_PATH);
+
+        foreach ($dirsModules as $nameModule) {
+            if ($nameModule != '.' && $nameModule != '..') {
+                $pathModule = MODULES_PATH . $nameModule . '/' . $nameModule . '.php';
+                $pathDaemon = MODULES_PATH . $nameModule . '/' . General::NAME_DIR_DAEMONS . '/' . $nameDaemon . '.php';
+                if (file_exists($pathModule) && file_exists($pathDaemon)) {
+                    require_once $pathModule;
+                    $module = call_user_func(array($nameModule, 'instance'));
+                    $module->configureDaemon();
+                    include_once $pathDaemon;
+                    return $module;
+                }
+            }
+        }
+
+        Log::warning('Не найден модуль для демона : '.$nameDaemon);
+    }
 }

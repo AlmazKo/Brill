@@ -13,8 +13,8 @@ class aErrors extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'list_html');
         }
-        $errors = new mErrors();
-        $tbl = new oTableExt(array($errors->getFields(), $errors->getArray()));
+        $sql = Stmt::prepare2(st_Stmt::GET_ALL_ERRORS);
+        $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->setNamesColumns(array('class'=>'Класс', 'descr'=> 'Сообщение'));
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);

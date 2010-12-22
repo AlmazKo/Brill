@@ -1,15 +1,15 @@
 <?php
 /**
- * Sites
- *
+ * st_Hosts
+ * сервисы, которые парсим
  */
-class sep_Sets extends Model {
+
+class st_RunnerDaemons extends Model {
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'id',
         'name',
         'date',
-        'project_id',
-        'search_type'
     );
 }
+

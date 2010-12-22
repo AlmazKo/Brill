@@ -15,7 +15,7 @@ interface IDB_Rotator{
 }
 */
 
-Class se_FullPagesYandex extends se_Parser
+Class se_FullPagesYandex extends se_YandexXml
 {
     const VERSION           = '0.2Light';    //Версия сего продукта
     const MAX_LINKS_YA      = 1000;     //Максимальное количество страниц отдаваемое яндексом
@@ -57,7 +57,7 @@ Class se_FullPagesYandex extends se_Parser
       * получает свободный IP
       */
     function getIp(){
-        return se_Lib::getIp();
+        return $this->getInterface();
     }
 
     //получает все url'ы
@@ -109,51 +109,39 @@ Class se_FullPagesYandex extends se_Parser
         return $xml_response;
     }
 
-    protected function getXMLRequest($dop, $page = 0){
-        $query = 'url:'.$this->site.'/'.$dop;
-        $data = '<?xml version="1.0" encoding="windows-1251"?>' . "\r\n" .
-                "<request>\r\n" .
-                "<query>$query</query>\r\n" .
-                "<page>$page</page>\r\n" .
-                "<groupings>\r\n" .
-                '<groupby attr="d" mode="deep" groups-on-page="' . self::GROUP_ON_PAGE .'" docs-in-group="1" />' . "\r\n" .
-                "</groupings>\r\n".
-                "</request>\r\n";
-        return  $data;
-    }
-
-    //Отправляет запрос и получает XML ответ у Яндекса
-    function requestYandex($dop, $page = 0){
-       if(self::DEBUG_LEVEL>=5)  echo 'Запрос к Яндексу: '.$this->site.'/'.$dop;
-        if($this->countRequest==self::MAX_COUNT_REQUEST && self::MAX_COUNT_REQUEST!=0) {
-
-          //  $this->__destruct(); //сработало ограничение на количество запросов
-            exit();
-        }
-        if(self::DEBUG_LEVEL>=3) echo ' [<b>'.$dop.'</b>, <i>'. $page.'</i>]->';
-        $ip=$this->getip();
-        if(self::DEBUG_LEVEL>=2) echo ' IP:'.$ip;
-        $request=$this->getXMLRequest($dop, $page);
-        $beginCurl=microtime(1);
-        if(!$this->ch){
-            $this->ch = curl_init ();
-            curl_setopt ($this->ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt ($this->ch, CURLOPT_TIMEOUT, 6000);
-            curl_setopt ($this->ch, CURLOPT_URL, 'http://xmlsearch.yandex.ru/xmlsearch?rd=0');
-            curl_setopt ($this->ch, CURLOPT_POST, 1);
-        }
-
-     //   curl_setopt ($this->ch, CURLOPT_INTERFACE, $ip);
-        curl_setopt ($this->ch, CURLOPT_POSTFIELDS, 'text='.$request);
-        $xml_response = curl_exec ($this->ch);
-
-        $this->countRequest++;
-
-        $this->dateCurl += microtime(1) - $beginCurl;
-
-        if(self::DEBUG_LEVEL>=6)  	echo '<pre>'. htmlspecialchars($xml_response).'</pre>';
-        return $xml_response;
-    }
+//    //Отправляет запрос и получает XML ответ у Яндекса
+//    function requestYandex($dop, $page = 0){
+//       if(self::DEBUG_LEVEL>=5)  echo 'Запрос к Яндексу: '.$this->site.'/'.$dop;
+//        if($this->countRequest==self::MAX_COUNT_REQUEST && self::MAX_COUNT_REQUEST!=0) {
+//
+//          //  $this->__destruct(); //сработало ограничение на количество запросов
+//            exit();
+//        }
+//        if(self::DEBUG_LEVEL>=3) echo ' [<b>'.$dop.'</b>, <i>'. $page.'</i>]->';
+//        $ip=$this->getip();
+//        if(self::DEBUG_LEVEL>=2) echo ' IP:'.$ip;
+//        $query = 'url:'.$this->site.'/'.$dop;
+//        $request=$this->getXMLRequest($query, $page);
+//        $beginCurl=microtime(1);
+//        if(!$this->ch){
+//            $this->ch = curl_init ();
+//            curl_setopt ($this->ch, CURLOPT_RETURNTRANSFER, 1);
+//            curl_setopt ($this->ch, CURLOPT_TIMEOUT, 6000);
+//            curl_setopt ($this->ch, CURLOPT_URL, 'http://xmlsearch.yandex.ru/xmlsearch?rd=0');
+//            curl_setopt ($this->ch, CURLOPT_POST, 1);
+//        }
+//
+//     //   curl_setopt ($this->ch, CURLOPT_INTERFACE, $ip);
+//        curl_setopt ($this->ch, CURLOPT_POSTFIELDS, 'text='.$request);
+//        $xml_response = curl_exec ($this->ch);
+//
+//        $this->countRequest++;
+//
+//        $this->dateCurl += microtime(1) - $beginCurl;
+//
+//        if(self::DEBUG_LEVEL>=6)  	echo '<pre>'. htmlspecialchars($xml_response).'</pre>';
+//        return $xml_response;
+//    }
 
     /*
      * Простой парсер, собирает у Яндекса все страницы.
@@ -171,7 +159,9 @@ Class se_FullPagesYandex extends se_Parser
           if($page == 0 && $xml_response){
 
 		  }else{
-            $xml_response=$this->requestYandex( $dop, $page);//отправляем запрос яндексу и получаем XML
+            $query = 'url:'.$this->site.'/'.$dop;
+            $request=$this->getXMLRequest($query, $page);
+            $xml_response=$this->requestYandex($request);//отправляем запрос яндексу и получаем XML
 		  }
            // if(!$xml_response)  break;
 
@@ -214,9 +204,33 @@ Class se_FullPagesYandex extends se_Parser
 
     // рекурсивный парсер
     function parse($dop='', $pcount = -1){
-        $xml_response=$this->requestYandex($dop);// получение XML
+        $query = 'url:'.$this->site.'/'.$dop . '*';
+        $request=$this->getXMLRequest($query);
+
+        $xml_response=$this->requestYandex($request);
+
+
+        $groups    = $xml_response->results->grouping->group;
+        $countYa = (int)$groups->doccount;
+        $i         = 0;
+        $ps = array();
+
+        Log::dump($xml_response->results->grouping);
+        foreach ($groups as $value) {
+//            $pos++;
+           $url = (string) $value->doc->url;
+           Log::dump($url);
+//            $parsedUrl = @parse_url($url);
+//            $ps[$pos]['site'] = $parsedUrl['host'];//
+//            $ps[$pos]['url'] = $url;
+//            $ps[$pos]['links_search'] = (string) $value->doc->properties->_PassagesType;//найдено по ссылке
+//            $positions[md5($url)] = $ps;
+        }
+
         Log::dump($xml_response);
         die('=-=--=');
+
+
         if(!$xml_response) return 0;
         $this->clearYaXml($xml_response);
         $countYa=$this->getCountYa($xml_response);//получаем количество страниц от яндекса !!! оптимизировать, сделать нормальный парсер ЯНдекса
@@ -296,10 +310,11 @@ Class se_FullPagesYandex extends se_Parser
         parent::start();
         $sql = Stmt::prepare(se_StmtDaemon::GET_PROJECT_SITES, array('limit' => 1));
         $site = Model::getObjectsFromSql('sep_Projects', $sql);
-        Log::dump($site[0]->toArray());
+        
         $this->site = $site[0]->site;
+        Log::dump($site[0]->toArray());
         if (!$site) {
-            die ();//'Закончились ключевики');
+            die ('--');//'Закончились ключевики');
         }
 	//	$this->unsetBlocksYndex();
 

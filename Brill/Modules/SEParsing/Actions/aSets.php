@@ -79,7 +79,7 @@ class aSets extends Action{
         }
         $sets = new sep_Sets();
         $tbl = new oTableExt(array($sets->getFields(), $sets->getArray()));
-        $tbl->viewColumns('name');
+        $tbl->viewColumns('name', 'search_type');
         $tbl->setNamesColumns(array('name'=>'Сет'));
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);

@@ -19,7 +19,7 @@ join Urls as u on (u.id=p.url_id)
 WHERE p.site_id=#site_id# and to_days(p.date) = to_days(now())";
 
 // получить все ключевики
-const ALL_KEYWORDS = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `sep_Keywords` as k
+const ALL_KEYWORDS = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, t.name as thematic, s.name as `set` FROM `sep_Keywords` as k
 left join `sep_Thematics` as t on (t.id=k.thematic_id)
 left join `sep_Sets` as s on (s.id=k.set_id)
 left join `sep_Urls` as u on (u.id=k.url_id)
@@ -31,15 +31,15 @@ left join `sep_Regions` as r on (r.id=k.region_id)
 where r.id=#r_id#";
 
 // получить все ключевики кокретной тематики
-const ALL_KEYWORDS_THEMATIC = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set` FROM `sep_Keywords` as k
+const ALL_KEYWORDS_THEMATIC = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name,t.name as thematic, s.name as `set` FROM `sep_Keywords` as k
 left join `sep_Thematics` as t on (t.id=k.thematic_id)
 left join `sep_Sets` as s on (s.id=k.set_id)
 where t.id=#t_id#";
 
-const ALL_KEYWORDS_SET = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, k.yandex, t.name as thematic, s.name as `set`, uk.url as k_url, uk.id as uk_id FROM `sep_Keywords` as k
+const ALL_KEYWORDS_SET = "SELECT k.id as id,  s.id as s_id, t.id as t_id, k.name, t.name as thematic, s.name as `set`, uk.url as k_url, uk.id as uk_id FROM `sep_Keywords` as k
 left join `sep_Sets` as s on (s.id=k.set_id)
 left join `sep_Thematics` as t on (t.id=k.thematic_id)
-left join `sep_UrlKeywords` as uk on (uk.id=k.url_id)
+left join `sep_Urls` as uk on (uk.id=k.url_id)
 where s.id=#s_id#";
 
 

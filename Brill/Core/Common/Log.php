@@ -39,7 +39,7 @@ class Log {
     public static function dump($obj, $color = '#00a0ff', $title = 'Dump') {
         $b = debug_backtrace();//$text = "\n" . $b[1]['file'] . ':' . $b[1]['line'];
         ob_start();
-        var_dump($obj);
+        var_export($obj);
         $descr = ob_get_clean ();
         $descr = TFormat::highlight($descr);
         echo self::inputLog($title, $descr, true, $color);

@@ -12,7 +12,7 @@ abstract class se_YandexXml extends se_Parser {
         //url yandex XML
         URL_YA_SEARCH = 'http://xmlsearch.yandex.ru/xmlsearch',
         //сколько попыток сделать один запрос
-        ATTEMPTS = 2;
+        ATTEMPTS = 0;
 
     protected
         $_lnk2;
@@ -26,13 +26,18 @@ abstract class se_YandexXml extends se_Parser {
         RegistryDb::instance()->setSettings(DB::DEFAULT_LNK, array('localhost', 'root', '12345', 'brill'));
         DB::connect();
         $this->curl->setResponseCharset(ENCODING_CODE, true);
+        $this->curl->setPrepared(false);
      }
 
     protected function _configure() {
     }
 
+    /**
+     * ПОлучить интерфейс для запроса
+     * @return array
+     */
     protected function getInterface() {
-        
+       return st_Lib::getInterface(st_Lib::INTERFACE_YA_XAML);
     }
 
     /**
@@ -40,13 +45,13 @@ abstract class se_YandexXml extends se_Parser {
      * @param page page
      * @return string
      */
-    protected function getXMLRequest($query, $page = 1){
-        $data = '<?xml version="1.0" encoding="windows-1251"?>' . "\r\n" .
+    final protected function getXMLRequest($query, $page = 0){
+        $data = '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" .
                 "<request>\r\n" .
-                "<query>$query</query>\r\n" .
+                "<query>".Xml::prepareTextForXml($query)."</query>\r\n" .
                 "<page>$page</page>\r\n" .
                 "<groupings>\r\n" .
-                '<groupby attr="d" mode="deep" groups-on-page="' . $this->_linksInPages .'" docs-in-group="1" />' . "\r\n" .
+                '<groupby attr="d" mode="flat" groups-on-page="' . $this->_linksInPages .'" docs-in-group="1" />' . "\r\n" .
                 "</groupings>\r\n".
                 "</request>\r\n";
         return  $data;
@@ -61,41 +66,36 @@ abstract class se_YandexXml extends se_Parser {
         return parse_url ($url, PHP_URL_PATH);
     }
 
-    protected function requestYandex($xmlQuery) {
-        $query = Xml::prepareTextForXml($xmlQuery);
+    final protected function requestYandex($xmlQuery) {
         $interface = $this->getInterface();
-        if ('127.0.0.1' != $interface && 'localhost' != strtolower($interface)) {
+        if (st_Lib::INTERFASE_LOCALHOST != $interface['interface']) {
             $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
         }
-        $this->curl->setPost(array('text' => $this->getXMLRequest($query, $page)));
+        $this->curl->setGet(array('user' => $interface['login'], 'key'  => $interface['xml_key']));
+        Log::dump($interface);
+        $this->curl->setPost(array('text' => $xmlQuery));
         $response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
-        Log::dump($response);
+
         $attempts = self::ATTEMPTS;
-        while(!$response && $attempts!=0){
+        while (self::ATTEMPTS && !$response && $attempts) {
+            //делаем попытку еще раз
             $interface = $this->getInterface();
-            if ('127.0.0.1' != $interface && 'localhost' != strtolower($interface)) {
+            if (st_Lib::INTERFASE_LOCALHOST != $interface['interface']) {
                 $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
             }
-            LogInDb::notice($this, 'Яндекс не ответил...');
-            Log::dump('Яндекс не ответил...');
-            sleep(1);
+            $this->curl->setGet(array('user' => $interface['login'], 'key'  => $interface['xml_key']));
+ 
             $response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
             $attempts--;
+            sleep(1);
         }
 
-        if(!$attempts){
-            LogInDb::notice($this, 'Error: Яндекс не ответил на данный запрос');
+        if(self::ATTEMPTS && !$attempts){
+            LogInDb::notice($this, 'Яндекс не ответил на данный запрос. Было сделано '.self::ATTEMPTS.' дополнительных попыток');
             return;
         }
 
-        $yaError = strstr($response, '<error code=');
-        if ($yaError) {
-            LogInDb::notice($this, 'Яндекс не ответил...'.$response);
-            var_dump ('Ошибка на Яндексе: '.$yaerror);
-            return;
-        }
-
-        $sxe = simplexml_load_string($xml_response)->response;
+        $sxe = simplexml_load_string($response)->response;
         if ($sxe->error) {
             LogInDb::notice($this, $sxe->error);
             die();

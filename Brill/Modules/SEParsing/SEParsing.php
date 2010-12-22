@@ -47,8 +47,10 @@ class SEParsing extends Modules {
      */
     function configureDaemon() {
         require_once $this->pathDaemons . 'se_Parser.php';
+        require_once $this->pathDaemons . 'se_YandexXml.php';
         require_once $this->pathDB . 'se_StmtDaemon.php';
-        require_once $this->pathLib . 'se_Lib.php';
+        include_once MODULES_PATH . 'Settings/' . General::NAME_DIR_DB. '/st_StmtDaemon.php';
+        include_once MODULES_PATH . 'Settings/' . General::NAME_DIR_LIB. '/st_Lib.php';
     }
 
     public  static function instance() {

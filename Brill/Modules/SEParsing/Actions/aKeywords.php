@@ -14,10 +14,11 @@ class aKeywords extends Action {
         require_once $this->module->pathModels . 'sep_Thematics.php';
         require_once $this->module->pathModels . 'sep_Sets.php';
         require_once $this->module->pathModels . 'sep_Regions.php';
-        require_once $this->module->pathModels . 'sep_UrlKeywords.php';
+        require_once $this->module->pathModels . 'sep_Urls.php';
         require_once $this->module->pathDB . 'se_Stmt.php';
 
-
+        $searchTypes = new oList(array('YaXml' => 'Яндекс. Стандартный.', 'YaXmlDot' => 'Яндекс. С точкой', 'Google' => 'Google. Стандартный.', 'Rambler' => 'Rambler. Стандартный.'));
+        $searchTypes->setMulti();
         $sqlT = Stmt::prepare(se_Stmt::ALL_THEMATICS, array (Stmt::ORDER => 'name'));
         $sqlR = Stmt::prepare2(se_Stmt::ALL_REGIONS, array(), array (Stmt::ORDER => 'sort'));
         $listThematics = new oList(DBExt::selectToList($sqlT));
@@ -27,6 +28,7 @@ class aKeywords extends Action {
         $fields['set'] = array('title' => 'Название сета', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['keywords'] = array('title' => 'Ключевик', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['url'] = array('title' => 'Url', 'value' => '', 'type'=>'text', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['search_type'] = array('title' => 'Тип', 'value' => '', 'data' => $searchTypes, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $this->fields = $fields;
 
 
@@ -111,7 +113,7 @@ class aKeywords extends Action {
         $this->context->set('table', $tbl);
         $tbl->viewColumns('name', 'pos', 'url', 'pos_dot', 'newCol');
         $tbl->setViewIterator(true);
-
+### $url = @iconv('cp1251', ENCODING_CODE, urldecode((string) $value->doc->url));
         $tbl->setNamesColumns(array(
             'name'=>'Сайт',
             'pos' =>'Позиция',
@@ -168,6 +170,7 @@ class aKeywords extends Action {
         $this->context->set('h1', 'Все ключевые слова');
         $this->context->set('title', 'Ключевики');
 
+
         $tbl->setNamesColumns(array(
             'name'=>'Ключевое слово',
             'yandex'=>'Яндекс',
@@ -213,7 +216,8 @@ class aKeywords extends Action {
     function act_MassAdd() {
         $this->context->set('h1', 'Добавление ключевых слов');
         $this->fields['keywords'] = array('title' => 'Ключевик(и)', 'value' => '', 'type'=>'textarea', 'required' => true, 'validator' => null, 'info'=>'Разделитель - новая строка.', 'error' => false, 'attr' => 'rows="10"', $checked = array());
-        $this->runAct('Add');
+        //халтурка или фича.. хз
+        $this->act_Add();
     }
 
     function act_Add() {
@@ -242,16 +246,18 @@ class aKeywords extends Action {
                     } else {
                         $set = new sep_Sets();
                         $set->name = trim($this->request->get('set'));
+                        $searchTypes = $form->getFieldValue('search_type');
+                        $set->search_type = implode(',', $searchTypes);
                         $set->save();
                         $k->set_id = $set->id;
                     }
                 }
                 if ($this->request->is('url') && trim($this->request->get('url'))) {
-                    $row = DBExt::getOneRow('sep_UrlKeywords', 'url', trim($this->request->get('url')));
+                    $row = DBExt::getOneRow('sep_Urls', 'url', trim($this->request->get('url')));
                     if (isset($row)) {
                         $k->url_id = $row['id'];
                     } else {
-                        $url = new sep_UrlKeywords();
+                        $url = new sep_Urls();
                         $url->url = trim($this->request->get('url'));
                         $url->save();
                         $k->url_id = $url->id;
