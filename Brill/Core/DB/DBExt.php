@@ -293,7 +293,7 @@ class DBExt extends DB{
                if (is_array($value)) {
                    $value = implode(',', $value);
                }
-               $newValues[] ='`'.$key.'` = ' . (is_string($value) ? "'".$value."'" : (string) $value);
+               $newValues[] ='`'.$key.'` = ' . (is_string($value) ? "'".addslashes($value)."'" : (string) $value);
            }
        }
        return implode($sep, $newValues);
@@ -308,11 +308,11 @@ class DBExt extends DB{
         $where = '';
         if (isset($field) && isset($value)) {
             if (is_array($value)) {
-                $sqlValue = ' IN (' . implode(',', $value) . ')';
+                $sqlValue = ' IN (' . implode(',', addslashes($value)) . ')';
             } else if (is_int($value)) {
                 $sqlValue = '='.$value;
             } else {
-                $sqlValue = "='$value'";
+                $sqlValue = "='".addslashes($value)."'";
             }
             $where = " where `$field`".$sqlValue;
         }

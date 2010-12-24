@@ -1,25 +1,39 @@
 <?php
 
 /**
- *  Класс для работы с ЯНдекс.XML
+ *  Абстрактный класс для работы с ЯНдекс.XML
  *
- * Парсит Yandex.Xml
  * @author almaz
  */
 abstract class se_YandexXml extends se_Parser {
     const
-        TBL_IP = 'z_routeip',
         //url yandex XML
         URL_YA_SEARCH = 'http://xmlsearch.yandex.ru/xmlsearch',
-        //сколько попыток сделать один запрос
-        ATTEMPTS = 0;
 
+        //количество попыток, производимых при неудачном ответе
+        ATTEMPTS = 0,
+
+        /*
+         * количество страниц, запрашиваемых у яндекса, на одной странице.
+         * диапозон значений: [20,...,100]
+         */
+        LINKS_IN_PAGE = 100,
+            
+        //Максимальное количество страниц отдаваемое яндексом;
+        MAX_LINKS_YA = 1000;
+    
     protected
         $_lnk2;
 
     protected
         $_depth = 1,
-        $_linksInPages = 100;
+        $_linksInPages,
+            
+        /*
+         * глубина запросов, вичисляется в завимости от $_linksInPages.
+         * дипазон: [1,...,50]
+         */
+        $_countPages;
 
     public function  __construct() {
         parent::__construct();
@@ -27,6 +41,12 @@ abstract class se_YandexXml extends se_Parser {
         DB::connect();
         $this->curl->setResponseCharset(ENCODING_CODE, true);
         $this->curl->setPrepared(false);
+        $this->curl->setGet(array('lr' => 213));
+
+        if (!$this->_linksInPages) {
+            $this->_linksInPages = self::LINKS_IN_PAGE;
+        }
+        $this->_countPages = ceil(self::MAX_LINKS_YA / $this->_linksInPages - 0.1);
      }
 
     protected function _configure() {
@@ -45,15 +65,16 @@ abstract class se_YandexXml extends se_Parser {
      * @param page page
      * @return string
      */
-    final protected function getXMLRequest($query, $page = 0){
+    final protected function getXMLRequest($query, $linksInPage = self::LINKS_IN_PAGE, $page = 0){
         $data = '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" .
                 "<request>\r\n" .
                 "<query>".Xml::prepareTextForXml($query)."</query>\r\n" .
                 "<page>$page</page>\r\n" .
                 "<groupings>\r\n" .
-                '<groupby attr="d" mode="flat" groups-on-page="' . $this->_linksInPages .'" docs-in-group="1" />' . "\r\n" .
+                '<groupby attr="d" mode="flat" groups-on-page="' . $this->_linksInPages .'"/>' . "\r\n" .
                 "</groupings>\r\n".
                 "</request>\r\n";
+   
         return  $data;
     }
 
@@ -72,7 +93,7 @@ abstract class se_YandexXml extends se_Parser {
             $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
         }
         $this->curl->setGet(array('user' => $interface['login'], 'key'  => $interface['xml_key']));
-        Log::dump($interface);
+     //   Log::dump($interface);
         $this->curl->setPost(array('text' => $xmlQuery));
         $response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
 

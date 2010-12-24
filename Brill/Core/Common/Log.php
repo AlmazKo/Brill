@@ -58,7 +58,7 @@ class Log {
      * Вывод ошибок, не влияющих на работу
      */
     public static function notice($text, $block = true) {
-        $type = self::$_types['notice'];
+    //    $type = self::$_types['notice'];
         //self::inputLog('Notice', $text, $block, '#FB0', 'error');
     }
 

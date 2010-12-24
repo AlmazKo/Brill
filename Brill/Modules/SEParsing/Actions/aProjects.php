@@ -5,7 +5,7 @@ class aProjects extends Action{
 
     protected function configure() {
         require_once $this->module->pathModels . 'sep_Projects.php';
-
+        require_once $this->module->pathModels . 'sep_Sites.php';
         $fields['name'] = array('title' => 'Название', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $fields['site'] = array('title' => 'Полное название сайта', 'value' => '', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'Адрес сайта, именно как раскручивается', 'error' => false, 'attr' => '', $checked = array());
         $fields['descr'] = array('title' => 'Описание', 'value' => '', 'type'=>'textarea', 'required' => false, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
@@ -57,7 +57,7 @@ class aProjects extends Action{
         $sql = Stmt::prepare(se_Stmt::GET_SETS_PROJECT, array('project_id' => $id, Stmt::ORDER => 'name'));
         $tbl = new oTable(DBExt::selectToTable($sql));
         $tbl->viewColumns('name', 'search_type');
-        $tbl->sort(Navigation::get('field'), Navigation::get('order'));
+        
         $tbl->setViewIterator(true);
         $tbl->setNamesColumns(array(
             'name'=>'Сет',
@@ -66,7 +66,11 @@ class aProjects extends Action{
         
         $tbl->addRulesView('name', '<a href="' . WEB_PREFIX . 'SEParsing/Keywords/?set_id=#id#" ajax="1">#name#</a>');
 
-        $tbl2 = $tbl;
+        $sql = Stmt::prepare2(se_Stmt::GET_URLS_PROJECT, array('project_id' => $id));
+
+        $tbl2 = new oTable(DBExt::selectToTable($sql));
+        $tbl2->setViewIterator();
+        $tbl2->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
         $this->context->set('tbl_pages', $tbl2);
         
@@ -123,6 +127,21 @@ Log::dump($yaAccess);
             if ($form->isComplited()) {
                 $yaAccess = new sep_Projects();
                 $yaAccess->fillObjectFromArray($form->getValues());
+
+
+
+                    $row = DBExt::getOneRow('sep_Sites', 'name', trim($this->request->get('site')));
+                    if (isset($row)) {
+                        $yaAccess->site_id = $row['id'];
+                    } else {
+                        $site = new sep_Sites();
+                        $site->name = trim($this->request->get('set'));
+                        $site->save();
+                        $yaAccess->site_id = $row['id'] = $site->id;
+                    }
+
+
+
                 $yaAccess->save();
                 $this->context->del('form');
 

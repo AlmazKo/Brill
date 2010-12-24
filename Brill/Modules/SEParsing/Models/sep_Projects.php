@@ -15,6 +15,7 @@ class sep_Projects extends Model {
         'descr',
         'status',
         'date_create',
+        'site_id'
     );
 }
 

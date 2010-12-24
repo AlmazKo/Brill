@@ -75,10 +75,10 @@ class Mimetypes {
         'video/x-ms-wmv' => "Windows Media Video; Documented in Microsoft KB 288102");
 
     private static $_vnd = array(
-        'application/vnd.oasis.opendocument.text' => "OpenDocument Text; Registered [10]",
-        'application/vnd.oasis.opendocument.spreadsheet' => "OpenDocument Spreadsheet; Registered [11]",
-        'application/vnd.oasis.opendocument.presentation' => "OpenDocument Presentation; Registered [12]",
-        'application/vnd.oasis.opendocument.graphics' => "OpenDocument Graphics; Registered [13]",
+        'application/vnd.oasis.opendocument.text' => "OpenDocument Text",
+        'application/vnd.oasis.opendocument.spreadsheet' => "OpenDocument Spreadsheet",
+        'application/vnd.oasis.opendocument.presentation' => "OpenDocument Presentation",
+        'application/vnd.oasis.opendocument.graphics' => "OpenDocument Graphics",
         'application/vnd.ms-excel' => "Microsoft Excel files",
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => "Microsoft Excel 2007 files",
         'application/vnd.ms-powerpoint' => "Microsoft Powerpoint files",
@@ -92,7 +92,7 @@ class Mimetypes {
         'application/x-dvi' => "device-independent document in DVI format",
         'application/x-latex' => "LaTeX files",
         'application/x-font-ttf' => "TrueType Font No registered MIME type, but this is the most commonly used",
-        'application/x-shockwave-flash' => "Adobe Flash files for example with the extension .swf; Documented in Adobe TechNote tn_4151 and Adobe TechNote tn_16509",
+        'application/x-shockwave-flash' => "Adobe Flash files",
         'application/x-stuffit' => "StuffIt archive files",
         'application/x-rar-compressed' => "RAR archive files",
         'application/x-tar' => "Tarball files");
@@ -123,6 +123,19 @@ class Mimetypes {
          } else {
              return false;
          }
+    }
+
+    /**
+     * Определяет является тип - web-страницей
+     * @param <type> $mimeType
+     * @return <type>
+     */
+    public static function isWebPage($mimeType) {
+        if (isset(self::$_text[$mimeType]) || in_array($mimeType, array('application/xhtml+xml', 'application/xml-dtd'))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

@@ -11,5 +11,7 @@ class sep_Urls extends Model {
         'url',
         'site_id',
         'date',
+        'mime_type',
+        'status'
     );
 }

@@ -110,6 +110,7 @@ abstract class Model {
         }
     }
 
+
     /**
      * Возвращает объект, как массив
      * @return array

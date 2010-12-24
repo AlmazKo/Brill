@@ -49,7 +49,6 @@ class se_ParserYandexXml extends se_YandexXml {
      * @return array (z_Seo, z_Seocomp)
      */
     private function parsingXml($response){
-
         $positions = array();
         $pos       = 0;
         $groups    = $response->results->grouping->group;

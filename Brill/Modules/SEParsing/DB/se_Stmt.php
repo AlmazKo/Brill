@@ -44,6 +44,8 @@ where s.id=#s_id#";
 
 
 const GET_SETS_PROJECT = "SELECT id, name, search_type FROM `sep_Sets` where project_id=#project_id#";
+const GET_URLS_PROJECT = "SELECT u.url,u.status,u.mime_type FROM `brill`.`sep_Urls` as u
+join brill.sep_Projects as p on (p.id=#project_id# and p.site_id=u.site_id);";
 
 
 const URLS_AND_POS_FOR_SET = "SELECT k.id AS k_id, k.name as k_name, st.id as set_id, s.id AS site_id, s.name, p.pos, u.url, p.pos_dot

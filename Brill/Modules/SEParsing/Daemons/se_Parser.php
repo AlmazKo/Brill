@@ -43,10 +43,10 @@ abstract class se_Parser extends Daemon
     }
 
     final protected function request(){
-        RunTimer::addPoint('Curl');
+     //   RunTimer::addPoint('Curl');
         curl_setopt_array($this->curl, $this->curl_opt);
         $response = curl_exec ($this->curl);
-        RunTimer::endPoint('Curl');
+    //    RunTimer::endPoint('Curl');
         return $response;
     }
 
@@ -55,7 +55,7 @@ abstract class se_Parser extends Daemon
     }
 
 
-    final function  __destruct() {
+    public function  __destruct() {
         if(isset($this->curl)) {
             $this->curl->close();
         }
