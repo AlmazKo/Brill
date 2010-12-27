@@ -86,7 +86,7 @@ Class se_FullPagesYandex extends se_YandexXml
         $gathered = 0;        //отладочная, количество пройденных страниц симплом
         $gatherWebPage = 0;    //отладочная, html страниц найденных симплом
         $this->countSimpleParser++;
- $i= 1;
+        $i = 1;
 
         
         for ($page = 0; $page < $depth; $page++)
@@ -98,9 +98,7 @@ Class se_FullPagesYandex extends se_YandexXml
                 $xmlResponse = $this->requestYandex($request);//отправляем запрос яндексу и получаем XML
                 $groups = $xmlResponse->results->grouping->group;
                 $urls = $this->_getUrls($groups);
-
-                        $countYa = (int)$xmlResponse->results->grouping->found[0];
-
+                $countYa = (int)$xmlResponse->results->grouping->found[0];
             }
            
             foreach($urls as $url => $info) {
@@ -108,7 +106,6 @@ Class se_FullPagesYandex extends se_YandexXml
                  $this->countGather++;
                  $gathered++;
                
-
                      $oUrl->getObjectField('url',$url);
                      if ($oUrl->isNull()) {
                          $oUrl->url = $url;
@@ -160,13 +157,13 @@ Class se_FullPagesYandex extends se_YandexXml
         }
         
         $request = $this->getXMLRequest($query);
-
+echo ' страниц: '.$request.'<br>';
         $xmlResponse = $this->requestYandex($request, $this->_linksInPages);
-
+log::dump($xmlResponse);
         $groups = $xmlResponse->results->grouping->group;
         $countYa = (int)$xmlResponse->results->grouping->found[0];
 
-if(self::DEBUG_LEVEL>=5) echo ' страниц: '.$countYa.'<br>';
+
         if (!$countYa) {
             return 0;// нет страниц
         }
@@ -175,7 +172,7 @@ if(self::DEBUG_LEVEL>=5) echo ' страниц: '.$countYa.'<br>';
             $this->globalCountYa = $countYa;
         }
         $urls = $this->_getUrls($groups);
-       // Log::dump($urls);
+        Log::dump($urls);
 
 
 
@@ -190,7 +187,9 @@ if(self::DEBUG_LEVEL>=5) echo ' страниц: '.$countYa.'<br>';
             // если количество страниц меньше 1000 - запускаем простой обработчик ссылок
             $depth = ceil($countYa/$this->_linksInPages-0.01); //  получаем количество страниц
             
-if(self::DEBUG_LEVEL>=2) echo '<br> <b>New Simple Parser</b>. links: '.$countYa.' pages:'.$depth.'<br>';
+
+      //  echo '<br> <b>New Simple Parser</b>. links: '.$countYa.' pages:'.$depth.'<br>';
+        if ($depth>10) $depth=10;
             return $this->simpleParser($dop, $depth, $countYa, $urls); // нашли узел с количеством ссылок <=1000, запускаем симпл
         }
 
@@ -252,23 +251,23 @@ if(self::DEBUG_LEVEL>=2) echo '<br> <b>New Simple Parser</b>. links: '.$countYa.
         do {
             $sql = Stmt::prepare(se_StmtDaemon::GET_PROJECT_FREE, array('limit' => 1, 'search_type' => 'YaXmlDot'));
             $project = DBExt::getOneRowSql($sql);
-            if (!$project) {die;
+            if (!$project) {
                 Log::warning('Закончились проекты');
             }
-            $sql = Stmt::prepare2(se_StmtDaemon::SET_PROJECT_SET, array('project_id' => $project['id'], 'search_type' => 'YaXmlDot'));
+            $sql = Stmt::prepare2(se_StmtDaemon::SET_PROJECT_SET, array('project_id' => $project['id'], 'search_type' => 'YaXmlDot', 'status' => 'Busy'));
 
         } while(!DBExt::tryInsert($sql));
 
         $oSite = new sep_Sites();
-        $oSite->getObjectField('name', $project['site']);
-
- 
+        $oSite->getObject($project['site_id']);
         $this->site = $oSite;
+
+
 
 
 	//	$this->unsetBlocksYndex();
 
-		$this->_countPages = ceil(self::MAX_LINKS_YA/$this->_linksInPages-0.01);
+	//	$this->_countPages = ceil(self::MAX_LINKS_YA/$this->_linksInPages-0.01);
         $this->first = true;
         
       //  Log::dump($this);
@@ -284,4 +283,3 @@ if(self::DEBUG_LEVEL>=2) echo '<br> <b>New Simple Parser</b>. links: '.$countYa.
 //$parser->start();
 
 ?>
-

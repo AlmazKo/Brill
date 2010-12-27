@@ -11,9 +11,7 @@ class sep_Keywords extends Model {
         'id',
         'name',
         'region_id',
-        'set_id',
         'thematic_id',
-        'url_id'
     );
     /*
      * сделать еще чтото вроде $extFields - в нем будут хранится настройки полей, и отображения

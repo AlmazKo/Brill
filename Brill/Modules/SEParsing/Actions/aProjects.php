@@ -90,7 +90,6 @@ class aProjects extends Action{
         }
         $form = new oForm($this->fields, array('GET' => array('id' => $id)));
         $yaAccess = new sep_Projects();
-Log::dump($yaAccess);
         if ($yaAccess->getObject($id)) {
             if ($this->request->is('POST')) {
                 $form->fill($this->request->get('POST'));
@@ -119,7 +118,6 @@ Log::dump($yaAccess);
             $this->_parent();
             $this->context->setTpl('content', 'edit_html');
         }
-
         $form = new oForm($this->fields);
         $this->context->set('form', $form);
         if ($this->request->is('POST')) {
@@ -135,7 +133,7 @@ Log::dump($yaAccess);
                         $yaAccess->site_id = $row['id'];
                     } else {
                         $site = new sep_Sites();
-                        $site->name = trim($this->request->get('set'));
+                        $site->name = trim($this->request->get('site'));
                         $site->save();
                         $yaAccess->site_id = $row['id'] = $site->id;
                     }

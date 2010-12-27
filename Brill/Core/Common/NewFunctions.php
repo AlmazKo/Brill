@@ -50,7 +50,11 @@ if (!function_exists('array_replace'))
   {
     $args = func_get_args();
     $count = func_num_args()-1;
+    foreach($array1 as $key => $val) {
+         $array[$key] = $array1[$key];
+    }
 
+/*
     for ($i = 0; $i < $count; ++$i) {
       if (is_array($args[$i])) {
         foreach ($args[$i] as $key => $val) {
@@ -66,7 +70,7 @@ if (!function_exists('array_replace'))
         return NULL;
       }
     }
-
+*/
     return $array;
   }
 } 

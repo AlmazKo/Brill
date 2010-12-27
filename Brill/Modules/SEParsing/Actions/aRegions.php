@@ -49,7 +49,7 @@ class aRegions extends Action{
         $this->context->set('h1', 'Редактирование региона', false);
         $id = (int)$this->request->get('id', 0);
         
-        $form = new oForm($this->fields, array('GET' => array('id' => $id)));
+        $form = new oForm($this->fields, array('id' => $id));
         $regions = new sep_Regions();
 
         if ($regions->getObject($id)) {
@@ -71,7 +71,7 @@ class aRegions extends Action{
                 $this->context->set('form', $form);
             }
         }
-        
+
     }
 
     function act_View () {

@@ -22,6 +22,7 @@ class aUsers extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'edit_html');
         }
+        $this->context->set('h1', 'Добавление нового пользователя');
         $this->fields['password']['required'] = true;
         $form = new oForm($this->fields);
         $this->context->set('form', $form);
@@ -29,7 +30,12 @@ class aUsers extends Action{
             $form->fill($this->request->get('POST'));
             if ($form->isComplited()) {
                 $user = new au_Users();
+
                 $user->fillObjectFromArray($form->getValues());
+                if ($user->getObjectField('login', $user->login) && !$user->isNew()) {
+                    $this->context->setError(new Error('Такой пользователь уже существует', Error::TYPE_NOTICE));
+                    return;
+                }
                 $user->password = md5($user->password);
                 $user->status = 'Active';
                 $user->save();
@@ -49,7 +55,7 @@ class aUsers extends Action{
                 $act->runAct();
             }
         }
-        $this->context->set('h1', 'Добавление нового пользователя');
+        
     }
 
 

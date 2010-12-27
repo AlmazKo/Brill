@@ -129,6 +129,7 @@ abstract class Model {
             $values = DBExt::getOneRow($this->_tblName, $field, $value);
             if (isset($values)) {
                 $this->initData($values);
+                return $this;
             } else {
                 return false;
                 #Log::warning('Не найдент объект ' . get_class($this) . ' с ключом ' . $this->_fields[0] . '=' . $valPk);

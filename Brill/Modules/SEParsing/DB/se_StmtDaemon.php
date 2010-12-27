@@ -15,7 +15,7 @@ const GET_INTERFACE_YANDEX_XML = "SELECT i.id, i.interface, ya.login, ya.xml_key
 LEFT JOIN st_Interfaces as i on (i.id=ya.interface_id)
 LEFT JOIN st_InterfaceCountCallToday as it on (it.interface_id=i.id)
 LEFT JOIN st_LimitsIpForHosts as L on (L.host_id=#host_id#)
-where it.count<L.every_day OR isnull(it.count)
+where (it.count < L.every_day OR isnull(it.count)) and ya.status = 'Active'
 order by it.count limit 1";
 
 const GET_INTERFACE_SIMPLE = "SELECT i.id, i.interface FROM  st_Interfaces as i
@@ -40,14 +40,16 @@ where  (sst.status='No' OR isnull(sst.status)) AND FIND_IN_SET('#search_type#', 
 
 const SET_USED_SET = "insert ignore into sep_StatusSetsSearchTypes set set_id=#set_id#, search_type='#search_type#', status = 'Busy'";
 
-const GET_PROJECT_FREE ="SELECT p.id, p.site FROM sep_Projects as p
+const GET_PROJECT_FREE ="SELECT p.id, p.site, p.site_id FROM sep_Projects as p
 left join sep_StatusProjectsSearchTypes as spt on (spt.project_id=p.id and spt.search_type='#search_type#')
 where  (spt.status='No' OR isnull(spt.status))";
 
 const SET_PROJECT_SET = "insert ignore into sep_StatusProjectsSearchTypes set project_id=#project_id#, search_type='#search_type#', status = '#status#'";
 
-const GET_KEYWORDS_SET = "SELECT k.id, k.name, k.region_id, uk.url FROM `sep_Keywords` as k
-left join sep_Urls as uk on (uk.id = k.url_id)
+const GET_KEYWORDS_SET = "SELECT k.id, k.name, k.region_id, uk.url from sep_SetsKeywords  as sk
+join sep_Keywords as k on (k.id=sk.keyword_id)
+join sep_Urls as uk on (uk.id = sk.url_id)
+join sep_Regions as r on (r.id = k.region_id)
 where set_id=#set_id#";
 
 const GET_SITE = "SELECT id FROM `sep_Sites` where name='#name#' limit 1";

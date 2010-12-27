@@ -32,7 +32,9 @@ class aYandexAccesses extends Action{
             'password' => 'Пароль',
             'xml_key' => 'Xml ключ',
             'interface' => 'Интерфейс',
+            'status' => 'Статус',
             ));
+        $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $tbl->addRulesView('password', '******');
         $tbl->setIsEdit(true);
         $tbl->setIsDel(true);

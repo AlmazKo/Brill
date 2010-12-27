@@ -7,6 +7,8 @@ class au_Stmt extends Stmt {
 // получить урлы и позиции для конкертного сайта
 const GET_USER = "SELECT * from au_Users where login = '#login#' and password='#password#' AND status='Active' limit 1";
 
+const IS_USER = "SELECT id from au_Users where login = '#login#' limit 1";
+
 // Получить группы пользователя
 const GET_GROUPS_USER = "SELECT g.id, g.name from au_Groups as g
 Join au_UsersGroups as ug on (ug.user_id=#user_id# and ug.group_id=g.id)";

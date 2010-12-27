@@ -39,16 +39,21 @@ final class RunTimer {
             return true;
         }
     }
-    
+
+    /**
+     * Останавливает все запущенные таймеры
+     * @return array - результат
+     */
     public static function destruct() {
         self::endPoint(self::$_nameGeneralTimer);
         $title = 'Timers:';
         $descr = '';
+        $timers = array();
         foreach (self::$_listTimers as $key => $value) {
            ##$descr .= '"' . $key . '": ' . TFormat::timer($value->getAllTime(true)) . "\n";
-            
-            Log::info($key, TFormat::timer($value->getAllTime(true)), true);
+            $timers[$key] = TFormat::timer($value->getAllTime(true));
+            Log::info($key, $timers[$key], true);
         }
-       
+        return $timers;
     }
 }

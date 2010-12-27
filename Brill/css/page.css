@@ -42,7 +42,7 @@ h1 {
 
 }
 #page_content {
-    padding: 5px 10px;
+    padding: 5px 10px 25px;
     vertical-align: top;
 }
 
@@ -236,10 +236,6 @@ form label {
     margin:5px 0;
 }
 
-#logs_bottom {
-    padding: 3px;
-    border-top:1px dotted #AAA;
-}
 
 #loading {
     position: absolute;
@@ -462,7 +458,7 @@ form p img {
 
 .first_col div i {
     font-size: 0.8em;
-    color: #eee;
+    color: #fff;
     text-shadow: 0 0 2px #444;
 }
 
@@ -604,4 +600,39 @@ text-shadow: 1px 1px 0 #FFFFFF;
 .yandex span {
     color:red;
     font-weight: normal !important;
+}
+
+#footer {
+    border-top:1px dotted #bbb;
+    position: fixed; /* Фиксированное положение */
+    left: 0; bottom: 0; /* Левый нижний угол */
+    padding: 0; /* Поля вокруг текста */
+    background: #eee; /* Цвет фона */
+    color: #999; /* Цвет текста */
+    width: 100%; /* Ширина слоя */
+    height: 18px;
+}
+
+#footer .info_product {
+    float: right;
+    text-align: left;
+    padding:1px 10px;
+    font-size: 0.85em;
+}
+
+
+#footer .view_debug {
+    float: left;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.debug_mini {
+    
+}
+
+.debug_full {
+    display: none;
+    overflow: auto;
+    height: 100%;
 }

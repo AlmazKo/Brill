@@ -18,8 +18,8 @@ protected
         if ($urlExt) {
             $urlExt = array('GET' => $urlExt);
         }
-        //$url = array_replace_recursive(array('GET' => array('ajax' => '1')), $urlExt);
-        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), array('GET' => array('id' => '6')));
+        $url = array_replace_recursive(array('GET' => array('ajax' => '1')), $urlExt);
+      //  $url = array_replace_recursive(array('GET' => array('ajax' => '1')), array('GET' => array('id' => '6')));
         $this->action = Routing::constructUrl($url);
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););

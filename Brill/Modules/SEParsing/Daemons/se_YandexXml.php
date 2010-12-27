@@ -74,7 +74,6 @@ abstract class se_YandexXml extends se_Parser {
                 '<groupby attr="d" mode="flat" groups-on-page="' . $this->_linksInPages .'"/>' . "\r\n" .
                 "</groupings>\r\n".
                 "</request>\r\n";
-   
         return  $data;
     }
 
@@ -90,10 +89,10 @@ abstract class se_YandexXml extends se_Parser {
     final protected function requestYandex($xmlQuery) {
         $interface = $this->getInterface();
         if (st_Lib::INTERFASE_LOCALHOST != $interface['interface']) {
-            $this->curl->setOpt(CURLOPT_INTERFACE, $interface);
+            $this->curl->setOpt(CURLOPT_INTERFACE, $interface['interface']);
         }
         $this->curl->setGet(array('user' => $interface['login'], 'key'  => $interface['xml_key']));
-     //   Log::dump($interface);
+
         $this->curl->setPost(array('text' => $xmlQuery));
         $response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
 
@@ -115,7 +114,6 @@ abstract class se_YandexXml extends se_Parser {
             LogInDb::notice($this, 'Яндекс не ответил на данный запрос. Было сделано '.self::ATTEMPTS.' дополнительных попыток');
             return;
         }
-
         $sxe = simplexml_load_string($response)->response;
         if ($sxe->error) {
             LogInDb::notice($this, $sxe->error);

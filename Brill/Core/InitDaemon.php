@@ -31,7 +31,7 @@ require_once CORE_PATH . 'Common/StringUtf8.php';
 require_once CORE_PATH . 'Common/Log.php';
 require_once CORE_PATH . 'Common/TFormat.php';
 
-Log::setLevel(1);
+Log::setLevel(0);
 //$timer = new RunTimer();
 require_once CORE_PATH . 'Underworld.php';
 require_once CORE_PATH . 'Modules.php';

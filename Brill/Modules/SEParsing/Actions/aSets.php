@@ -93,7 +93,7 @@ class aSets extends Action{
 
     function act_Del () {
         $id = (int)$this->request->get('id', 0);
-        $sql = Stmt::prepare(se_Stmt::ALL_KEYWORDS_SET, array('s_id' => $id, Stmt::LIMIT => 1));
+        $sql = Stmt::prepare(se_Stmt::IS_KEYWORDS_SET, array('set_id' => $id, Stmt::LIMIT => 1));
         if (DBExt::isData($sql)) {
             $this->context->setError(new Error('Нельзя удалить сет пока в нем есть ключевики', Error::TYPE_NOTICE));
         } else {
@@ -108,6 +108,7 @@ class aSets extends Action{
         $act = $actR->getInternalAction($iRoute);
         $act->runAct();
     }
+    
     function _parent(InternalRoute $iRoute = null) {
         if (!$iRoute) {
             $iRoute = new InternalRoute();

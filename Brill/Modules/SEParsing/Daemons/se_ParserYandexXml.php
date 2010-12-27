@@ -106,7 +106,8 @@ class se_ParserYandexXml extends se_YandexXml {
             $sql = Stmt::prepare(se_StmtDaemon::GET_FREE_SET, array('limit' => 1, 'search_type' => 'YaXml'));
             $set = DBExt::getOneRowSql($sql);
             if (!$set) {
-                Log::warning('Закончились свободные сеты');
+                return;
+                //Log::warning('Все сеты уже отработали');
             }
             $sql = Stmt::prepare2(se_StmtDaemon::SET_USED_SET, array('set_id' => $set['id'], 'search_type' => 'YaXml'));
         } while(!DBExt::tryInsert($sql));
@@ -115,6 +116,7 @@ class se_ParserYandexXml extends se_YandexXml {
         $keywords = DBExt::selectToArray($sql);
 
         if (!$keywords) {
+            return;
             Log::warning('Не найдены ключевики у сета');
         }
         
@@ -123,7 +125,6 @@ class se_ParserYandexXml extends se_YandexXml {
             $parseKw = $this->parsing($kw);
             $p = new sep_Positions();
             foreach($parseKw as $pos => $info) {
-                Log::dump($info);
                 $sql = Stmt::prepare2(se_StmtDaemon::GET_SITE, array('name' => $info['site']));
                 $aSite = DBExt::getOneRowSql($sql);
                 if (!$aSite) {
@@ -141,7 +142,7 @@ class se_ParserYandexXml extends se_YandexXml {
                 if (!$aUrl) {
                     $url = new sep_Urls();
                     $url->url = $info['url'];
-                    $url->site_id = $site->id;
+                    $url->site_id = $siteId;
                     $url->save();
                     $urlId = $url->id;
                 } else {

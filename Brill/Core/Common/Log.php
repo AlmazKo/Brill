@@ -6,11 +6,18 @@
  */
 
 class Log {
-    private static $_debugLevel = null;
-    private static $_screen = false;
-    private static $_file = false;
-    private static $aLog = array();
-    private static $i = 0;
+    const TIMERS = '__timers__';
+    private static 
+        $_debugLevel = null,
+        $_screen = false,
+        $_file = false,
+        $aLog = array(),
+        $i = 0;
+
+    /**
+     * Задать уровень логирования
+     * @param int $num
+     */
     public static function setLevel($num) {
         if (self::$_debugLevel === null) {
             if ($num){
@@ -37,12 +44,14 @@ class Log {
      * @param string $color
      */
     public static function dump($obj, $color = '#00a0ff', $title = 'Dump') {
-        $b = debug_backtrace();//$text = "\n" . $b[1]['file'] . ':' . $b[1]['line'];
-        ob_start();
-        var_export($obj);
-        $descr = ob_get_clean ();
-        $descr = TFormat::highlight($descr);
-        echo self::inputLog($title, $descr, true, $color);
+        if (self::$_screen) {
+            $b = debug_backtrace();//$text = "\n" . $b[1]['file'] . ':' . $b[1]['line'];
+            ob_start();
+            var_export($obj);
+            $descr = ob_get_clean ();
+            $descr = TFormat::highlight($descr);
+            echo TFormat::htmlMessageLog($title, $descr, true, $color);
+        }
     }
 
     /**
@@ -109,5 +118,9 @@ class Log {
             $html .= str_pad($key, 1, '.', STR_PAD_LEFT) .' - '. $value;
         }
         return $html;
+     }
+     
+     public static function isView() {
+         return self::$_screen;
      }
 }

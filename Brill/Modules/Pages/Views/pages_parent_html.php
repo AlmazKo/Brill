@@ -49,7 +49,7 @@
             </li>
 
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Sets/">Сеты</a>
-                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Sets/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
+                <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Keywords/massAdd/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
             </li>
             <li class="yes"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/">Тематики</a>
                 <b class="opt"><a href="<?=WEB_PREFIX?>SEParsing/Thematics/add/"><img src="<?=WEB_PREFIX?>Brill/img/add.png" /></a></b>
@@ -110,9 +110,14 @@
                <?php include ($t->getTpl('content'))?>
              </td>
              </tr>
-         <tr><td colspan="3" id="logs_bottom"><?=Log::viewLog()?><br />This product includes PHP software, freely available from http://www.php.net/software/</td></tr>
     </table>
-
+    <div id="footer">
+        <span class="view_debug">Подробнее &raquo;</span>
+        <span class="info_product">This product includes PHP software, freely available from http://www.php.net/software/</span>
+        <? if (Log::isView()) : ?>
+            <div class="debug_full"><?=Log::viewLog()?></div>
+        <? endif ?>
+    </div>
 <script type="text/javascript">
 
     function loadBlock (block, url) {
@@ -208,6 +213,26 @@ $.blockUI.defaults.overlayCSS.backgroundColor = '#ff0';
 //        $(this).css('opacity', 0.5);
 //    });
 
+
+    $('#footer .view_debug').hover(function(e) {
+        $(this).css({'color':'red'});
+    },function() {
+        $(this).css({'color':'#999'});
+    });
+
+$('#footer .view_debug').click(function(){
+    if ($('.debug_full').css('display') == 'block') {
+        $('#footer').height(18);
+        $('.debug_full').hide();
+        $(this).html('Подробнее &raquo;');
+    } else {
+        $('#footer').height(300);
+        $('.debug_full').show();
+        $(this).html('&laquo; свернуть');
+    }
+
+    
+});
     $('li .yes').hover(function(e) {
         $(this).css({'color':'red'});
         $(this).children('b').css({'display': 'inline'});

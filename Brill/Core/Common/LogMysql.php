@@ -7,7 +7,7 @@
 require_once 'Log.php';
 class LogMysql extends Log{
     public static function query($query, $time) {
-        //self::inputLog($time, $query, false, "#82F");
+        self::inputLog($time, $query, false, "#82F");
     }
 
     public static function errorQuery($query) {
