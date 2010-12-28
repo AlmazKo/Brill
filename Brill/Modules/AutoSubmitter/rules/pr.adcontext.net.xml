@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Press_Release.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : Almazko
+    Description:
+        Purpose of the document follows.
+-->
+
+<root host="http://pr.adcontext.net" encoding='utf8' referer="">
+    <rule url="http://pr.adcontext.net/add/pr" isajax="false" enctype='multipart/form-data'>
+        <before>
+            <action type="request" url='http://inthepress.ru/add_relize' />
+            <action type="parseform" name_form="node-form" name='form_token' for='form_token' />
+        </before>
+        <headers></headers>
+        <get></get>
+        <post>
+            
+            <field name='title' type='text' required='true' form='true' var='title' source='title' title='Заголовок' info='ИСПОЛЬЗОВАНИЕ ТОЛЬКО ЗАГЛАВНЫХ БУКВ НЕ РАЗРЕШЕНО !' />
+            <field name='taxonomy[2][]' type='select' form='false' title='Пресс-релизы' info='Разместить пресс-релиз в соответствующих категориях (не больше 3-х, через клавишу Ctrl)'>1</field>
+            <field name='taxonomy[28]' type='select' form='false' title='Регион' info='Регион, к которому относится пресс-релиз.'>1</field>
+            <field name='body' type='textarea' required='true' form='true' var='release' source='release' title='Текст' info='Cтруктура: 1) Когда? 2) Где? 3) Кто? 4) Что? 5) Почем? 6) Как? 7) Контакт'  attr='rows=12'/>
+            <field name='form_id' type='text' required='true' form='false'>page_node_form</field>
+            <field name='attach-url' type='text' required='true' form='false'>http://pr.adcontext.net/upload/js</field>
+            <field name='changed' type='text' required='true' form='false'></field>
+            <field name='form_token' type='text' required='true' form='false' var='form_token'></field>
+            <field name='vid' type='text' required='true' form='false'></field>
+            <field name='op' type='text' required='true' form='false'>Отправить</field>
+
+       </post>
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+               Пресс-релиз успешно добавлен
+            </action>
+        </after>
+    </rule>
+</root>

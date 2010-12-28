@@ -108,25 +108,56 @@ class as_Strategy {
         $this->_ruleId;
         $before = $this->mapper->getBeforeActions();
         if ($before) {
-            foreach($before as $action) {
-             if ('request' == (string)$action['type']) {
-                     $this->_curl->requestGet((string)$action['url']);
-                     if ($this->_curl->getErrors()) {
-                         return new Error('Не удалось выполнить запрос к серверу');
-                     }
-                }
-                if ('download' == (string)$action['type']) {
-                    $url = (string)$action['url'];
-                    $this->_curl->downloadFile(
-                        $url,
-                        DIR_PATH . '/img/downloads/captcha/'.$this->_site->host . '.gif');
-                    if (!$this->_curl->getErrors()) {
-                        if ($this->_userForm->isField((string)$action['for'])) {
-                            $this->_userForm->mergeField('captcha', array('src' => WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif'));
+            foreach($before as $action) { 
+                switch((string)$action['type']) {
+                    case 'request':
+                        $this->_curl->requestGet((string)$action['url']);
+                       
+                        if ($this->_curl->getErrors()) {
+                            return new Error('Не удалось выполнить запрос к серверу');
                         }
-                    } else {
-                        return new Error('Не удалось скачать каптчу с сервера');
-                    }
+                        break;
+
+                    case 'download':
+                        $url = (string)$action['url'];
+                        $this->_curl->downloadFile(
+                            $url,
+                            DIR_PATH . '/img/downloads/captcha/'.$this->_site->host . '.gif');
+                        if (!$this->_curl->getErrors()) {
+                            if ($this->_userForm->isField((string)$action['for'])) {
+                                $this->_userForm->mergeField('captcha', array('src' => WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif'));
+                            }
+                        } else {
+                            return new Error('Не удалось скачать каптчу с сервера');
+                        }
+                        break;
+
+                    case 'parseform':
+                        $charset = $this->_curl->getCharsetBody();
+                        $html = $this->_curl->getResponseBody();
+                        if (ENCODING_CODE != $charset) {
+                            //$html = @iconv(ENCODING_CODE, $charset . '//IGNORE',  $this->_curl->getResponseBody());
+                        }
+                        
+                        $dom = new DOMDocument('1.0', ENCODING_CODE);
+
+                        $dom->preserveWhiteSpace = false;
+                        libxml_use_internal_errors(TRUE);
+                        $dom->loadHTML($html);
+                        libxml_clear_errors();
+                        $xpath = new DOMXpath($dom);
+
+                       // $doc->loadHTML('<?xml encoding="UTF-8">' . $this->_curl->getResponseBody());
+
+//                        // dirty fix
+//                        foreach ($doc->childNodes as $item)
+//                            if ($item->nodeType == XML_PI_NODE)
+//                                $doc->removeChild($item); // remove hack
+//                        $doc->encoding = 'UTF-8'; // insert proper
+
+                       // $d= DOMDocument::loadHTML($this->_curl->getResponseBody());
+                        Log::dump($xpath);
+                        break;
                 }
             }
         }

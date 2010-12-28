@@ -10,6 +10,7 @@
     <rule url="http://www.atrex.ru/press/add.html" isajax="false" enctype='multipart/form-data'>
         <before>
             <action type="request" url='http://www.atrex.ru/press/add.html' />
+            <action type="parseform" name='category' for='category' />
         </before>
         <headers></headers>
         <get></get>

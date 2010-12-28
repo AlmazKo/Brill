@@ -28,6 +28,8 @@ class Curl {
         $_aResponseHeaders,
         // кодировка ответа, если не указана - будет браться из заголовков ответа
         $_responseCharset = 'cp1251', 
+        // кодировка тела, после всех манипуляций
+        $_responseBodyCharset = ENCODING_CODE,
         $_responseMimeType = 'text/html',
         // Массив get-параметров для запроса
         $_aGet = array(),
@@ -42,7 +44,9 @@ class Curl {
         $_aResponseCookies = array(),
         $_responseLocation,
         $_formEnctype = ConstCurl::FORM_ENCTYPE_APP,
-        $_prepare = false;
+        $_prepare = false,
+        $_responseMyCharset,
+        $_responseMyCharsetForcibly;
 
     public function __construct() {
         $session = RegistrySession::instance();
@@ -381,6 +385,9 @@ class Curl {
         return $this->_errors;
     }
 
+    public function getCharsetBody() {
+        return $this->_responseBodyCharset;
+    }
     /**
      * Узнать если такое с-во в опциях курла
      * @param string $name название опции
@@ -530,8 +537,16 @@ class Curl {
         }
         if (!$this->isOpt(CURLOPT_NOBODY)) {
             $this->_responseBody = substr($this->_responseRaw, $this->_info['header_size']);
-            if ($convert && $this->_responseCharset && ENCODING_CODE != $this->_responseCharset) { echo' NO!!!!!'.$this->_responseCharset;
-                $this->_responseBody = @iconv($this->_responseCharset, ENCODING_CODE, $this->_responseBody);
+            if ($this->_responseMyCharsetForcibly) {
+                $charset = $this->_responseMyCharset;
+            } else if (!$this->_responseCharset && $this->_responseMyCharset) {
+                $charset = $this->_responseMyCharset;
+            } else {
+                $charset = $this->_responseCharset;
+            }
+            $this->_responseBodyCharset = $charset;
+            if ($convert && $charset && ENCODING_CODE != $charset) { echo' NO!!!!!'.$charset;
+                $this->_responseBody = @iconv($charset, ENCODING_CODE, $this->_responseBody);
             }
         }
         $this->_responseRaw = null;
@@ -562,8 +577,8 @@ class Curl {
      */
 
     public function setResponseCharset($charset, $forcibly = false) {
-        $this->_responseCharset = $charset;
-        $thos->_responseEncodingForcibly = $forcibly;
+        $this->_responseMyCharset = $charset;
+        $thos->_responseMyCharsetForcibly = $forcibly;
     }
 
 
