@@ -136,28 +136,13 @@ class as_Strategy {
                         $charset = $this->_curl->getCharsetBody();
                         $html = $this->_curl->getResponseBody();
                         if (ENCODING_CODE != $charset) {
-                            //$html = @iconv(ENCODING_CODE, $charset . '//IGNORE',  $this->_curl->getResponseBody());
+                           ///$html = @iconv(ENCODING_CODE, $charset . '//IGNORE',  $this->_curl->getResponseBody());
                         }
                         
-                        $dom = new DOMDocument('1.0', ENCODING_CODE);
-
-                        $dom->preserveWhiteSpace = false;
-                        libxml_use_internal_errors(TRUE);
-                        $dom->loadHTML($html);
-                        libxml_clear_errors();
-                        $xpath = new DOMXpath($dom);
-
-                       // $doc->loadHTML('<?xml encoding="UTF-8">' . $this->_curl->getResponseBody());
-
-//                        // dirty fix
-//                        foreach ($doc->childNodes as $item)
-//                            if ($item->nodeType == XML_PI_NODE)
-//                                $doc->removeChild($item); // remove hack
-//                        $doc->encoding = 'UTF-8'; // insert proper
-
-                       // $d= DOMDocument::loadHTML($this->_curl->getResponseBody());
-                        Log::dump($xpath);
-                        break;
+                       $dom = new DomExt($html);
+                       $ff = $dom->parseForm($html);
+                       Log::dump($ff);
+                    break;
                 }
             }
         }

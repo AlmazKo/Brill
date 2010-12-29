@@ -4,8 +4,7 @@
  */
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
+ini_set('display_errors', 'On');
 define  ('ENCODING_CODE', 'utf-8');
 header('Content-type: text/html; charset=' . ENCODING_CODE);
 
@@ -46,6 +45,7 @@ require_once CORE_PATH . 'Models/Model.php';
 require_once CORE_PATH . 'Views/View.php';
 require_once CORE_PATH . 'Lib/Lib.php';
 require_once CORE_PATH . 'Lib/Curl.php';
+require_once CORE_PATH . 'Lib/DomExt.php';
 require_once CORE_PATH . 'Lang/ru/texts.php';
 
 require CORE_PATH . 'ActionResolver.php';

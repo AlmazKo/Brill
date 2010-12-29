@@ -1,20 +1,15 @@
 <?php
 /*
- * ПОдключение необходимых файлов и общая настройка
+ * ПОдключение необходимых файлов для демона и общая настройка
  */
 
-/*
- * TODO Вынести в ядро, но чтобы пути у констант не переломались
- */
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+define ('ENCODING_CODE', 'utf-8');
 
 header('Content-type: text/html; charset=utf-8');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-define  ('ENCODING_CODE', 'utf-8');
 
-@ini_set ('pcre.backtrack_limit', '5000000');
-@ini_set('max_execution_time', 0);
-@ini_set('max_input_time', 0);
+
 @set_time_limit(0);
 
 define ('DIR_PATH', str_replace("\\", "/", realpath (dirname (__FILE__) .'/..')));
@@ -45,6 +40,7 @@ require_once CORE_PATH . 'Common/LogInDb.php';
 require_once CORE_PATH . 'Models/Model.php';
 require_once CORE_PATH . 'Lib/Lib.php';
 require_once CORE_PATH . 'Lib/Xml.php';
+require_once CORE_PATH . 'Lib/DomExt.php';
 require_once CORE_PATH . 'DB/Stmt.php';
 require_once CORE_PATH . 'Lib/Curl.php';
 require_once CORE_PATH . 'Lang/ru/texts.php';
