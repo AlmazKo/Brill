@@ -2,14 +2,31 @@
 /* 
  * Настройки текущего проекта
  */
-// не забываем поправить .htaccess
+
+/*
+ * Добавочный адрес сайта.
+ * Если сайт лежит в корне то должн быть просто '/'
+ * Обязательно надо поправить эти пути в .htaccess
+ */
 define ('WEB_PREFIX', '/ba/');
+
+/*
+ * Уровень логирования.
+ * 0 - отменяет весь вывод.
+ * 1 - все ошибки/логи выводятся на экране.
+ * 2 - все пишется в файл.
+ * 3 - на экран и в файлы
+ */
 Log::setLevel(1);
-//Установка дефолтного модуля
+
+//Дефолтный модуль
 General::$defaultModule = 'Pages';
 
-RegistryDb::instance()->setSettings(DB::DEFAULT_LNK, array('localhost', 'root', '12345', 'brill'));
-DB::connect();
+//Дефолтный родительский модуль
+General::$defaultParentModule = 'Pages';
 
-
-#DB::query("");
+/*
+ * Насройки соединения с базой данных.
+ * хост, логин, пароль, база
+ */
+RegistryDb::instance()->createConnect(array('localhost', 'root', '12345', 'brill'));

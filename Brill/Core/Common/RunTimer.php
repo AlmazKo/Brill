@@ -3,7 +3,6 @@
  * RunTimer
  * Фабрика таймеров, должна быть вызвана, чтобы потом сработал деструктор
  */
-include 'Timer.php';
 
 final class RunTimer {
     private static $_nameGeneralTimer;
@@ -18,13 +17,16 @@ final class RunTimer {
     function  __destruct() {
        # self::destruct();
     }
+    
     //задать точку для таймера
     public static function addPoint($nameTimer) {
         self::$_listTimers[$nameTimer]->addPoint();
     }
+
     //возвратить отработанное время от точки до точки
     public static function endPoint($nameTimer){
-        return TFormat::timer(self::$_listTimers[$nameTimer]->endPoint());
+       // return TFormat::timer(self::$_listTimers[$nameTimer]->endPoint());
+        return self::$_listTimers[$nameTimer]->endPoint();
     }
 
     /**
@@ -46,8 +48,6 @@ final class RunTimer {
      */
     public static function destruct() {
         self::endPoint(self::$_nameGeneralTimer);
-        $title = 'Timers:';
-        $descr = '';
         $timers = array();
         foreach (self::$_listTimers as $key => $value) {
            ##$descr .= '"' . $key . '": ' . TFormat::timer($value->getAllTime(true)) . "\n";

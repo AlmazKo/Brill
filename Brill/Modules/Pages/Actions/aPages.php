@@ -1,9 +1,5 @@
 <?php
 /**
- * Subscribe
- *
- * Экшен занимающийся рассылкой
- *
  * @author almaz
  */
 
@@ -22,7 +18,6 @@ class aPages extends Action {
      * Основаная вьюшка
      */
     public function act_View() {
-
         $urlLogout = Routing::constructUrl(array('module' => 'Auth','action' => 'Auth', 'act' => 'logout'), false);
         $userInfo = $this->session->get('userInfo');
         $aGroups = array();
@@ -36,6 +31,7 @@ class aPages extends Action {
         $this->context->set('title', '');
         $this->context->set('urlLogout', $urlLogout);
         $this->context->setTpl('user_block', 'user_block', 'Pages');
+        $this->context->setTpl('block_menu', 'block_menu', 'Pages');
 
         $page = new mPages();
         if ($this->route->nav && isset($this->route->nav['id'])) {

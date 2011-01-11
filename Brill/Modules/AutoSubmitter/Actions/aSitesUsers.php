@@ -4,7 +4,7 @@
  *
  * @author almaz
  */
-class aSites extends Action {
+class aSitesUsers extends Action {
     protected $defaultAct = 'List';
 
     protected function configure() {
@@ -19,21 +19,22 @@ class aSites extends Action {
      */
     public function act_List() {
         if ($this->request->isAjax()) {
-           $this->context->setTopTpl('sites_html');
+           $this->context->setTopTpl('html_list');
         } else {
             $this->_parent();
-            $this->context->setTpl('content', 'sites_html');
+            $this->context->setTpl('content', 'html_list');
         }
 
         $sql = Stmt::prepare2(au_Stmt::GET_SITES_USERS_USER, array ('user_id' => $this->userInfo['user']['id']));
         $tbl = new oTable(DBExt::selectToTable($sql));
 
-        $tbl->viewColumns('host');
         $tbl->setIsDel();
         $tbl->setIsEdit();
         $tbl->setNamesColumns(array('host'=>'Сайт'));
+        $tbl->addRulesView('password', '******');
         $tbl->sort(Navigation::get('field'), Navigation::get('order'));
         $this->context->set('tbl', $tbl);
+        $this->context->set('h1', 'Мои сайты');
     }
 
 

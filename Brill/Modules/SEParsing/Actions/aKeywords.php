@@ -293,8 +293,6 @@ class aKeywords extends Action {
 
                 if ($this->request->is('thematics')) {
                     $thematic = new sep_Thematics((int)$this->request->get('thematics'));
-                    //$k->thematic_id = $thematic->id;
-                    //return new Error('ипать');
                 }
 
                 if ($this->request->is('set') && trim($this->request->get('set'))) {

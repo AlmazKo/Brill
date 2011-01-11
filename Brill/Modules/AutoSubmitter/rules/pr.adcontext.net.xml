@@ -9,6 +9,28 @@
 -->
 
 <root host="http://pr.adcontext.net" encoding='utf8' referer="">
+    <rule url="http://pr.adcontext.net/user" isajax="false" auto='true'>
+        <before>
+            <action type="request" url='http://inthepress.ru/add_relize' />
+            <action type="find" isFail="next" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+               Чтобы добавить пресс-релиз, нужно зарегистрироваться
+            </action>
+         </before>
+        <headers></headers>
+        <get></get>
+        <post>
+            <field name='name' type='text' required='true' form='true' var='login' source='login' title='Логин' info='' />
+            <field name='pass' type='text' required='true' form='false' var='password' source='password' title='Пароль'>1</field>
+            <field name='form_id' type='text' required='true' form='false'>user_login</field>
+            <field name='op' type='text' required='true' form='false'>Вход в систему</field>
+       </post>
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные введенные в форму">
+               Пресс-релиз успешно добавлен
+            </action>
+        </after>
+    </rule>
+  
     <rule url="http://pr.adcontext.net/add/pr" isajax="false" enctype='multipart/form-data'>
         <before>
             <action type="request" url='http://inthepress.ru/add_relize' />

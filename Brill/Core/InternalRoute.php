@@ -5,10 +5,5 @@
  * @author Alexander
  */
 final class InternalRoute {
-    public $module;
-    public $action;
-    public $act;
-    public $search;
-    public $nav;
-    public $get;
+    public $module, $action, $act, $search, $nav, $get;
 }

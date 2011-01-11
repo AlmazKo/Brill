@@ -254,20 +254,6 @@ class aSubscribe extends Action{
     }
 
 
-//    public static function run() {
-//        $return = 'ok';//as_Strategy::run($sites[0]->siteHost);
-//        if ($return == 'ok') {
-//            // все супер, ставим отметку в базе (as_Subscribes) что прошли эту рассылку
-//            return true;
-//        }
-//        if (is_subclass_of($return, oForm)) {
-//            $context = RegistryContext::instance();
-//            //стратегия вернула форму значит еще чтото хочет
-//            $context->set('form', $return);
-//           return false;
-//        }
-//    }
-
     /*
      * Запуск рассылки
      */
@@ -302,8 +288,8 @@ class aSubscribe extends Action{
                         $subscribeSiteId = uniqid('as_ss_id');
                         $session->set('as_ss_id', $subscribeSiteId);
                         $form->setField($subscribeSiteId, array('type'=>'hidden', 'value' => $subscribeId));
-                    } else if($result instanceof Error) {
-                        $this->context->setError($result->message);
+                    } else if($result instanceof oError) {
+                        $this->context->setError($result);
                     } else {
                         //форма успешно отправлена на сервер
                         $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
@@ -332,7 +318,7 @@ class aSubscribe extends Action{
                 $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
                 $strategy = new as_Strategy($site, $subscribe);
                 $result = $strategy->start();
-                if($result instanceof Error) {
+                if($result instanceof oError) {
                     $this->context->setError($result->message);
 
                     $this->context->set('text', 'Повторить. Перейти к следущему сайту рассылки');

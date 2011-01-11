@@ -1,9 +1,8 @@
 <?php
 #include 'MysqliExt.php';
-require_once CORE_PATH . 'Common/LogMysql.php';
-require_once 'mysqliHelper.php';
+#require_once 'mysqliHelper.php';
 
-Class DB {
+class DB {
     const DEFAULT_LNK = 'default';
     protected static $lnk = null;
 

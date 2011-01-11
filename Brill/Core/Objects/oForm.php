@@ -26,14 +26,33 @@ protected
 
         $this->fields = $fields;
     }
+    /**
+     * задать поле с всеми настройками
+     * @param <type> $key
+     * @param array $value
+     */
     public function setField($key, array $value) {
         $this->fields[$key] = $value;
     }
 
+    /**
+     * Задать значение поля
+     * @param <type> $key
+     * @param <type> $attr
+     * @param <type> $value
+     */
     public function setFieldValue($key, $value) {
         $this->fields[$key]['value'] = $value;
     }
 
+    /**
+     * изменить атрибут поля
+     * @param <type> $key
+     * @param <type> $value
+     */
+    public function setFieldAttr($key, $attr, $value) {
+        $this->fields[$key][$attr] = $value;
+    }
     /**
      * Объеденяем значение поля с новыми
      * @param string $key
@@ -48,19 +67,27 @@ protected
         }
         return true;
     }
-
+/*
+ * TODO убрать этот хардкод
+ */
     function setHtmlBefore($html) {
         $this->_htmlBefore = $html;
     }
-
+/*
+ * TODO убрать этот хардкод
+ */
     function setHtmlAfter($html) {
         $this->_htmlAfter = $html;
     }
-
+/*
+ * TODO убрать этот хардкод
+ */
     function getHtmlBefore() {
        return $this->_htmlBefore ? '<div class="before_form">' . $this->_htmlBefore . '</div>' : '';
     }
-
+/*
+ * TODO убрать этот хардкод
+ */
     function getHtmlAfter() {
         return $this->_htmlAfter ? '<div class="after_form">' . $this->_htmlAfter . '</div>' : '';
     }

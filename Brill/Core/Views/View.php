@@ -19,7 +19,7 @@ class View {
         $context,
         $useParentTpl = true;
 
-    public function  input ($context) { 
+    public function  input($context) { 
         if($context->is('error_page')) {
             $this->httpStatus = '404';
         }

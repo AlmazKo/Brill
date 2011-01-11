@@ -19,8 +19,6 @@
 
 //Framework Initilization
 require 'Core/InitDaemon.php';
-//Current project settings
-require 'Config.php';
 
 class FrontDeamon {
     static function run() {

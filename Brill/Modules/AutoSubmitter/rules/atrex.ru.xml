@@ -15,7 +15,7 @@
         <headers></headers>
         <get></get>
         <post>
-            <field name='category' type='select' form='false' title='Раздел'>1</field>
+            <field name='category' type='select' form='true' title='Раздел' sourcesite='category'>1</field>
             <field name='title' type='text' required='true' form='true' var='title' source='title' title='Заголовок' info='' />
             <field name='company' type='text' required='true' form='true' var='company' source='company' title='Компания' info=''/>
             <field name='anons' type='textarea' required='true' form='true' var='preview' source='preview' title='Анонс' info=''  attr='rows=3'/>

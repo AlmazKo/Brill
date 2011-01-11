@@ -4,7 +4,7 @@
  *
  * @author almaz
  */
-require_once 'Log.php';
+
 class LogMysql extends Log{
     public static function query($query, $time) {
         self::inputLog($time, $query, false, "#82F");

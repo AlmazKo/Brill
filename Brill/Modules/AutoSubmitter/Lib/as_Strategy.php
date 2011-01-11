@@ -13,9 +13,9 @@ class as_Strategy {
         $_userForm,
         $_ruleId = 0,
         $_subscribe,
-        $_fieldsSend,
         $_site,
-        $_sendFform;
+        // форма распарсенная с сайта
+        $_formSite;
 
     public function __construct(as_Sites $site, as_Subscribes $subscribe) {
 
@@ -125,7 +125,7 @@ class as_Strategy {
                             DIR_PATH . '/img/downloads/captcha/'.$this->_site->host . '.gif');
                         if (!$this->_curl->getErrors()) {
                             if ($this->_userForm->isField((string)$action['for'])) {
-                                $this->_userForm->mergeField('captcha', array('src' => WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif'));
+                                $this->_userForm->setFieldAttr('captcha', 'src', WEB_PREFIX.'Brill/img/downloads/captcha/'.$this->_site->host . '.gif');
                             }
                         } else {
                             return new Error('Не удалось скачать каптчу с сервера');
@@ -133,15 +133,10 @@ class as_Strategy {
                         break;
 
                     case 'parseform':
-                        $charset = $this->_curl->getCharsetBody();
-                        $html = $this->_curl->getResponseBody();
-                        if (ENCODING_CODE != $charset) {
-                           ///$html = @iconv(ENCODING_CODE, $charset . '//IGNORE',  $this->_curl->getResponseBody());
-                        }
-                        
+                       $html = $this->_curl->getResponseBody();
                        $dom = new DomExt($html);
-                       $ff = $dom->parseForm($html);
-                       Log::dump($ff);
+                       $this->_formSite = $dom->parseForm($html);
+
                     break;
                 }
             }
@@ -167,6 +162,7 @@ class as_Strategy {
     public function getForm() {
         return $this->_userForm;
     }
+    
     public function start($post = null) {
         if ($post) {
             $userForm = $this->_userForm;
@@ -201,7 +197,7 @@ class as_Strategy {
                         return $resultBefore;
                     }
                     $context = RegistryContext::instance();
-                    $context->setError($resultAfter->message);
+                    $context->setError($resultAfter);
                     return $userForm;
                 } else {
                     $this->_subscribeSite->form = '';

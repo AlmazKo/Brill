@@ -4,11 +4,12 @@
  *
  * @author almaz
  */
-require_once CORE_PATH . 'Actions/Action.php';
-require_once CORE_PATH . 'Routing.php';
-require_once CORE_PATH . 'InternalRoute.php';
 
 class ActionResolver {
+    
+    function  __construct() {
+        //наверно пусть делает запрос на кэш
+    }
 
     /**
      * Найти и вернуть экшен
@@ -16,7 +17,6 @@ class ActionResolver {
      * @return Action
      */
     public function getAction (RegistryRequest $request) {
-
         /*
          * парсим строку
          * узнаем есть ли модуль
@@ -87,7 +87,7 @@ class ActionResolver {
     public function getInternalAction(InternalRoute $iRoute) {
         $route = Routing::instance();
         $route->syncWithIRoute($iRoute);
-        $sep = '/';
+        $sep = DIRECTORY_SEPARATOR;
         //узнаем загружен ли модуль (конфиг модуля)
         if (!isset(General::$loadedModules[$route->module])) {
             Log::warning('Конфигурация модуля ' .$route->module .' не загружена в систему');
@@ -115,10 +115,5 @@ class ActionResolver {
         } else {
             Log::warning('Не найден файл: '.$filePath);
         }
-       
-    }
-
-    function  __construct() {
-        //наверно пусть делает запрос на кэш
     }
 }

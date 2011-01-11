@@ -37,7 +37,7 @@ abstract class se_YandexXml extends se_Parser {
 
     public function  __construct() {
         parent::__construct();
-        RegistryDb::instance()->setSettings(DB::DEFAULT_LNK, array('localhost', 'root', '12345', 'brill'));
+        RegistryDb::instance()->createConnect(array('localhost', 'root', '12345', 'brill'));
         DB::connect();
         $this->curl->setResponseCharset(ENCODING_CODE, true);
         $this->curl->setPrepared(false);

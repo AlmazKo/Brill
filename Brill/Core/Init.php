@@ -5,52 +5,59 @@
 
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
-define  ('ENCODING_CODE', 'utf-8');
+define ('ENCODING_CODE', 'utf-8');
 header('Content-type: text/html; charset=' . ENCODING_CODE);
 
 //TODO сделать нормальную для винды
-define ('DIR_PATH', str_replace("\\", "/", realpath (dirname (__FILE__) .'/..')));
+define ('DIR_PATH', str_replace("\\", "/", realpath (dirname (__FILE__) .'/..')) . '/');
 
-define ('CORE_PATH', DIR_PATH . '/Core/');
-define ('MODULES_PATH', DIR_PATH . '/Modules/');
-//префикс домена, где он лежит. если прмо в корне. тут должен быть только слэш
+//путь к директории ядра
+define ('CORE_PATH', DIR_PATH . 'Core/');
+// путь к директории с модулями
+define ('MODULES_PATH', DIR_PATH . 'Modules/');
+// включит ли кэширование css/js
 define ('USE_CACHE', false);
 
-define ('CORE_VERSION' ,'0.1e');
-$dirs [] = '.';
-$dirs [] = CORE_PATH . '/Registry';
+define ('CORE_VERSION', '0.2');
 
-set_include_path(implode(PATH_SEPARATOR, $dirs));
-require_once CORE_PATH . 'Common/NewFunctions.php';
-require_once CORE_PATH . 'Common/General.php';
-require_once CORE_PATH . 'Common/RunTimer.php';
-require_once CORE_PATH . 'Common/Encoding.php';
-require_once CORE_PATH . 'Common/StringUtf8.php';
-require_once CORE_PATH . 'Common/Log.php';
-require_once CORE_PATH . 'Common/TFormat.php';
-require_once CORE_PATH . 'Common/Error.php';
+#Это и так происходит//относительные пути также идут и от корня сайта
+#set_include_path(DIR_PATH);
+
+require CORE_PATH . 'Common/NewFunctions.php';
+require CORE_PATH . 'General.php';
+require CORE_PATH . 'Common/Timer.php';
+require CORE_PATH . 'Common/RunTimer.php';
+require CORE_PATH . 'Common/Encoding.php';
+require CORE_PATH . 'Common/StringUtf8.php';
+require CORE_PATH . 'Common/Log.php';
+require CORE_PATH . 'Common/LogMysql.php';
+require CORE_PATH . 'Common/TFormat.php';
+require CORE_PATH . 'Common/Error.php';
 $timer = new RunTimer();
 
-require_once 'Registry.php';
-require_once 'RegistrySession.php';
-require_once 'RegistryRequest.php';
-require_once 'RegistryContext.php';
-require_once 'RegistryDb.php';
-require_once CORE_PATH . 'Modules.php';
-require_once CORE_PATH . 'DB/DBExt.php';
-require_once CORE_PATH . 'DB/Stmt.php';
-require_once CORE_PATH . 'Common/LogInDb.php';
-require_once CORE_PATH . 'Actions/Action.php';
-require_once CORE_PATH . 'Models/Model.php';
-require_once CORE_PATH . 'Views/View.php';
-require_once CORE_PATH . 'Lib/Lib.php';
-require_once CORE_PATH . 'Lib/Curl.php';
-require_once CORE_PATH . 'Lib/DomExt.php';
-require_once CORE_PATH . 'Lang/ru/texts.php';
+require CORE_PATH . 'Registry/Registry.php';
+require CORE_PATH . 'Registry/RegistrySession.php';
+require CORE_PATH . 'Registry/RegistryRequest.php';
+require CORE_PATH . 'Registry/RegistryContext.php';
+require CORE_PATH . 'Registry/RegistryDb.php';
+require CORE_PATH . 'Modules.php';
+require CORE_PATH . 'DB/DB.php';
+require CORE_PATH . 'DB/DBExt.php';
+require CORE_PATH . 'DB/Stmt.php';
+require CORE_PATH . 'Common/LogInDb.php';
+require CORE_PATH . 'Actions/Action.php';
+require CORE_PATH . 'Models/Model.php';
+require CORE_PATH . 'Views/View.php';
+require CORE_PATH . 'Lib/Lib.php';
+require CORE_PATH . 'Lib/Curl.php';
+require CORE_PATH . 'Lib/DomExt.php';
+require CORE_PATH . 'Lang/ru/texts.php';
+
+require CORE_PATH . 'Routing.php';
 
 require CORE_PATH . 'ActionResolver.php';
 require CORE_PATH . 'Navigation.php';
-require_once CORE_PATH . 'InternalRoute.php';
+require CORE_PATH . 'InternalRoute.php';
 
 require CORE_PATH . 'Interfaces/IPaging.php';
 require CORE_PATH . 'Interfaces/ISorting.php';
@@ -61,3 +68,8 @@ require CORE_PATH . 'Objects/oTableExt.php';
 require CORE_PATH . 'Objects/oForm.php';
 require CORE_PATH . 'Objects/oFormExt.php';
 require CORE_PATH . 'Objects/oTree.php';
+
+//пользовательские настройки
+require DIR_PATH . 'Config.php';
+
+DB::connect();

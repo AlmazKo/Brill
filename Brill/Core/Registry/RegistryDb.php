@@ -1,13 +1,8 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of RegistryParser
+ * Класс настроек для работы с БД
  *
- * @author asuslov
+ * @author almazko
  */
 
 /**
@@ -23,11 +18,15 @@ class RegistryDb extends Registry{
         return self::$instance;
     }
 
-
-    public function setSettings($name, $dbSettings) {
+    /**
+     * Добавление нового соединения
+     * @param array $dbSettings массив настроек, вида array('user','password', 'host', 'db')
+     * @param strng $lnk название соединения
+     */
+    public function createConnect($dbSettings, $lnk = DB::DEFAULT_LNK) {
         if (is_array($dbSettings)) {
             if (count($dbSettings) == 4) {
-                $this->set($name, $dbSettings);
+                $this->set($lnk, $dbSettings);
             } else {
                 Log::warning("Конфигурация соединения с БД должна быть такого вида:\n".
                         "array('user','password', 'host', 'db')");

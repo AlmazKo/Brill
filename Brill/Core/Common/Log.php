@@ -7,7 +7,13 @@
 
 class Log {
     const TIMERS = '__timers__';
-    private static 
+    const
+        LVL_NONE = 0,
+        LVL_ONLY_SCREEN = 1,
+        LVL_ONLY_FILE = 2,
+        LVL_ALL = 4;
+
+    private static
         $_debugLevel = null,
         $_screen = false,
         $_file = false,
@@ -19,28 +25,27 @@ class Log {
      * @param int $num
      */
     public static function setLevel($num) {
-        if (self::$_debugLevel === null) {
-            if ($num){
-                 switch($num) {
-                    case 1:
-                        self::$_screen = true;
-                        break;
-                    case 2:
-                        self::$_file = true;
-                        break;
-                    case 3:
-                        self::$_screen = true;
-                        self::$_file = true;
-                }
-            } else {
-                self::$_debugLevel = false;
+        if (null === self::$_debugLevel) {
+            switch($num) {
+                case self::LVL_ONLY_SCREEN:
+                    self::$_screen = true;
+                    break;
+                case self::LVL_ONLY_FILE:
+                    self::$_file = true;
+                    break;
+                case self::LVL_ALL:
+                    self::$_screen = true;
+                    self::$_file = true;
+                    break;
+                default:
+                    self::$_debugLevel = false;
             }
         }
     }
 
     /**
      * Вывод дампа чего либо
-     * @param object $obj
+     * @param mixed $obj
      * @param string $color
      */
     public static function dump($obj, $color = '#00a0ff', $title = 'Dump') {
@@ -48,7 +53,7 @@ class Log {
             $b = debug_backtrace();//$text = "\n" . $b[1]['file'] . ':' . $b[1]['line'];
             ob_start();
             var_export($obj);
-            $descr = ob_get_clean ();
+            $descr = ob_get_clean();
             $descr = TFormat::highlight($descr);
             echo TFormat::htmlMessageLog($title, $descr, true, $color);
         }

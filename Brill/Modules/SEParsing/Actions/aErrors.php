@@ -21,14 +21,4 @@ class aErrors extends Action{
         $this->context->set('h1', 'Ошибки, возникшие при работе ботов');
     }
 
-    function _parent(InternalRoute $iRoute = null) {
-        if (!$iRoute) {
-            $iRoute = new InternalRoute();
-            $iRoute->module = 'Pages';
-            $iRoute->action = 'Pages';
-        }
-        $actR = new ActionResolver();
-        $act = $actR->getInternalAction($iRoute);
-        $act->runParentAct();
-    }
 }

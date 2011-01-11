@@ -1,11 +1,10 @@
 <?php
-
 /**
  * DBExt класс автоматизирующий некоторые действия с базой
  *
  * @author almaz
  */
-require_once 'DB.php';
+
 class DBExt extends DB{
 
     /**
@@ -318,6 +317,4 @@ class DBExt extends DB{
         }
         return $where;
    }
-
-
 }

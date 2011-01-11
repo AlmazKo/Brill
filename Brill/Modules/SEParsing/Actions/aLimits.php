@@ -1,6 +1,6 @@
 <?php
 
-class aLimits extends Action{
+class aLimits extends Action {
     protected $defaultAct = 'view';
     protected function configure() {
         require_once $this->module->pathModels . 'sep_LimitsIpForHosts.php';

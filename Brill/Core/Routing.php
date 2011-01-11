@@ -2,26 +2,26 @@
 /**
  * Класс для работы с урлом
  *
- * @author Alexander
+ * @author almazko
  */
 class Routing {
     private
-        $_iroute = false;
-    private $uri;
-    private $schema;
-    private $site;
-    private $core;
-    private $module;
-    private $action;
-    private $act;
-    private $queryString;
-    private $search;
-    private $nav;
-    private $get;
+        $_iroute = false,
+        $uri,
+        $schema,
+        $site,
+        $core,
+        $module,
+        $action,
+        $act,
+        $queryString,
+        $search,
+        $nav,
+        $get;
 
     protected static $instance = null;
 
-    private function  __construct() {
+    function  __construct() {
         $this->uri = $_SERVER["REQUEST_URI"];
         $this->get = $_GET;
     }
@@ -64,21 +64,20 @@ class Routing {
         $navStrategy = '(?:nav(?:&([a-z]+\=[^\/]*))+\/)?';
 
         if (WEB_PREFIX == '/') {
-            $stdRule = '/(\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
+            $stdRule = '/(\/)?(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9_]+)\/)?'.$searchStrategy.$navStrategy.'/';
         } else {
-            $stdRule = '/\/(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?(?:([a-zA-Z0-9]+)\/)?'.$searchStrategy.$navStrategy.'/';
+            $stdRule = '/\/(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9_]+)\/)?(?:([a-zA-Z0-9_]+)\/)?'.$searchStrategy.$navStrategy.'/';
         }
-         if (preg_match($stdRule, $uri, $m)) {
+        if (preg_match($stdRule, $uri, $m)) {
             $this->site = $_SERVER['HTTP_HOST'];
             $this->core = isset($m[1]) ? $m[1] : '';
             $this->module = isset($m[2]) ? $m[2] : '';
-
             $this->action = isset($m[3]) ? $m[3] : '';
-            $this->act =  isset($m[4]) ? $m[4] : '';
+            $this->act = isset($m[4]) ? $m[4] : '';
             $this->search = isset($m[5]) ? $m[5] : '';
             if (isset($m[6])) {
-                $nav_params = explode('&', $m[6]);
-                foreach ($nav_params as $param) {
+                $navParams = explode('&', $m[6]);
+                foreach ($navParams as $param) {
                     $par = explode('=', $param);
                     $navigation[$par[0]] = $par[1];
                 }

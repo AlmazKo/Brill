@@ -1,23 +1,20 @@
 <?php
-/*
- * Класс
- */
-
-
 /**
- * Description of Front
- *
+ * Класс FrontController
  * @author almaz
  */
 
+//время запуска
+define('TIME_BEGIN', microtime(true));
+
 //Framework Initilization
 require 'Core/Init.php';
-//Current project settings
-require 'Config.php';
 
 class Front {
 
-    private static $defaultAction;
+    /**
+     * фасад, запускает фреймворк
+     */
     static function run() {
         $instance = new Front();
         $instance->init();
@@ -25,14 +22,11 @@ class Front {
     }
 
     /**
-     * Подгрузка модулей и прочего
-     *
+     * Подгрузка модулей и проверка зависимостей
      */
     private function init() {
-
         self::loadModules();
-        self::CheckingDependency();
- #       self::$defaultAction = 'Welcome';
+        self::сheckingDependency();
     }
 
     /**
@@ -61,7 +55,7 @@ class Front {
     /**
      * Проверяет зависимости у модулей
      */
-    private static function CheckingDependency() {
+    private static function сheckingDependency() {
         if (General::$loadedModules) {
             foreach (General::$loadedModules as $nameModule => $module) {
                 foreach ($module->requiredModules as $requireModule){
@@ -73,7 +67,7 @@ class Front {
                 }
             }
         } else {
-            Log::warning('Не найдено не одно модуля');
+            Log::warning('Не найдено не одного модуля');
         }
     }
 
@@ -82,12 +76,8 @@ class Front {
      */
     private function handleRequest() {
         $request = RegistryRequest::instance();
-//        $context = RegistryContext::instance();
         $actR = new ActionResolver();
         $act = $actR->getAction($request);
-        if (General::$loadedModules['Auth']) {
-            //$auth = ne;
-        }
         if (!$act) {
             //исключительная ситация, где-то в коде сработал обработчик ошибок
         } else {

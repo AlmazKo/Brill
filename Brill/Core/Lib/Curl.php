@@ -2,7 +2,7 @@
 /**
  * Класс Curl - ООП обвертка стандартной curl-lib
  *
- * @author Alexander Suslov a.s.suslov@gmail.com
+ * @author almazko a.s.suslov@gmail.com
  */
 require_once CORE_PATH . 'Lib/ConstCurl.php';
 require_once CORE_PATH . 'Lib/Mimetypes.php';

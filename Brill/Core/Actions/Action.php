@@ -1,15 +1,9 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of Action
+ * Родительский класс для всех экшенов
  *
- * @author Alexander
+ * @author Almazko
  */
-include_once 'ActionWrapContext.php';
 
 abstract class Action {
     //ссылка на родительскую конфигурацию
@@ -21,7 +15,10 @@ abstract class Action {
     protected $isInternal;
     public $search = null;
     public $route;
-    private $_user = null;
+    protected $_user = null;
+    public $session;
+    public $context;
+    public $view;
 
     /*
      * Запускаем экт и выводим вьюшку
@@ -70,7 +67,6 @@ abstract class Action {
             Log::warning('В "' . __CLASS__ . '" не реализован метод: ' . $act);
             return false;
         }
-
     }
     /**
      * Конфигурация Экшена
@@ -78,18 +74,13 @@ abstract class Action {
     abstract protected function configure();
 
     final public function  __construct($module, $act, $isInternal = false) {
-
         $this->module = $module;
         $this->act = $act;
         $this->isInternal = $isInternal;
         $this->request = RegistryRequest::instance();
         $this->context = RegistryContext::instance();
-
         $this->configure();
         $this->session = RegistrySession::instance();
-
-
-
     }
 
     public function input() {
@@ -103,10 +94,17 @@ abstract class Action {
         return new View($this->context);
     }
 
-
-    function changeSorting($field, $sort) {
-
+    /**
+     * Вызвать другой экшен, как родительский
+     * @param InternalRoute $iRoute
+     */
+    protected function _parent(InternalRoute $iRoute = null) {
+        if (!$iRoute) {
+            $iRoute = new InternalRoute();
+            $iRoute->module = General::$defaultModule;
+        }
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($iRoute);
+        $act->runParentAct();
     }
-
-
 }

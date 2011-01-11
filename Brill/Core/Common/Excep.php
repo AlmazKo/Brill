@@ -6,7 +6,3 @@
 class Excep extends Exception {
 
 }
-
-?>
-
-

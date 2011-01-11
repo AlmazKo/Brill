@@ -25,4 +25,8 @@ group by user_id";
 const ADD_USERS_GROUPS = "INSERT INTO au_UsersGroups (user_id, group_id) values (#user_id#, #group_id#)";
 
 const DEL_USERS_GROUPS_USER = "DELETE FROM au_UsersGroups where user_id = #user_id#";
+
+const GET_SITES_USERS_USER = "SELECT s.host, su.login, su.password FROM `as_SitesUsers` as su
+join as_Sites as s on (s.id=su.site_id)
+WHERE user_id = #user_id#";
 }

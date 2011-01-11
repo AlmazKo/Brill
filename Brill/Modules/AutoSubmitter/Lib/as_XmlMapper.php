@@ -165,6 +165,7 @@ class as_XmlMapper extends XmlParser{
                         // Служебные поля name, source не сохраняем
                         case 'name':
                         case 'source':
+                        case 'sourcesite':
                             continue;
                         case 'var':
                             $aFields[$name]['name'] = $value;
