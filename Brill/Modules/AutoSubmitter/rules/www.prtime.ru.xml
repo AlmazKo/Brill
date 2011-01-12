@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Press_Release.xml
+    Created on : 8 Октябрь 2010 г., 13:40
+    Author     : Almazko
+    Description:
+        Purpose of the document follows.
+-->
+
+<root host="http://www.prtime.ru" encoding='cp1251' referer="">
+    <rule url="http://www.prtime.ru" isajax="false" auto='true'>
+        <before>
+            <action type="request" url='http://www.prtime.ru'/>
+            <action type="find" isFail="next" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+               Забыли пароль?
+            </action>
+         </before>
+        <headers></headers>
+        <get></get>
+        <post>
+            <field name='login_name' type='text' required='true' form='true' var='login' source='login' title='Логин' info='' />
+            <field name='login_password' type='text' required='true' form='false' var='password' source='password' title='Пароль'>1</field>
+            <field name='login' type='text' required='true' form='false'>submit</field>
+            <field name='x' type='text' required='true' form='false'>0</field>
+            <field name='y' type='text' required='true' form='false'>0</field>
+       </post>
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные введенные в форму">
+               Добавить пресс-релиз
+            </action>
+        </after>
+    </rule>
+  
+    <rule url="http://www.prtime.ru/addnews.html" isajax="false" enctype='application/x-www-form-urlencoded'>
+        <before>
+            <action type="request" url='http://www.prtime.ru/addnews.html' />
+            <action type="parseform" name_form="entryform" name='entryform' for='entryform' />
+        </before>
+        <headers></headers>
+        <get></get>
+        <post>
+            <field name='title' type='text' required='true' form='true' var='title' source='title' title='Заголовок' info='(четко отражающий тему пресс-релиза, не более 150 символов)' />
+            <field name='catlist[]' type='select' form='true' sourcesite='category' title="Категория (наиболее подходящая под тему пресс-релиза)">6</field>
+            <field name='short_story' type='textarea' required='false' form='true' var='preview' source='preview' title='Краткое содержание (не более 1-3 предложений, поясняющих суть)' info=''  attr='rows=3'/>
+            <field name='full_story' type='textarea' required='true' form='true' var='release' source='release' title='Полная новость' info=''  attr='rows=12'/>
+            <field name='xfield[site]' type='text' required='true' form='true' var='title' source='title' title='Ссылка на источник в формате http://www.site.ru' info='(четко отражающий тему пресс-релиза, не более 150 символов)' />
+            <field name='mod' type='text' required='true' form='false'>addnews</field>
+            <field name='add' type='text' required='true' form='false'>отправить</field>
+       </post>
+       <after>
+            <action type="find" isFail="repeat" message="Удаленный сервер не обработал форму, внимательно проверьте данные ввведенные в форму">
+               Спасибо, Ваш пресс-релиз добавлен
+            </action>
+        </after>
+    </rule>
+</root>

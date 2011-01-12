@@ -52,11 +52,11 @@ class as_XmlMapper extends XmlParser{
     }
 
     function getRule($ruleId = 0) {
-        return $this->_sxe->rule[$ruleId];
+        return $this->_sxe->rule[(int)$ruleId];
     }
 
     function hasRule($ruleId) {
-        if (isset($this->_sxe->rule[$ruleId])) {
+        if (isset($this->_sxe->rule[(int)$ruleId])) {
             return true;
         } else {
             return false;
@@ -68,6 +68,19 @@ class as_XmlMapper extends XmlParser{
         }
     }
 
+    /**
+     * Являетли правило, автоматически выполняемым
+     * @param unt $ruleId
+     * @return bool 
+     */
+    function isAutoRule($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            if ($this->getRule($ruleId)->action['auto'] && 'true' == (string)$this->getRule($ruleId)->action['auto']) {
+                return true;
+            }
+        }
+        return false;
+    }
     function getHost() {
         return (string)$this->_sxe['host'];
     }
@@ -207,10 +220,10 @@ class as_XmlMapper extends XmlParser{
      * @param int $ruleId
      */
     public function fill($fields, $ruleId = 0) {
-         if ($this->hasRule($ruleId)) {
+         if ($this->hasRule($ruleId)) { 
             $rule = $this->getRule($ruleId);
             foreach ($rule->post->field as $field) {
-                $aField = &current($field);
+                $aField = &current($field); 
                 if (isset($aField['var']) && isset($fields[$aField['var']]) && 'true' == $aField['form']) {
                     $value = isset($fields[$aField['var']]['value']) ? $fields[$aField['var']]['value'] : '';
                     $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);

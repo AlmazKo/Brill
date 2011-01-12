@@ -11,7 +11,9 @@ class as_SubscribesSites extends Model {
         'subscribe_id',
         'site_id',
         'status',
-        'form'
+        'form',
+        'rule_num',
+        'is_skip'
     );
 }
 
@@ -19,7 +21,10 @@ class as_SubscribesSites extends Model {
 CREATE TABLE `as_SubscribesSites` (
   `subscribe_id` mediumint(8) unsigned NOT NULL,
   `site_id` smallint(5) unsigned NOT NULL,
-  `status` enum('No','Yes','Busy') NOT NULL DEFAULT 'No',
-  UNIQUE KEY `uniq` (`site_id`,`subscribe_id`)
+  `status` enum('No','Ok','Busy','Error') NOT NULL DEFAULT 'No',
+  `form` blob NOT NULL,
+  `rule_num` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `is_skip` enum('No','Yes') NOT NULL DEFAULT 'No',
+  PRIMARY KEY (`subscribe_id`,`site_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
  */

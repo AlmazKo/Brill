@@ -17,7 +17,7 @@ class as_Strategy {
         // форма распарсенная с сайта
         $_formSite;
 
-    public function __construct(as_Sites $site, as_Subscribes $subscribe) {
+    public function __construct(as_Sites $site, as_Subscribes $subscribe, as_SitesUsers $sitesUsers = null) {
 
         /*
          * 1. парсим rule
@@ -59,24 +59,35 @@ class as_Strategy {
           * SiteUserSettings - настройки для сайта у юзера
           */
 
+        
         // Прослойка для связи с маппером
         $this->mapper = new as_XmlMapper(General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
         /*
          * должно происходить сохранение личных данных пользователя SiteRuleForm
          */
         $subscribeSite = new as_SubscribesSites(array($subscribe->id, $site->id));
+        $this->_ruleId = $subscribeSite->rule_num;
         //если первый запуск - тогда берем данные из Subscribe
         if (!$subscribeSite->form) {
             $subscribeForm = new oFormExt();
             $subscribeForm->loadFromString($subscribe->form);
-            $this->mapper->fill($subscribeForm->getFields());
+            $this->mapper->fill($subscribeForm->getFields(), $this->_ruleId);
         } else {
             $userForm = new oFormExt();
             $userForm->loadFromString($subscribeSite->form);
-            $this->mapper->fill($userForm->getFields());
+            $this->mapper->fill($userForm->getFields(), $this->_ruleId);
+        }
+        if ($sitesUsers) {
+            echo '<hr>';
+            $userFields['login'] = array('value' => $sitesUsers->login);
+            $userFields['password'] = array('value' => $sitesUsers->password);
+            $this->mapper->fill($userFields, $this->_ruleId);
         }
         
-        $fields = $this->mapper->getPublicFields();
+         
+         Log::dump($this->mapper->getPost());
+         die;
+        $fields = $this->mapper->getPublicFields($this->_ruleId);
         $userForm = new oFormExt($fields);
 
         $subscribeSite->form = $userForm->getXmlAsText();
@@ -94,7 +105,7 @@ class as_Strategy {
 
         $curl->setOptArray($opt);
         $curl->setResponseCharset($this->mapper->getEncoding());
-        $curl->setFormEnctype($this->mapper->getFormEnctypeRule());
+        $curl->setFormEnctype($this->mapper->getFormEnctypeRule($this->_ruleId));
         $this->_curl = $curl;
         $this->_userForm = $userForm;
         $this->_site = $site;
@@ -164,6 +175,9 @@ class as_Strategy {
     }
     
     public function start($post = null) {
+        if ($this->mapper->isAutoRule($this->_ruleId)) {
+            
+        }
         if ($post) {
             $userForm = $this->_userForm;
             $userForm->fill($post);

@@ -14,7 +14,8 @@ class aSubscribe extends Action{
         require_once $this->module->pathModels . 'as_Sites.php';
         require_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathModels . 'as_SubscribesSites.php';
-
+        require_once $this->module->pathModels . 'as_SitesUsers.php';
+        
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
         require_once $this->module->pathDB . 'as_Stmt.php';
         require_once $this->module->pathLib . 'XmlParser.php';
@@ -279,8 +280,10 @@ class aSubscribe extends Action{
                 if ($result) {
                     $site = new as_Sites($result['site_id']);
                     $subscribe = new as_Subscribes($result['subscribe_id']);
+                    $sitesUsers = new as_SitesUsers($result['site_id'], $this->userInfo['user']['id']);
+                    
                     $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
-                    $strategy = new as_Strategy($site, $subscribe);
+                    $strategy = new as_Strategy($site, $subscribe, $sitesUsers);
                     $result = $strategy->start(($this->request->get('POST')));
                     if($result instanceof oForm) {
                         $form = &$result;
@@ -315,8 +318,9 @@ class aSubscribe extends Action{
             if ($result) {
                 $site = new as_Sites($result['site_id']);
                 $subscribe = new as_Subscribes($result['subscribe_id']);
+                $sitesUsers = new as_SitesUsers($result['site_id'], $this->userInfo['user']['id']);
                 $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
-                $strategy = new as_Strategy($site, $subscribe);
+                $strategy = new as_Strategy($site, $subscribe, $sitesUsers);
                 $result = $strategy->start();
                 if($result instanceof oError) {
                     $this->context->setError($result->message);
