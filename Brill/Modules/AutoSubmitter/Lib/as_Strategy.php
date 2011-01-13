@@ -83,10 +83,6 @@ class as_Strategy {
             $userFields['password'] = array('value' => $sitesUsers->password);
             $this->mapper->fill($userFields, $this->_ruleId);
         }
-        
-         
-         Log::dump($this->mapper->getPost());
-         die;
         $fields = $this->mapper->getPublicFields($this->_ruleId);
         $userForm = new oFormExt($fields);
 
@@ -116,19 +112,28 @@ class as_Strategy {
      * выполнение необходимых операций перед запуском основной программы текущего правила
      */
     function _processingBefore() {
-        $this->_ruleId;
-        $before = $this->mapper->getBeforeActions();
+        $before = $this->mapper->getBeforeActions($this->_ruleId);
         if ($before) {
-            foreach($before as $action) { 
+            foreach($before as $action) {
                 switch((string)$action['type']) {
                     case 'request':
                         $this->_curl->requestGet((string)$action['url']);
-                       
                         if ($this->_curl->getErrors()) {
+                            $this->_subscribeSite->rule_num = 0;
+                            $this->_subscribeSite->save();
                             return new Error('Не удалось выполнить запрос к серверу');
                         }
                         break;
-
+                    case 'find':
+                        $find = trim((string)$action);
+                        $message = $action['message'];
+                        if (false === strpos($this->_curl->getResponseBody(), $find)) {
+                            if ('next' == (string)$action['isFail']) {
+                                return false;
+                            }
+                        }
+                    break;
+                    
                     case 'download':
                         $url = (string)$action['url'];
                         $this->_curl->downloadFile(
@@ -144,10 +149,15 @@ class as_Strategy {
                         break;
 
                     case 'parseform':
+                        $nameForm = null;
+                        if (isset($action['name_form'])) {
+                            $nameForm = (string)$action['name_form'];
+                        }
                        $html = $this->_curl->getResponseBody();
+                       
                        $dom = new DomExt($html);
-                       $this->_formSite = $dom->parseForm($html);
-
+                       $this->_formSite = $dom->parseForm($nameForm);
+                       Log::dump($this->_formSite);
                     break;
                 }
             }
@@ -156,13 +166,14 @@ class as_Strategy {
     }
 
     function _processingAfter() {
-        $after = $this->mapper->getAfterActions();
+        $after = $this->mapper->getAfterActions($this->_ruleId);
         foreach($after as $action) {
             if ('find' == (string)$action['type']) {
                 $find = trim((string)$action);
                 $message = $action['message'];
-           //     Log::dump($this->_curl->getResponseBody());
                 if (false === strpos($this->_curl->getResponseBody(), $find)) {
+                    $this->_subscribeSite->rule_num = 0;
+                    $this->_subscribeSite->save();
                     return new Error($message);
                 }
             }
@@ -175,61 +186,139 @@ class as_Strategy {
     }
     
     public function start($post = null) {
-        if ($this->mapper->isAutoRule($this->_ruleId)) {
-            
-        }
-        if ($post) {
-            $userForm = $this->_userForm;
-            $userForm->fill($post);
-            if ($userForm->isComplited()) {
-
-                $this->mapper->fill($userForm->getFields());
-
-             //   Log::dump($this->mapper);
-                $aHeaders = $this->mapper->getHeaders();
-                $aGet = $this->mapper->getGet();
-                $aPost = $this->mapper->getPost();
-                $this->_curl->setHeaders($aHeaders);
-                $this->_curl->setGet($aGet);
-                $this->_curl->setPost($aPost);
-                $url = $this->mapper->getUrlRule();
-                $this->_curl->requestPost($url);
-               
-                if ($this->_curl->getErrors()) {
+        if ($this->mapper->isAutoRule($this->_ruleId) || $post) {
+            if (!$post) {
+                echo '22Авто действие';
+                $resultBefore = $this->_processingBefore();
+                if ($resultBefore instanceof Error) {
                     $this->_subscribeSite->status = 'Error';
                     $this->_subscribeSite->save();
-                    return new Error('Не удалось соединится с сервером');
-                }
-                $resultAfter = $this->_processingAfter();
-                if ($resultAfter instanceof Error) {
-                    $this->_subscribeSite->status = 'Error';
+                    return $resultBefore;
+                } if (!$resultBefore) {
+                    $this->_ruleId++;
+                    // выполнение основного действия правила можно пропустить
+                    $this->_subscribeSite->rule_num = $this->_ruleId;
+                    $fields = $this->mapper->getPublicFields($this->_ruleId);
+                    $userForm = new oFormExt($fields);
+                    $this->_subscribeSite->form = $userForm->getXmlAsText();
                     $this->_subscribeSite->save();
+                    $this->_userForm = $userForm;
                     
-                    //по новой собираем данные
-                    $resultBefore = $this->_processingBefore();
-                    if ($resultBefore instanceof Error) {
-                        return $resultBefore;
-                    }
-                    $context = RegistryContext::instance();
-                    $context->setError($resultAfter);
+                    return $this->start();
+                }
+                
+            } else {
+                $userForm = $this->_userForm;
+                $userForm->fill($post);
+                if (!$userForm->isComplited()) {
+                    $this->_subscribeSite->form = $userForm->getXmlAsText();
+                    $this->_subscribeSite->save();
                     return $userForm;
+                }
+                $this->mapper->fill($userForm->getFields());
+            }
+            $aHeaders = $this->mapper->getHeaders($this->_ruleId);
+            $aGet = $this->mapper->getGet($this->_ruleId);
+            $aPost = $this->mapper->getPost($this->_ruleId);
+            $this->_curl->setHeaders($aHeaders);
+            $this->_curl->setGet($aGet);
+            $this->_curl->setPost($aPost);
+            $url = $this->mapper->getUrlRule($this->_ruleId);
+            $this->_curl->requestPost($url);
+            if ($this->_curl->getErrors()) {
+                $this->_subscribeSite->status = 'Error';
+                $this->_subscribeSite->save();
+                return new Error('Не удалось соединится с сервером');
+            }
+//            Log::dump($this->_curl->getResponseBody());
+
+            $resultAfter = $this->_processingAfter();
+            if ($resultAfter instanceof Error) {
+                $this->_subscribeSite->status = 'Error';
+                $this->_subscribeSite->save();
+
+                //по новой собираем данные
+                $resultBefore = $this->_processingBefore();
+                if ($resultBefore instanceof Error) {
+                    return $resultBefore;
+                }
+                $context = RegistryContext::instance();
+                $context->setError($resultAfter);
+                return $userForm;
+            } else {
+                $this->_ruleId++;
+                if ($this->mapper->hasRule($this->_ruleId)) {
+                    // есть еще правила - идем к ним
+                    $this->_subscribeSite->rule_num = $this->_ruleId;
+                    $fields = $this->mapper->getPublicFields($this->_ruleId);
+                    $userForm = new oFormExt($fields);
+                    $this->_subscribeSite->form = $userForm->getXmlAsText();
+                    $this->_subscribeSite->save();
+                    $this->_userForm = $userForm;
+                    
+                    return $this->start();
                 } else {
+                    // закончили по этому сайту
                     $this->_subscribeSite->form = '';
                     $this->_subscribeSite->status = 'Ok';
                     $this->_subscribeSite->save();
                     return true;
                 }
-            } else {
-                $this->_subscribeSite->form = $userForm->getXmlAsText();
-                $this->_subscribeSite->save();
-                return $userForm;
             }
         }
+
+//        if ($post) {
+//            $userForm = $this->_userForm;
+//            $userForm->fill($post);
+//            if ($userForm->isComplited()) {
+//
+//                $this->mapper->fill($userForm->getFields());
+//
+//             //   Log::dump($this->mapper);
+//                $aHeaders = $this->mapper->getHeaders();
+//                $aGet = $this->mapper->getGet();
+//                $aPost = $this->mapper->getPost();
+//                $this->_curl->setHeaders($aHeaders);
+//                $this->_curl->setGet($aGet);
+//                $this->_curl->setPost($aPost);
+//                $url = $this->mapper->getUrlRule();
+//                $this->_curl->requestPost($url);
+//               
+//                if ($this->_curl->getErrors()) {
+//                    $this->_subscribeSite->status = 'Error';
+//                    $this->_subscribeSite->save();
+//                    return new Error('Не удалось соединится с сервером');
+//                }
+//                $resultAfter = $this->_processingAfter();
+//                if ($resultAfter instanceof Error) {
+//                    $this->_subscribeSite->status = 'Error';
+//                    $this->_subscribeSite->save();
+//                    
+//                    //по новой собираем данные
+//                    $resultBefore = $this->_processingBefore();
+//                    if ($resultBefore instanceof Error) {
+//                        return $resultBefore;
+//                    }
+//                    $context = RegistryContext::instance();
+//                    $context->setError($resultAfter);
+//                    return $userForm;
+//                } else {
+//                    $this->_subscribeSite->form = '';
+//                    $this->_subscribeSite->status = 'Ok';
+//                    $this->_subscribeSite->save();
+//                    return true;
+//                }
+//            } else {
+//                $this->_subscribeSite->form = $userForm->getXmlAsText();
+//                $this->_subscribeSite->save();
+//                return $userForm;
+//            }
+//        }
 
 
        
         //обнуляем память курла
-        $this->_curl->reset();
+        //$this->_curl->reset();
         $resultBefore = $this->_processingBefore();
         if ($resultBefore instanceof Error) {
             $this->_subscribeSite->status = 'Error';

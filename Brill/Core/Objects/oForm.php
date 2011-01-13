@@ -154,7 +154,7 @@ protected
                 }
                 break;
             case 'select':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['required']) ? '*' : '') . ': </label>';
                 $settings['data']->setChecking((array)$settings['value']);
                 $html .= $settings['data']->buildHtmlSelect($name, false, $settings['attr']);
                 break;
@@ -169,7 +169,7 @@ protected
             case 'file':
                 break;
             case 'captcha':
-                $html .= '<label for="' . $name . '">' . $settings['title'] . ($settings['required'] ? '*' : '') . ': </label>';
+                $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['required']) ? '*' : '') . ': </label>';
                 if (!isset($settings['src'])) {
                     $settings['src'] = WEB_PREFIX . 'Brill/img/notfound.png';
                 }

@@ -42,9 +42,15 @@ class DomExt {
      * @param int $formNum id или порядковый номер формы
      * @return array
      */
-    public function parseForm($formNum = 0) {
-        $entries = $this->_xpath->query('//*/form[position()=1]//select[@name] | //*/form[position()=1]//input[@name]| //*/form[position()=1]//textarea[@name]');
+    public function parseForm($formNum = 0) { echo $formNum;
+        if ($formNum) {
+            $entries = $this->_xpath->query('//*/form[@name="' . $formNum . '"]//select[@name] | //*/form[@name="' . $formNum . '"]//input[@name]| //*/form[@name="' . $formNum . '"]//textarea[@name]');
+        } else {
+            $entries = $this->_xpath->query('//*/form[position()=1]//select[@name] | //*/form[position()=1]//input[@name]| //*/form[position()=1]//textarea[@name]');
+        }
+        
         $form = array();
+       // Log::dump($this->_dom->saveXML());
         foreach ($entries as $el) {
             if ('input' == $el->nodeName) {
                 switch ($el->getAttribute('type')) {

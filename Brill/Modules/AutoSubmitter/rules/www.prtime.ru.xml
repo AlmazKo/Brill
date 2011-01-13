@@ -20,7 +20,7 @@
         <get></get>
         <post>
             <field name='login_name' type='text' required='true' form='true' var='login' source='login' title='Логин' info='' />
-            <field name='login_password' type='text' required='true' form='false' var='password' source='password' title='Пароль'>1</field>
+            <field name='login_password' type='text' required='true' form='true' var='password' source='password' title='Пароль' />
             <field name='login' type='text' required='true' form='false'>submit</field>
             <field name='x' type='text' required='true' form='false'>0</field>
             <field name='y' type='text' required='true' form='false'>0</field>
@@ -35,7 +35,7 @@
     <rule url="http://www.prtime.ru/addnews.html" isajax="false" enctype='application/x-www-form-urlencoded'>
         <before>
             <action type="request" url='http://www.prtime.ru/addnews.html' />
-            <action type="parseform" name_form="entryform" name='entryform' for='entryform' />
+            <action type="parseform" name_form="entryform" name='entryform' for='category' />
         </before>
         <headers></headers>
         <get></get>

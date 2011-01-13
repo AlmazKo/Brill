@@ -74,8 +74,9 @@ class as_XmlMapper extends XmlParser{
      * @return bool 
      */
     function isAutoRule($ruleId = 0) {
-        if ($this->hasRule($ruleId)) {
-            if ($this->getRule($ruleId)->action['auto'] && 'true' == (string)$this->getRule($ruleId)->action['auto']) {
+        if ($this->hasRule($ruleId)) { 
+            $rule = $this->getRule($ruleId);
+            if ($rule['auto'] && 'true' == (string)$rule['auto']) {
                 return true;
             }
         }

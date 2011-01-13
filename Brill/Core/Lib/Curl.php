@@ -430,7 +430,7 @@ class Curl {
     protected function _exec() {
         $this->_preparedHeaders();
         curl_setopt_array($this->_ch, $this->_opt);
-     //   Log::dump($this->getOpts(true));
+        Log::dump($this->getOpts(true));
 
         $this->_responseRaw = curl_exec($this->_ch);
         $this->_responseLocation = null;
