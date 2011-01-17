@@ -187,6 +187,9 @@ class as_XmlMapper extends XmlParser{
                         case 'required':
                             $aFields[$name][$key] = ('false' == $value) ? false : true;
                             break;
+                        case 'data':
+                            $aFields[$name][$key] = unserialize($value);
+                            break;
                         default:
                             $aFields[$name][$key] = $value;
                         }
@@ -229,6 +232,29 @@ class as_XmlMapper extends XmlParser{
                     $value = isset($fields[$aField['var']]['value']) ? $fields[$aField['var']]['value'] : '';
                     $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
                     $field[0] = $value;
+                }
+            }
+        }
+    }
+
+    /**
+     * Заполняет форму из внешнего источника
+     * @param <type> $fields
+     * @param int $ruleId
+     */
+    public function fillOut($fields, $ruleId = 0) { 
+         if ($this->hasRule($ruleId)) { 
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->post->field as $field) { 
+                $aField = &current($field); echo '<hr>--'.$aField['name'];
+                if (isset($aField['out']) && 'true' == $aField['out'] && isset($fields[$aField['name']]) ) {
+                    $value = $fields[$aField['name']];
+                    if ($aField['type'] == 'select') {
+                        $field->addAttribute('data', serialize($value));
+                    } else {
+                        $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
+                        $field[0] = $value;
+                    }
                 }
             }
         }

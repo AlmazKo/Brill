@@ -126,10 +126,15 @@ class as_Strategy {
                         break;
                     case 'find':
                         $find = trim((string)$action);
-                        $message = $action['message'];
+                        $message = (string)$action['message'];
                         if (false === strpos($this->_curl->getResponseBody(), $find)) {
-                            if ('next' == (string)$action['isFail']) {
-                                return false;
+                            switch ((string)$action['isFail']) {
+                                case 'next':        
+                                    return false;
+                                case 'repeat':
+                                    $this->_subscribeSite->rule_num = 0;
+                                    return new Error($message);
+                                break;
                             }
                         }
                     break;
@@ -156,7 +161,8 @@ class as_Strategy {
                        $html = $this->_curl->getResponseBody();
                        
                        $dom = new DomExt($html);
-                       $this->_formSite = $dom->parseForm($nameForm);
+                       $this->_formSite = $dom->parseForm($nameForm); 
+                       $this->mapper->fillOut($this->_formSite, $this->_ruleId);
                        Log::dump($this->_formSite);
                     break;
                 }
@@ -211,6 +217,7 @@ class as_Strategy {
                 $userForm = $this->_userForm;
                 $userForm->fill($post);
                 if (!$userForm->isComplited()) {
+                    $this->_subscribeSite->rule_num = 0;
                     $this->_subscribeSite->form = $userForm->getXmlAsText();
                     $this->_subscribeSite->save();
                     return $userForm;
@@ -321,10 +328,11 @@ class as_Strategy {
         //$this->_curl->reset();
         $resultBefore = $this->_processingBefore();
         if ($resultBefore instanceof Error) {
+            
             $this->_subscribeSite->status = 'Error';
             $this->_subscribeSite->save();
             return $resultBefore;
-        }
+        }echo '--OK--!';
         return $this->_userForm;
     }
 

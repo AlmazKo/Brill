@@ -48,6 +48,9 @@ class oFormExt extends oForm {
         if ($sxe) {
             foreach ($sxe->field as $key => $value) {
                 $attr = current((array)$value->attributes());
+                if (isset($attr['data'])) {
+                    $attr['data'] = unserialize($attr['data']);
+                }
                 $v = (array)$value;
                 $fields[$attr['name']] = $attr;
                 $fields[$attr['name']]['value'] = $value ? (string)$value : '' ;
@@ -101,8 +104,11 @@ class oFormExt extends oForm {
             $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
             $newField = $sxe->addChild('field', $value);
             foreach($aField as $key => $value) {
-                if ('value' != $key) {
+                if ('value' != $key && 'data' != $key) {
                     $newField->addAttribute($key, $value);
+                } else if ('data' == $key) {
+                    $newField->addAttribute($key, serialize($value));
+                    
                 }
             }
             $attrs = $newField->attributes();

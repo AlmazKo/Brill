@@ -34,7 +34,10 @@
     <rule url="http://pr.adcontext.net/add/pr" isajax="false" enctype='multipart/form-data'>
         <before>
             <action type="request" url='http://inthepress.ru/add_relize' />
-            <action type="parseform" name_form="node-form" name='form_token' for='form_token' />
+            <action type="find" isFail="repeat" message="Не произошла авторизация на сайте">
+               Публикация пресс-релиза на сайте
+            </action>
+            <action type="parseform" isFail="repeat" message="Не удалось обработать сайт. Обратитесь к администрации."  name_form="node-form" name='form_token' for='form_token' />
         </before>
         <headers></headers>
         <get></get>

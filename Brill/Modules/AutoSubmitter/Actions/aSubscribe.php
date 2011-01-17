@@ -322,10 +322,11 @@ class aSubscribe extends Action{
                 $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
                 $strategy = new as_Strategy($site, $subscribe, $sitesUsers);
                 $result = $strategy->start();
-                if($result instanceof oError) {
-                    $this->context->setError($result->message);
+                if($result instanceof Error) {echo '--E22!!--!';
+                    $this->context->setError($result->getMessage());
 
                     $this->context->set('text', 'Повторить. Перейти к следущему сайту рассылки');
+$form = null;
                 } else {
                     $form = $strategy->getForm();
                     $form->setHtmlBefore('<center>Форма для сайта '. $site->host. '</center>');
@@ -340,6 +341,7 @@ class aSubscribe extends Action{
                $this->context->setMessage('Не осталось не обработанных сайтов');
             }
         }
+
         $this->context->set('form', $form);
     }
 
