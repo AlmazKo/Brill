@@ -106,6 +106,7 @@ class as_Strategy {
         $this->_userForm = $userForm;
         $this->_site = $site;
         $this->_subscribeSite = $subscribeSite;
+        Log::dump($userForm);
     }
 
     /**

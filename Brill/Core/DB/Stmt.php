@@ -21,6 +21,13 @@ class Stmt {
         self::ORDER => null,
         self::RAND => null);
 
+    /**
+     * Подготавливает sql строку.
+     * ищет в коде конструкции типа #var# и заменяет их, на переданные значения.
+     * @param string $sql
+     * @param array $args
+     * @return string
+     */
     public function prepare($sql, $args = array()) {
         if (!$sql) {
             LogMysql::errorQuery('Пустой sql');
@@ -29,6 +36,11 @@ class Stmt {
         if (is_array($args)) {
             foreach ($args as $key => $value) {
                 if (!array_key_exists($key, self::$_arr)) {
+                    if ((string)$value !== (string)(int) $value) {
+                        $value = '\'' . $value . '\'';
+                    } else if (is_array($value)) {
+                        $value = '\'' . implode(',', $value) .'\'';
+                    }
                     $pSql = str_replace("#$key#", $value, $pSql);
                 }
             }
@@ -36,7 +48,7 @@ class Stmt {
                 $aExt = array_merge(self::$_arr, $args);
                 $pSql .= self::_addExt($aExt);
             }
-            
+
         }
         return $pSql;
     }

@@ -35,4 +35,10 @@ GROUP BY subscribe_id;";
 
 const DEL_SUBSCRIBES_SITES_USER = "DELETE from as_SubscribesSites where subscribe_id=#subscribe_id#";
 const DEL_SUBSCRIBE_USER = "DELETE from as_Subscribes where id=#id# and user_id=#user_id#";
+
+const GET_SITES_USERS_USER = "SELECT s.host, su.login, su.password FROM `as_SitesUsers` as su
+join as_Sites as s on (s.id=su.site_id)
+WHERE user_id = #user_id#";
+const DEL_SITE_USER = "DELETE FROM as_SitesUsers where site_id=#site_id# and user_id=#user_id#";
+const ALL_SITES = "SELECT id, name from as_Sites where status='Ok'";
 }

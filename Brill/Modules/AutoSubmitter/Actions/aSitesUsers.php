@@ -25,7 +25,7 @@ class aSitesUsers extends Action {
             $this->context->setTpl('content', 'html_list');
         }
 
-        $sql = Stmt::prepare2(au_Stmt::GET_SITES_USERS_USER, array ('user_id' => $this->userInfo['user']['id']));
+        $sql = Stmt::prepare2(as_Stmt::GET_SITES_USERS_USER, array('user_id' => $this->userInfo['user']['id']));
         $tbl = new oTable(DBExt::selectToTable($sql));
 
         $tbl->setIsDel();
@@ -48,24 +48,44 @@ class aSitesUsers extends Action {
             $this->_parent();
             $this->context->setTpl('content', 'site_add_html');
         }
-
-        $fields['host'] = array('title' => 'хост', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
-        $fields['rule'] = array('title' => 'Конфиг(XML)', 'value'=>'', 'type'=>'textarea', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $sqlSites = Stmt::prepare2(as_Stmt::ALL_SITES, array(), array (Stmt::ORDER => 'sort'));
+        $listSites = new oList(DBExt::selectToList($sqlSites));
+        $fields['site_id'] = array('title' => 'Сайт', 'value' => '', 'data' => $listSites, 'type'=>'select', 'required' => true, 'validator' => null, 'info'=>'Список поддерживаемых на данный момент сайтов', 'error' => false, 'attr' => '', $checked = array());
+        $fields['login'] = array('title' => 'Логин', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
+        $fields['password'] = array('title' => 'Пароль', 'value'=>'', 'type'=>'text', 'required' => true, 'validator' => null, 'info'=>'', 'error' => false, 'attr' => '', $checked = array());
         $form = new oForm($fields);
         $this->context->set('form', $form);
-        $this->context->set('info_text', 'Создание нового сайта...');
+        $this->context->set('info_text', 'Добавление настроек для нового сайта...');
         if ($this->request->is('POST')) {
             $form->fill($this->request->get('POST'));
             if ($form->isComplited()) {
-                $site = new as_Sites();
-                $site->host = $form->getFieldValue('host');
-                $site->rule = $form->getFieldValue('rule');
-                $site->save();
+                $siteUser = new as_SitesUsers();
+                $siteUser->site_id = $form->getFieldValue('site_id');
+                $siteUser->login = $form->getFieldValue('login');
+                $siteUser->password = $form->getFieldValue('password');
+                $siteUser->user_id = $this->userInfo['user']['id'];
+                $siteUser->save();
                 $this->context->del('form');
-                $this->context->set('info_text', 'Сайт успешно добавлен');
+                $this->context->set('info_text', 'Настройки добавлены');
             }
         }
-        
+    }
+
+    function act_Del () {
+        $id = (int)$this->request->get('id', 0);
+        $sqlSites = Stmt::prepare2(as_Stmt::DEL_SITE_USER, array('user_id' => $this->userInfo['user']['id'], 'site_id' => $id));
+        DB::execute($prepare_stmt);
+        $sql = Stmt::prepare(se_Stmt::IS_KEYWORDS_SET, array('set_id' => $id, Stmt::LIMIT => 1));
+            $sitesUsers = new as_SitesUsers((int)$this->request->get('id'));
+            $sets->delete();
+
+
+        $iRoute = new InternalRoute();
+        $iRoute->module = 'SEParsing';
+        $iRoute->action = 'Sets';
+        $actR = new ActionResolver();
+        $act = $actR->getInternalAction($iRoute);
+        $act->runAct();
     }
 
     /**

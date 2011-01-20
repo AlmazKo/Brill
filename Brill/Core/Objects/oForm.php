@@ -196,14 +196,18 @@ protected
      * @param array $data
      */
     public function fill($data) {
-        foreach ($this->fields as $name => $settings) {
+        foreach ($this->fields as $name => &$settings) {
             if (isset($data[$name])) {
                 if ('select' == $settings['type']) {
-                    $list = $settings['data'];
+                    if ($settings['data'] instanceof oList) {
+                        $list = $settings['data'];
+                    } elseif (is_array($list = $settings['data'])) {
+                        $settings['data'] = $list = new oList($settings['data']);
+                    }
                     $list->fill($data[$name]);
-                    $this->fields[$name]['value'] = $list->getSelected();
+                    $settings['value'] = $list->getSelected();
                 } else {
-                    $this->fields[$name]['value'] = (string) $data[$name];
+                    $settings['value'] = (string) $data[$name];
                 }
             }
         }
