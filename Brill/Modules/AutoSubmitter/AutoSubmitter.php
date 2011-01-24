@@ -14,7 +14,9 @@ class AutoSubmitter extends Modules {
     protected $pathViews = null;
     protected $pathLib = null;
 
-    protected function configure() {}
+    protected function configure() {
+         require_once $this->pathDB . 'as_Stmt.php';
+    }
 
 
     public  static function instance() {

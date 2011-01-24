@@ -47,7 +47,7 @@ class as_Strategy {
          * 2.2 выполняем подготовительные данные
          * 2.3 получаем UserForm
          * 2.4 сливаем полученные данные в UserForm. может быть еще в mapper
-         
+
          */
 
 
@@ -59,7 +59,7 @@ class as_Strategy {
           * SiteUserSettings - настройки для сайта у юзера
           */
 
-        
+
         // Прослойка для связи с маппером
         $this->mapper = new as_XmlMapper(General::$loadedModules['AutoSubmitter']->pathModule . 'rules/' . $site->host . '.xml');
         /*
@@ -90,7 +90,7 @@ class as_Strategy {
 
         $subscribeSite->status = 'Busy';
         $subscribeSite->save();
-        
+
         $curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
@@ -130,7 +130,7 @@ class as_Strategy {
                         $message = (string)$action['message'];
                         if (false === strpos($this->_curl->getResponseBody(), $find)) {
                             switch ((string)$action['isFail']) {
-                                case 'next':        
+                                case 'next':
                                     return false;
                                 case 'repeat':
                                     $this->_subscribeSite->rule_num = 0;
@@ -139,7 +139,7 @@ class as_Strategy {
                             }
                         }
                     break;
-                    
+
                     case 'download':
                         $url = (string)$action['url'];
                         $this->_curl->downloadFile(
@@ -159,12 +159,20 @@ class as_Strategy {
                         if (isset($action['name_form'])) {
                             $nameForm = (string)$action['name_form'];
                         }
-                       $html = $this->_curl->getResponseBody();
-                       
-                       $dom = new DomExt($html);
-                       $this->_formSite = $dom->parseForm($nameForm); 
-                       $this->mapper->fillOut($this->_formSite, $this->_ruleId);
-                       Log::dump($this->_formSite);
+                        $html = $this->_curl->getResponseBody();
+
+                        $dom = new DomExt($html);
+                        $this->_formSite = $dom->parseForm($nameForm);
+                        if (!$this->_formSite) {
+                            $this->_subscribeSite->rule_num = 0;
+                            $fields = $this->mapper->getPublicFields($this->_ruleId);
+                            $this->_userForm = new oFormExt($fields);
+                            $this->_subscribeSite->form = $this->_userForm->getXmlAsText();
+                            $this->_subscribeSite->save();
+                            return new Error('Не удалось распарсить форму на сайте');
+                        }
+                        $this->mapper->fillOut($this->_formSite, $this->_ruleId);
+                       # Log::dump($this->_formSite);
                     break;
                 }
             }
@@ -191,7 +199,7 @@ class as_Strategy {
     public function getForm() {
         return $this->_userForm;
     }
-    
+
     public function start($post = null) {
         if ($this->mapper->isAutoRule($this->_ruleId) || $post) {
             if (!$post) {
@@ -210,10 +218,10 @@ class as_Strategy {
                     $this->_subscribeSite->form = $userForm->getXmlAsText();
                     $this->_subscribeSite->save();
                     $this->_userForm = $userForm;
-                    
+
                     return $this->start();
                 }
-                
+
             } else {
                 $userForm = $this->_userForm;
                 $userForm->fill($post);
@@ -263,7 +271,7 @@ class as_Strategy {
                     $this->_subscribeSite->form = $userForm->getXmlAsText();
                     $this->_subscribeSite->save();
                     $this->_userForm = $userForm;
-                    
+
                     return $this->start();
                 } else {
                     // закончили по этому сайту
@@ -291,7 +299,7 @@ class as_Strategy {
 //                $this->_curl->setPost($aPost);
 //                $url = $this->mapper->getUrlRule();
 //                $this->_curl->requestPost($url);
-//               
+//
 //                if ($this->_curl->getErrors()) {
 //                    $this->_subscribeSite->status = 'Error';
 //                    $this->_subscribeSite->save();
@@ -301,7 +309,7 @@ class as_Strategy {
 //                if ($resultAfter instanceof Error) {
 //                    $this->_subscribeSite->status = 'Error';
 //                    $this->_subscribeSite->save();
-//                    
+//
 //                    //по новой собираем данные
 //                    $resultBefore = $this->_processingBefore();
 //                    if ($resultBefore instanceof Error) {
@@ -323,17 +331,20 @@ class as_Strategy {
 //            }
 //        }
 
-
-       
         //обнуляем память курла
         //$this->_curl->reset();
         $resultBefore = $this->_processingBefore();
         if ($resultBefore instanceof Error) {
-            
             $this->_subscribeSite->status = 'Error';
             $this->_subscribeSite->save();
             return $resultBefore;
-        }echo '--OK--!';
+        } else {
+            $fields = $this->mapper->getPublicFields($this->_ruleId);
+            Log::dump($fields);
+            $this->_userForm = new oFormExt($fields);
+            $this->_subscribeSite->form = $this->_userForm->getXmlAsText();
+            $this->_subscribeSite->save();
+        }
         return $this->_userForm;
     }
 

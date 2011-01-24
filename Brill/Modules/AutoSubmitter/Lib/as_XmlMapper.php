@@ -26,7 +26,7 @@ class as_XmlMapper extends XmlParser{
            if (isset($rule->before)) {
                return $rule->before->action;
            } else {
-                return false;
+               return false;
            }
         } else {
             return null;
@@ -71,10 +71,10 @@ class as_XmlMapper extends XmlParser{
     /**
      * Являетли правило, автоматически выполняемым
      * @param unt $ruleId
-     * @return bool 
+     * @return bool
      */
     function isAutoRule($ruleId = 0) {
-        if ($this->hasRule($ruleId)) { 
+        if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
             if ($rule['auto'] && 'true' == (string)$rule['auto']) {
                 return true;
@@ -153,7 +153,7 @@ class as_XmlMapper extends XmlParser{
             } else {
                 return false;
             }
-            
+
         }
     }
 
@@ -170,9 +170,9 @@ class as_XmlMapper extends XmlParser{
             foreach ($rule->post->field as $field) {
                 $aField = current($field);
                 if ('true' == $field['form']) {
-                     
+
                     $name = (string)$field['var'];
-                   
+
                     $aFields[$name] = array();
                     foreach ($aField as $key => $value) {
                         switch($key) {
@@ -224,10 +224,10 @@ class as_XmlMapper extends XmlParser{
      * @param int $ruleId
      */
     public function fill($fields, $ruleId = 0) {
-         if ($this->hasRule($ruleId)) { 
+         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
             foreach ($rule->post->field as $field) {
-                $aField = &current($field); 
+                $aField = &current($field);
                 if (isset($aField['var']) && isset($fields[$aField['var']]) && 'true' == $aField['form']) {
                     $value = isset($fields[$aField['var']]['value']) ? $fields[$aField['var']]['value'] : '';
                     $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
@@ -239,20 +239,21 @@ class as_XmlMapper extends XmlParser{
 
     /**
      * Заполняет форму из внешнего источника
-     * @param <type> $fields
+     * @param array $fields
      * @param int $ruleId
      */
-    public function fillOut($fields, $ruleId = 0) { 
-         if ($this->hasRule($ruleId)) { 
+    public function fillOut($fields, $ruleId = 0) {
+         if ($this->hasRule($ruleId)) {
             $rule = $this->getRule($ruleId);
-            foreach ($rule->post->field as $field) { 
+            foreach ($rule->post->field as $field) {
                 $aField = &current($field); echo '<hr>--'.$aField['name'];
-                if (isset($aField['out']) && 'true' == $aField['out'] && isset($fields[$aField['name']]) ) {
-                    $value = $fields[$aField['name']];
+                if (isset($aField['sourcesite']) && isset($fields[$aField['sourcesite']])) {
+                    $value = $fields[$aField['sourcesite']];
+                    var_dump($value);
                     if ($aField['type'] == 'select') {
                         $field->addAttribute('data', serialize($value));
                     } else {
-                        $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
+                        $value = htmlspecialchars((string)$value, ENT_QUOTES, ENCODING_CODE);
                         $field[0] = $value;
                     }
                 }

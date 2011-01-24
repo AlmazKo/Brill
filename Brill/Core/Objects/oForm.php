@@ -24,6 +24,23 @@ protected
         // Пример:
         //$fields['name'] = array('title' => '', 'value'=>'', 'type'=>'text', 'validator' => null, 'info'=>'', 'error' => false, $checked = array(););
 
+        
+
+        foreach ($fields as &$settings) {
+            if ('select' == $settings['type']) {
+                if (empty($settings['data'])) {
+                    $settings['data'] = array();
+                }
+                if ($settings['data'] instanceof oList) {
+                } else {
+                    if (!is_array($settings['data'])) {
+                        $settings['data'] = array((string)$settings['data']);
+                    }
+                    echo '<br>--+'.implode('_',$settings['data']);
+                    $settings['data'] = new oList($settings['data']);
+                }
+            }
+        }
         $this->fields = $fields;
     }
     /**
@@ -155,8 +172,12 @@ protected
                 break;
             case 'select':
                 $html .= '<label for="' . $name . '">' . $settings['title'] . (isset($settings['required']) ? '*' : '') . ': </label>';
+                if(empty($settings['data'])) {
+                    Log::dump($settings);
+                    Log::warning('пустой Data');
+                }
                 $settings['data']->setChecking((array)$settings['value']);
-                $html .= $settings['data']->buildHtmlSelect($name, false, $settings['attr']);
+                $html .= $settings['data']->buildHtmlSelect($name, false, (empty($settings['attr'])) ? '' : $settings['attr']);
                 break;
             case 'multiSelect':
                 break;
@@ -195,15 +216,11 @@ protected
      * Заполняет форму данными
      * @param array $data
      */
-    public function fill($data) {
+    public function fill($data = array()) {
         foreach ($this->fields as $name => &$settings) {
             if (isset($data[$name])) {
                 if ('select' == $settings['type']) {
-                    if ($settings['data'] instanceof oList) {
-                        $list = $settings['data'];
-                    } elseif (is_array($list = $settings['data'])) {
-                        $settings['data'] = $list = new oList($settings['data']);
-                    }
+                    $list = $settings['data'];
                     $list->fill($data[$name]);
                     $settings['value'] = $list->getSelected();
                 } else {

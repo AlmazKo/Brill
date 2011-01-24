@@ -11,7 +11,9 @@ die;
 $html = <<<HTML
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"><head><meta name="yandex-verification" content="7c5a9405785c6cbd" /><title>Добавить пресс-релиз » Пресс-релизы: новости и события компаний - PRtime.ru</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><meta name="description" content="Портал для PR-менеджеров: размещение пресс-релизов, новостей компаний, форум о PR." /><meta name="keywords" content="Пресс-релизы, размещение пресс-релизов, добавить пресс-релиз, pr - PRtime.ru" /><meta name="robots" content="all" /><meta name="revisit-after" content="1 days" /><link rel="search" type="application/opensearchdescription+xml" href="http://www.prtime.ru/engine/opensearch.php" title="Пресс-релизы: новости и события компаний - PRtime.ru" /><link rel="alternate" type="application/rss+xml" title="Пресс-релизы: новости и события компаний - PRtime.ru" href="http://www.prtime.ru/rss.xml" /><script src="/templates/web30/js/prototype.js" type="text/javascript"></script><script src="/templates/web30/js/scriptaculous.js?load=effects" type="text/javascript"></script><script src="/templates/web30/js/lightbox.js" type="text/javascript"></script><link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" /><style rel="stylesheet" type="text/css" media="all"><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"><head><meta name="yandex-verification" content="7c5a9405785c6cbd" />
+<title>Добавить пресс-релиз » Пресс-релизы: новости и события компаний - PRtime.ru</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251" /><meta name="description" content="Портал для PR-менеджеров: размещение пресс-релизов, новостей компаний, форум о PR." /><meta name="keywords" content="Пресс-релизы, размещение пресс-релизов, добавить пресс-релиз, pr - PRtime.ru" /><meta name="robots" content="all" /><meta name="revisit-after" content="1 days" /><link rel="search" type="application/opensearchdescription+xml" href="http://www.prtime.ru/engine/opensearch.php" title="Пресс-релизы: новости и события компаний - PRtime.ru" /><link rel="alternate" type="application/rss+xml" title="Пресс-релизы: новости и события компаний - PRtime.ru" href="http://www.prtime.ru/rss.xml" /><script src="/templates/web30/js/prototype.js" type="text/javascript"></script><script src="/templates/web30/js/scriptaculous.js?load=effects" type="text/javascript"></script><script src="/templates/web30/js/lightbox.js" type="text/javascript"></script><link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" /><style rel="stylesheet" type="text/css" media="all"><![CDATA[
 
 @import url(/templates/web30/css/style.css);
 
@@ -484,7 +486,7 @@ pageTracker._trackPageview();
 ]]></script></html>
 HTML;
 
-                       $dom = new DomExt($html);
+                       $dom = new DomExt($html, 'UTF-8');
                        $t = $dom->parseForm('entryform');
                        
 Log::dump($t);

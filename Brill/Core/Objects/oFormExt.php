@@ -48,8 +48,8 @@ class oFormExt extends oForm {
         if ($sxe) {
             foreach ($sxe->field as $key => $value) {
                 $attr = current((array)$value->attributes());
-                if (isset($attr['data'])) {
-                    $attr['data'] = unserialize($attr['data']);
+                if (isset($attr['data']) && is_string($attr['data'])) {
+                    $attr['data'] = @unserialize($attr['data']);
                 }
                 $v = (array)$value;
                 $fields[$attr['name']] = $attr;
@@ -108,7 +108,6 @@ class oFormExt extends oForm {
                     $newField->addAttribute($key, $value);
                 } else if ('data' == $key) {
                     $newField->addAttribute($key, serialize($value));
-                    
                 }
             }
             $attrs = $newField->attributes();
@@ -119,4 +118,3 @@ class oFormExt extends oForm {
         return $sxe;
     }
 }
-
