@@ -18,14 +18,16 @@ class Log {
         $_screen = false,
         $_file = false,
         $aLog = array(),
+        $_isConsole = false,
         $i = 0;
 
     /**
      * Задать уровень логирования
      * @param int $num
      */
-    public static function setLevel($num) {
+    public static function setLevel($num, $isConsole = false) {
         if (null === self::$_debugLevel) {
+            self::$_isConsole = $isConsole;
             switch($num) {
                 case self::LVL_ONLY_SCREEN:
                     self::$_screen = true;
@@ -81,11 +83,12 @@ class Log {
      */
     public static function warning($text, $block = true, $title = 'Warning') {
         $b = debug_backtrace();
-        for ($i = 1; $i < 3; $i++) {
+        for ($i = 1; $i < 4; $i++) {
                $text .= "\n$i:" . $b[$i]['file'] . ':' . $b[$i]['line'];
         }
 
         echo self::inputLog($title, $text, true, 'red', 'error');
+
        ## TODO  должна обрабатываться или та строка или нижняя
        //  RegistryContext::instance()->set('error', self::viewLog());
         echo self::viewLog();
@@ -97,6 +100,9 @@ class Log {
             $filename = Helper::logFileWrite($filename, TFormat::txtMessageLog($title, $descr));
         }
         if (self::$_screen) {
+            if (self::$_isConsole) {
+                return TFormat::txtMessageLog($title, $descr);
+            }
             if (!$block) {
                 self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
             } else {

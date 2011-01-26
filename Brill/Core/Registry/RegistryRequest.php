@@ -152,12 +152,14 @@ class RegistryRequest extends Registry{
             return $defaultValue;
         }
     }
-    public function get($key, $defaultValue = null) {
-        if (isset($this->values[$key])) {
-            return $this->values[$key];
-        } else {
+    
+    public function get($key = null, $defaultValue = null) {
+        if (parent::is($key)) {
+            return parent::get($key);
+        } else if ($key) {
             return $defaultValue;
         }
+        return parent::get();
     }
 
 }

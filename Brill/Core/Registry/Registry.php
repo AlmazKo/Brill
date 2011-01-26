@@ -17,12 +17,11 @@ abstract class Registry{
         $this->values = array();
     }
 
-    public function get($key) {
-        if (isset($this->values[$key])) {
-            return $this->values[$key];
-        } else {
-            Log::warning("'$key' нет такого свойства");
+    public function get($key = null) {
+        if (!$key) {
+            return $this->values;
         }
+        return $this->values[$key];
     }
 
     public function is($key) {

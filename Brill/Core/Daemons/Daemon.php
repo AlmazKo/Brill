@@ -20,7 +20,8 @@ abstract class Daemon {
 
     protected
     // ссылка на конфигурацию модуля
-        $_module;
+        $_module,
+        $_params;
     public function  __construct() {}
     public function start() {}
     public function stop() {}
@@ -35,9 +36,12 @@ abstract class Daemon {
         $this->_module = $module;
     }
 
-
     public function setParams($params) {
         $this->_params = $params;
+    }
+
+    public function getParams($params) {
+        return $this->_params;
     }
     /**
      * Сколько копий дмено можно запусать одновременно

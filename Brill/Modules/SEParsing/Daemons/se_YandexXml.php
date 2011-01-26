@@ -117,7 +117,7 @@ abstract class se_YandexXml extends se_Parser {
         $sxe = simplexml_load_string($response)->response;
         if ($sxe->error) {
             LogInDb::notice($this, $sxe->error);
-            die();
+            die('Ошибка на Яндексе: ' . $sxe->error);
         }
         return $sxe;
     }

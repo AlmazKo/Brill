@@ -430,7 +430,7 @@ class Curl {
     protected function _exec() {
         $this->_preparedHeaders();
         curl_setopt_array($this->_ch, $this->_opt);
-        Log::dump($this->getOpts(true));
+       // Log::dump($this->getOpts(true));
 
         $this->_responseRaw = curl_exec($this->_ch);
         $this->_responseLocation = null;
@@ -545,7 +545,7 @@ class Curl {
                 $charset = $this->_responseCharset;
             }
             $this->_responseBodyCharset = $charset;
-            if ($convert && $charset && ENCODING_CODE != $charset) { echo' NO!!!!!'.$charset;
+            if ($convert && $charset && ENCODING_CODE != $charset) {
                 $this->_responseBody = @iconv($charset, ENCODING_CODE, $this->_responseBody);
             }
         }
@@ -578,7 +578,7 @@ class Curl {
 
     public function setResponseCharset($charset, $forcibly = false) {
         $this->_responseMyCharset = $charset;
-        $thos->_responseMyCharsetForcibly = $forcibly;
+        $this->_responseMyCharsetForcibly = $forcibly;
     }
 
 

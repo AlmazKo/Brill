@@ -53,7 +53,7 @@ class DBExt extends DB{
 
         $result = parent::query($query);
         $values = null;
-        if ($result->num_rows == 1) {
+        if ($result->num_rows > 0) {
             $values = $result->fetch_assoc();
         }
         return $values;

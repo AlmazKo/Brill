@@ -37,7 +37,7 @@ class Stmt {
             foreach ($args as $key => $value) {
                 if (!array_key_exists($key, self::$_arr)) {
                     if ((string)$value !== (string)(int) $value) {
-                        $value = '\'' . $value . '\'';
+                        //$value = '\'' . $value . '\'';
                     } else if (is_array($value)) {
                         $value = '\'' . implode(',', $value) .'\'';
                     }

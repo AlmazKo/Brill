@@ -119,10 +119,12 @@ abstract class Model {
         return $this->getValues();
     }
 
+
     /**
      * Возвращает объект, полученный по уникальному полю
-     * @param string $valPk значение ключа
-     * @return class
+     * @param string $field
+     * @param string $value
+     * @return Model
      */
     public function getObjectField($field, $value) {
         if (in_array($field, $this->_fields)) {

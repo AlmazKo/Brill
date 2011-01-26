@@ -18,9 +18,9 @@ class Underworld {
      */
     public function summon() {
         $request = RegistryRequest::instance();
-        
         // временный костыль, а так все должнол получаться из консоли
-        $params = $_GET;
+        //$params = $_GET;
+        $params = $request->get();
         $nameDaemon = $params['name'];
         unset($params['name']);
         //-------------------
@@ -32,7 +32,7 @@ class Underworld {
             Log::warning($nameDaemon . ' должен быть унаследован от  Daemon');
         }
         $daemon->setModule($module);
-        $daemon->setParams($params);
+        $daemon->setParams($params); 
         return $daemon;
     }
 
@@ -62,5 +62,16 @@ class Underworld {
         }
 
         Log::warning('Не найден модуль для демона : '.$nameDaemon);
+    }
+
+    /**
+     * Получить массив - статус всех демонов
+     */
+    public function status () {
+
+    }
+
+    public function banish($nameDaemon) {
+        
     }
 }

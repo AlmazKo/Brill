@@ -29,7 +29,6 @@ class st_Lib extends Lib {
                 $hostId = 0;
                 $result = DBExt::getOneRowSql(Stmt::prepare2(st_StmtDaemon::GET_INTERFACE_SIMPLE, array('host_id' => $hostId)));
         }
-echo Stmt::prepare2(st_StmtDaemon::GET_INTERFACE_YANDEX_XML, array('host_id' => $hostId));
         if ($result){
             $interfaceId = array_shift($result);
             DBExt::query(Stmt::prepare2(st_StmtDaemon::SET_INTERFACE_USED, array(

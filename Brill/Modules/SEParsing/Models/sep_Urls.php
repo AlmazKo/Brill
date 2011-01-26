@@ -5,6 +5,7 @@
  */
 
 class sep_Urls extends Model {
+    const TABLE = 'sep_Urls';
     protected $_tblName = __CLASS__;
     protected $_fields = array (
         'id',

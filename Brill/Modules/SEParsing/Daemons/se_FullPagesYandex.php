@@ -23,6 +23,8 @@ Class se_FullPagesYandex extends se_YandexXml
 
     protected
         $_linksInPages = 100;
+
+    protected $_urls = array();
     
 	public $is_simple			= true;		//запускать только один симпл
     public $site               = false;       //Название сайта
@@ -100,31 +102,10 @@ Class se_FullPagesYandex extends se_YandexXml
                 $urls = $this->_getUrls($groups);
                 $countYa = (int)$xmlResponse->results->grouping->found[0];
             }
-           
-            foreach($urls as $url => $info) {
-                $oUrl = new sep_Urls();
-                 $this->countGather++;
-                 $gathered++;
-               
-                     $oUrl->getObjectField('url',$url);
-                     if ($oUrl->isNull()) {
-                         $oUrl->url = $url;
-                         $oUrl->mime_type = $info['mime-type'];
-                         $oUrl->status = 'is_yandex';
-                         $oUrl->site_id = $this->site->id;
-                     }
-                     $oUrl->save();
-                 if (Mimetypes::isWebPage($info['mime-type'])) {
-                     $this->countWebPageGather++;
-                     $gatherWebPage++;
-
-                 } else {
-                    // echo '<br>-'.$i++."\t" .$url;
-                 }
-            }
-
+           $this->_urls += $urls;
+           $gathered += count($urls);
+           $urls = array();
         }
-        if(self::DEBUG_LEVEL>=2) echo $this->site.'/<b>'.$dop.'</b> PAGE: '.$page.', Добавлено ссылок:'.$gatherWebPage.', всего пройдено '.$gathered.'<br>';
         return $gathered;
     }
 
@@ -157,9 +138,9 @@ Class se_FullPagesYandex extends se_YandexXml
         }
         
         $request = $this->getXMLRequest($query);
-echo ' страниц: '.$request.'<br>';
+//echo ' страниц: '.$request.'<br>';
         $xmlResponse = $this->requestYandex($request, $this->_linksInPages);
-log::dump($xmlResponse);
+//log::dump($xmlResponse);
         $groups = $xmlResponse->results->grouping->group;
         $countYa = (int)$xmlResponse->results->grouping->found[0];
 
@@ -172,7 +153,7 @@ log::dump($xmlResponse);
             $this->globalCountYa = $countYa;
         }
         $urls = $this->_getUrls($groups);
-        Log::dump($urls);
+        
 
 
 
@@ -243,24 +224,45 @@ log::dump($xmlResponse);
 //		$this->db->setinfo($this->globalCountYa, $this->countTextGather, $kpd, $timew, $this->newlinks);
 //        if(self::DEBUG_LEVEL>=1)  echo '<div style="color:#008800;font-family:Arial;font-size:15px;"><pre>'.$this->infoParse.'</pre></div>';
     }
-    function start (){
+    function start() {
         $parser->is_simple=true;
         $this->_configure();
         parent::start();
+        if ($this->_params['id']) {
+            $aProjectIds = explode(',',$this->_params['id']);
+            $project = new sep_Projects($aProjectIds[0]);
+            $oSite = new sep_Sites();
+            $oSite->getObject($project->site_id);
+            $this->site = $oSite;
 
-        do {
-            $sql = Stmt::prepare(se_StmtDaemon::GET_PROJECT_FREE, array('limit' => 1, 'search_type' => 'YaXmlDot'));
-            $project = DBExt::getOneRowSql($sql);
-            if (!$project) {
-                Log::warning('Закончились проекты');
+
+                    $query = "select * from ".sep_Urls::TABLE. " where site_id=".$oSite->id;
+        $result = DB::query($query);
+        $values = null;
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $values[$row['url']] = $row;
+                unset($values[$row['url']]['url']);
             }
-            $sql = Stmt::prepare2(se_StmtDaemon::SET_PROJECT_SET, array('project_id' => $project['id'], 'search_type' => 'YaXmlDot', 'status' => 'Busy'));
+        }
+            $this->actualUrls = $values;
+          //  var_dump($this->actualUrls);
+   
 
-        } while(!DBExt::tryInsert($sql));
+        }
+//        do {
+//            $sql = Stmt::prepare(se_StmtDaemon::GET_PROJECT_FREE, array('limit' => 1, 'search_type' => 'YaXmlDot'));
+//            $project = DBExt::getOneRowSql($sql);
+//            if (!$project) {
+//                Log::warning('Закончились проекты');
+//            }
+//            $sql = Stmt::prepare2(se_StmtDaemon::SET_PROJECT_SET, array('project_id' => $project['id'], 'search_type' => 'YaXmlDot', 'status' => 'Busy'));
+//
+//        } while(!DBExt::tryInsert($sql));
 
-        $oSite = new sep_Sites();
-        $oSite->getObject($project['site_id']);
-        $this->site = $oSite;
+//        $oSite = new sep_Sites();
+//        $oSite->getObject($project['site_id']);
+//        $this->site = $oSite;
 
 
 
@@ -273,6 +275,24 @@ log::dump($xmlResponse);
       //  Log::dump($this);
        
         $this->parse();
+
+        foreach($this->_urls as $url => &$info) {
+            if (array_key_exists($url, $this->actualUrls)) {
+                if ('is_yandex' !== $this->actualUrls[$url]['status']) {
+                    $oUrl = new sep_Urls($this->actualUrls[$url]['id']);
+                    $oUrl->status = 'is_yandex';
+                    $oUrl->mime_type = $info['mime-type'];
+                    $oUrl->save();
+                }
+            } else {
+                $oUrl = new sep_Urls();
+                $oUrl->url = $url;
+                $oUrl->mime_type = $info['mime-type'];
+                $oUrl->status = 'is_yandex';
+                $oUrl->site_id = $this->site->id;
+                $oUrl->save();
+            }
+        }
     }
 
 }
