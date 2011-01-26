@@ -15,9 +15,8 @@ class aSubscribe extends Action{
         require_once $this->module->pathModels . 'as_Subscribes.php';
         require_once $this->module->pathModels . 'as_SubscribesSites.php';
         require_once $this->module->pathModels . 'as_SitesUsers.php';
-        
+
         require_once $this->module->pathModule . 'UserSubscribeForm.php';
-        require_once $this->module->pathDB . 'as_Stmt.php';
         require_once $this->module->pathLib . 'XmlParser.php';
         require_once $this->module->pathLib . 'as_Strategy.php';
         $this->context->setTopTpl('subscribe_start_html');
@@ -31,7 +30,7 @@ class aSubscribe extends Action{
             $this->_parent();
             $this->context->setTpl('content', 'subscribes_edit');
         }
-        
+
         $id = (int)$this->request->get('id', 0);
         if (!$id) {
             return;
@@ -39,7 +38,7 @@ class aSubscribe extends Action{
 
         $sql = Stmt::prepare2(as_Stmt::GET_SUBSCRIBE_USER, array('id'=>$id, 'user_id' => 0));
         $subscribes = new as_Subscribes();
-        
+
         if ($subscribes->fillObjectFromSql($sql)) {
             if ($this->request->is('POST')) {
                 $form = new UserSubscribeForm();
@@ -56,7 +55,7 @@ class aSubscribe extends Action{
                     $act->runAct();
                 }
             } else {
-               
+
                 $form = new oFormExt();
                 $form->loadFromString($subscribes->form);
                 $this->context->set('form', $form);
@@ -65,12 +64,12 @@ class aSubscribe extends Action{
         } else {
              $this->context->set('h1', 'Редактирование рассылки');
         }
-       
+
     }
 
     function act_Del () {
         $id = (int)$this->request->get('id', 0);
-        
+
         $subscribe = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt:: GET_SUBSCRIBE_USER, array('user_id' => 0, 'id' => $id)));
         if ($subscribe) {
             DB::query(Stmt::prepare2(as_Stmt::DEL_SUBSCRIBES_SITES_USER, array('user_id' => 0, 'subscribe_id' => $subscribe['id'])));
@@ -268,7 +267,7 @@ class aSubscribe extends Action{
         $form = null;
         $session = RegistrySession::instance();
         $this->context->set('h1','Рассылка');
-        
+
         if ($session->is('as_ss_id')) {
             //какое идентификатор должен быть у формы
             $subscribeSiteIdName = $session->get('as_ss_id');
@@ -281,7 +280,7 @@ class aSubscribe extends Action{
                     $site = new as_Sites($result['site_id']);
                     $subscribe = new as_Subscribes($result['subscribe_id']);
                     $sitesUsers = new as_SitesUsers($result['site_id'], $this->userInfo['user']['id']);
-                    
+
                     $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
                     $strategy = new as_Strategy($site, $subscribe, $sitesUsers);
                     $result = $strategy->start(($this->request->get('POST')));
@@ -314,6 +313,12 @@ class aSubscribe extends Action{
 
         if (!$form && $this->request->getRequestGET('id')) {
             $subscribeId = (int)$this->request->get('id', 0);
+
+            $isAvailSusbcribe = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::IS_USER_SUBSCRIBE, array('subscribe_id' => $subscribeId, 'user_id' => $this->userInfo['user']['id'])));
+            if (!$isAvailSusbcribe) {
+                $this->context->setError('Эта рассылка Вам не доступна');
+                return;
+            }
             $result = DBExt::getOneRowSql(Stmt::prepare2(as_Stmt::GET_SITE_IN_SUBSCRIBE, array('subscribe_id' => $subscribeId)));
             if ($result) {
                 $site = new as_Sites($result['site_id']);
@@ -322,9 +327,8 @@ class aSubscribe extends Action{
                 $this->context->set('h1','Рассылка "' . $subscribe->name . '"');
                 $strategy = new as_Strategy($site, $subscribe, $sitesUsers);
                 $result = $strategy->start();
-                if($result instanceof Error) {echo '--E22!!--!';
+                if($result instanceof Error) {
                     $this->context->setError($result->getMessage());
-
                     $this->context->set('text', 'Повторить. Перейти к следущему сайту рассылки');
 $form = null;
                 } else {

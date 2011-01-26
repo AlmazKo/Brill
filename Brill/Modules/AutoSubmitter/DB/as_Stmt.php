@@ -19,6 +19,9 @@ join `as_Sites` as si on(si.id=ss.site_id)";
 //список свободных рассылок
 const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND status <> 'Ok' limit 1";
 #const GET_SITE_IN_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# limit 1";
+//
+const IS_USER_SUBSCRIBE = "SELECT id FROM as_Subscribes WHERE id=#subscribe_id# and user_id=#user_id# limit 1";
+
 //список используемых рассылок
 const GET_SITE_IN_USED_SUBSCRIBE = "SELECT * FROM as_SubscribesSites as ss where ss.subscribe_id=#subscribe_id# AND FIND_IN_SET(status,'Busy,Error') limit 1";
 

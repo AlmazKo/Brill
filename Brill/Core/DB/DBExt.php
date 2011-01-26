@@ -53,7 +53,7 @@ class DBExt extends DB{
 
         $result = parent::query($query);
         $values = null;
-        if ($result->num_rows > 0) {
+        if ($result->num_rows == 1) {
             $values = $result->fetch_assoc();
         }
         return $values;
@@ -74,12 +74,10 @@ class DBExt extends DB{
         $query = "select * from `$tblName` $where Limit 1";
         $result = parent::query($query);
         $values = null;
-        if ($result->num_rows == 1) {
-            $values = $result->fetch_assoc();
-        } else if ($result->num_rows > 0) {
-            Log::warning("Не найдена строка");
+        if ($result->num_rows == 0) {
+            return null;
         }
-        return $values;
+        return $result->fetch_assoc();
     }
 
     /**
@@ -92,7 +90,7 @@ class DBExt extends DB{
     public static function getOneRowSql($sql, $lnk = null) {
         $result = parent::query($sql);
         $values = null;
-        
+
         if ($result->num_rows == 1) {
             $values = $result->fetch_assoc();
         } else if ($result->num_rows > 0) {
@@ -181,7 +179,7 @@ class DBExt extends DB{
 
     /**
      * Есть ли данные по этом запросу
-     * 
+     *
      * @param string $sql
      * @param <type> $lnk
      * @return bool
