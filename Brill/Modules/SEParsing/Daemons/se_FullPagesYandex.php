@@ -15,17 +15,16 @@ interface IDB_Rotator{
 
 Class se_FullPagesYandex extends se_YandexXml
 {
-    const 
+    const
         VERSION           = '0.3',    //Версия сего продукта
         DEBUG_LEVEL       = 0,        //Уровень отладки
         MAX_COUNT_REQUEST = 700;       //Для отладки. После скольких запросов остановится
-    
 
     protected
         $_linksInPages = 100;
 
     protected $_urls = array();
-    
+
 	public $is_simple			= true;		//запускать только один симпл
     public $site               = false;       //Название сайта
     public $siteId            = false;
@@ -90,7 +89,6 @@ Class se_FullPagesYandex extends se_YandexXml
         $this->countSimpleParser++;
         $i = 1;
 
-        
         for ($page = 0; $page < $depth; $page++)
         {
           //для первой страницы не делаем, т.к. запрос уже был сделан выше
@@ -118,8 +116,8 @@ Class se_FullPagesYandex extends se_YandexXml
         foreach ($groups as $value) {
            $page = (array)$value->doc;
            $urls[$page['url']] = array(
-               'domain' => $page['domain'],
-               'mime-type' => $page['mime-type']);
+               'domain' => (string)$page['domain'],
+               'mime-type' => (string)$page['mime-type']);
         }
         return $urls;
     }
@@ -136,11 +134,11 @@ Class se_FullPagesYandex extends se_YandexXml
         } else {
             $query = 'url:'.$this->site->name.'/'.$dop . '*';
         }
-        
+//var_dump($query);
         $request = $this->getXMLRequest($query);
 //echo ' страниц: '.$request.'<br>';
         $xmlResponse = $this->requestYandex($request, $this->_linksInPages);
-//log::dump($xmlResponse);
+//var_dump($xmlResponse);
         $groups = $xmlResponse->results->grouping->group;
         $countYa = (int)$xmlResponse->results->grouping->found[0];
 
@@ -153,8 +151,6 @@ Class se_FullPagesYandex extends se_YandexXml
             $this->globalCountYa = $countYa;
         }
         $urls = $this->_getUrls($groups);
-        
-
 
 
 
@@ -162,12 +158,12 @@ Class se_FullPagesYandex extends se_YandexXml
 
 
 
-       
+
 
         if ($countYa <= self::MAX_LINKS_YA || $this->is_simple) {
             // если количество страниц меньше 1000 - запускаем простой обработчик ссылок
             $depth = ceil($countYa/$this->_linksInPages-0.01); //  получаем количество страниц
-            
+
 
       //  echo '<br> <b>New Simple Parser</b>. links: '.$countYa.' pages:'.$depth.'<br>';
         if ($depth>10) $depth=10;
@@ -228,62 +224,80 @@ Class se_FullPagesYandex extends se_YandexXml
         $parser->is_simple=true;
         $this->_configure();
         parent::start();
-        if ($this->_params['id']) {
-            $aProjectIds = explode(',',$this->_params['id']);
-            $project = new sep_Projects($aProjectIds[0]);
-            $oSite = new sep_Sites();
-            $oSite->getObject($project->site_id);
-            $this->site = $oSite;
+        if (!empty($this->_params['id'])) {
+            $aProjectIds = explode(',', $this->_params['id']);
 
-
-                    $query = "select * from ".sep_Urls::TABLE. " where site_id=".$oSite->id;
-        $result = DB::query($query);
-        $values = null;
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $values[$row['url']] = $row;
-                unset($values[$row['url']]['url']);
+            foreach ($aProjectIds as $projectId) {
+                $project = new sep_Projects($projectId);
+                $oSite = new sep_Sites();
+                $oSite->getObject($project->site_id);
+                $this->site = $oSite;
+                $query = "select * from " . sep_Urls::TABLE . " where site_id=".$oSite->id;
+                $result = DB::query($query);
+                $this->actualUrls = array();
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $this->actualUrls[$row['url']] = $row;
+                        unset($this->actualUrls[$row['url']]['url']);
+                    }
+                }
             }
+
+        } else if (!empty($this->_params['host'])) {
+            $site = new sep_Sites();
+            if (!$site->getObjectField('name', $this->_params['host'])) {
+                $site->name = trim($this->_params['host']);
+                $site->save();
+            }
+
+            $project = new sep_Projects();
+            if (!$project->getObjectField('site_id', $site->id)) {
+                $project->name = $site->name;
+                $project->site = $site->name;
+                $project->site_id = $site->id;
+                $project->status = 'Active';
+                $project->descr = 'Автоматически сгенерированный проект демоном se_FullPagesYandex';
+                $project->save();
+            }
+
+            $query = "select * from " . sep_Urls::TABLE . " where site_id=" . $site->id;
+            $result = DB::query($query);
+            $this->actualUrls = array();
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $this->actualUrls[$row['url']] = $row;
+                    unset($this->actualUrls[$row['url']]['url']);
+                }
+            }
+            $this->site = $site;
         }
-            $this->actualUrls = $values;
-          //  var_dump($this->actualUrls);
-   
-
+   /* else {
+            Log::warning('0');
+            do {
+                $sql = Stmt::prepare(se_StmtDaemon::GET_PROJECT_FREE, array('limit' => 1, 'search_type' => 'YaXmlDot'));
+                $project = DBExt::getOneRowSql($sql);
+                if (!$project) {
+                    Log::warning('Закончились проекты');
+                }
+                $sql = Stmt::prepare2(se_StmtDaemon::SET_PROJECT_SET, array('project_id' => $project['id'], 'search_type' => 'YaXmlDot', 'status' => 'Busy'));
+            } while(!DBExt::tryInsert($sql));
         }
-//        do {
-//            $sql = Stmt::prepare(se_StmtDaemon::GET_PROJECT_FREE, array('limit' => 1, 'search_type' => 'YaXmlDot'));
-//            $project = DBExt::getOneRowSql($sql);
-//            if (!$project) {
-//                Log::warning('Закончились проекты');
-//            }
-//            $sql = Stmt::prepare2(se_StmtDaemon::SET_PROJECT_SET, array('project_id' => $project['id'], 'search_type' => 'YaXmlDot', 'status' => 'Busy'));
-//
-//        } while(!DBExt::tryInsert($sql));
-
-//        $oSite = new sep_Sites();
-//        $oSite->getObject($project['site_id']);
-//        $this->site = $oSite;
-
-
-
-
-	//	$this->unsetBlocksYndex();
-
-	//	$this->_countPages = ceil(self::MAX_LINKS_YA/$this->_linksInPages-0.01);
+*/
         $this->first = true;
-        
-      //  Log::dump($this);
-       
+
         $this->parse();
 
         foreach($this->_urls as $url => &$info) {
             if (array_key_exists($url, $this->actualUrls)) {
+                $oUrl = new sep_Urls($this->actualUrls[$url]['id']);
                 if ('is_yandex' !== $this->actualUrls[$url]['status']) {
-                    $oUrl = new sep_Urls($this->actualUrls[$url]['id']);
                     $oUrl->status = 'is_yandex';
-                    $oUrl->mime_type = $info['mime-type'];
-                    $oUrl->save();
+                } else {
+                    $oUrl->status = '';
                 }
+
+                $oUrl->mime_type = $info['mime-type'];
+                $oUrl->save();
             } else {
                 $oUrl = new sep_Urls();
                 $oUrl->url = $url;
@@ -293,6 +307,16 @@ Class se_FullPagesYandex extends se_YandexXml
                 $oUrl->save();
             }
         }
+
+        if (isset($this->_params['print'])) {
+            $raw = array();
+            foreach($this->_urls as $url => &$info) {
+                if (Mimetypes::isWebPage($info['mime-type'])) {
+                    $raw[] = $url;
+                }
+            }
+            echo serialize($raw);
+        }
     }
 
 }
@@ -301,5 +325,3 @@ Class se_FullPagesYandex extends se_YandexXml
 //$parser->is_simple=true;
 ////$parser->site=false ; адрес сайта, если не задан то ищет последний не обновлявшийся//'ag-club.ru';
 //$parser->start();
-
-?>
