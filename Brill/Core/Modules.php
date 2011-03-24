@@ -34,7 +34,7 @@ abstract class Modules {
 
     abstract protected function configure();
 
-    abstract public static function instance();
+#    abstract public static function instance();
 
     function  __construct() {
         $this->pathModule   = MODULES_PATH . $this->name . '/';

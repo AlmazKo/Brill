@@ -5,13 +5,13 @@
  * @author almazKo
  */
 class ConstCurl {
-
     //"стратегически" важные заголовки
     const
         HEADER_CONTENT_TYPE = 'content-type',
         HEADER_SET_COOKIE = 'set-cookie',
         HEADER_LOCATION = 'location';
 
+    // способы отправки формы
     const
         FORM_ENCTYPE_APP = 'application/x-www-form-urlencoded',
         FORM_ENCTYPE_MULTIPART = 'multipart/form-data';
@@ -195,5 +195,4 @@ class ConstCurl {
         CURLOPT_WRITEFUNCTION => 'CURLOPT_WRITEFUNCTION',
         CURLOPT_WRITEHEADER => 'CURLOPT_WRITEHEADER',
         );
-
 }

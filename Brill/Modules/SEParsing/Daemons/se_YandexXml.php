@@ -68,7 +68,7 @@ abstract class se_YandexXml extends se_Parser {
     final protected function getXMLRequest($query, $linksInPage = self::LINKS_IN_PAGE, $page = 0){
         $data = '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" .
                 "<request>\r\n" .
-                "<query>".Xml::prepareTextForXml($query)."</query>\r\n" .
+                '<query>' . Xml::prepareTextForXml($query) . "</query>\r\n" .
                 "<page>$page</page>\r\n" .
                 "<groupings>\r\n" .
                 '<groupby attr="d" mode="flat" groups-on-page="' . $this->_linksInPages .'"/>' . "\r\n" .
@@ -79,7 +79,7 @@ abstract class se_YandexXml extends se_Parser {
 
     // cleaning url for compare
     protected function getHost($url){
-        return str_replace ("www.", "", parse_url(strtolower($url), PHP_URL_HOST));
+        return str_replace ('www.', '', parse_url(strtolower($url), PHP_URL_HOST));
     }
 
     protected function getPath($url){

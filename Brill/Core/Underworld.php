@@ -20,11 +20,15 @@ class Underworld {
         $request = RegistryRequest::instance();
         // временный костыль, а так все должнол получаться из консоли
         //$params = $_GET;
-        $params = $request->get();
-        $nameDaemon = $params['name'];
-        unset($params['name']);
-        //-------------------
+        $params = $request->get('argv');
+        if (!$params) {
+            throw new Warning(Daemon::option_null());
+        }
+        var_dump($params);
 
+        $nameDaemon = array_shift($params);
+        //-------------------
+die;
         $module = $this->_loadModuleDaemon($nameDaemon);
         $daemon = new $nameDaemon();
 

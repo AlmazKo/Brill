@@ -41,10 +41,14 @@ class FrontDeamon {
     private function handleRequest() {
         $request = RegistryRequest::instance();
         if ($request->isConsole()) {
+            try {
             $daemonR = new Underworld();
             $daemon = $daemonR->summon();
             if (Underworld::countRunningDaemons($daemon) <= $daemon->maxCountRun()) {
                  $daemon->start();
+            }
+            } catch (Warning $e) {
+                Log::warning($e->getMessage());
             }
         }
     }

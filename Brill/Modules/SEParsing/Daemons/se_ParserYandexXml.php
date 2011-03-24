@@ -16,13 +16,17 @@ class se_ParserYandexXml extends se_YandexXml {
 
     protected
         $_depth = 1,
-            //сколько позиций брать за раз
+        //сколько позиций брать за раз
         $_linksInPages = 10;
 
     public function  __construct() {
         parent::__construct();
+        $_cliParams += array('-type' => 'Type 1|0. С точкой или без');
      }
 
+    /**
+     * Подключение всех выжных моделей
+     */
     protected function _configure() {
         require_once $this->_module->pathModels . 'sep_Keywords.php';
         require_once $this->_module->pathModels . 'sep_Sites.php';
@@ -113,9 +117,11 @@ class se_ParserYandexXml extends se_YandexXml {
         } while(!DBExt::tryInsert($sql));
 
         $sql = Stmt::prepare(se_StmtDaemon::GET_KEYWORDS_SET, array('set_id' => $set['id']));
+        
+        // массив всех ключевиков одного проекта
         $keywords = DBExt::selectToArray($sql);
 
-        if (!$keywords) {
+        if (count($keywords) > 0) {
             return;
             Log::warning('Не найдены ключевики у сета');
         }

@@ -15,16 +15,27 @@ class DB {
     }
 
     final private static function connector($config){
-        $lnk = null;
-        $lnk = @new mysqli($config[0], $config[1], $config[2], $config[3]);
-        if (mysqli_connect_errno()) {
-            LogMysql::errorQuery("Подключение к серверу MySQL невозможно / " . mysqli_connect_error());
-            $lnk = null;
-            die();
+        try {
+            $dsn='mysql:dbname=' . $config[3] . ';host=' . $config[0];
+            $lnk = new PDO($dsn , $config[1], $config[2]);
+        } catch (PDOException $e) {
+            die( 'Connection failed: ' . $e->getMessage());
         }
-        if (!$lnk->set_charset('utf8')) {
-            Log::warning("Error loading character set utf8: %s", mysqli_connect_error());
-        }
+//        try {
+//            $lnk = new mysqli($config[0], $config[1], $config[2], $config[3]);
+//            if (mysqli_connect_errno()) {
+//                LogMysql::errorQuery("Подключение к серверу MySQL невозможно / " . mysqli_connect_error());
+//                $lnk = null;
+//                die();
+//            }
+//            if (!$lnk->set_charset('utf8')) {
+//                Log::warning("Error loading character set utf8: %s", mysqli_connect_error());
+//            }
+//        }
+//        catch (Exception $e) {
+//            var_dump($e->getMessage());
+//        }
+        
         return $lnk;
     }
 

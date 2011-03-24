@@ -22,12 +22,19 @@ class Log {
         $i = 0;
 
     /**
+     * Задать окружение. 
+     * 
+     * @param bool $env консоль или нет
+     */
+    public static function setEnv ($env = false) {
+        self::$_isConsole = (bool)$env;
+    }
+    /**
      * Задать уровень логирования
      * @param int $num
      */
     public static function setLevel($num, $isConsole = false) {
         if (null === self::$_debugLevel) {
-            self::$_isConsole = $isConsole;
             switch($num) {
                 case self::LVL_ONLY_SCREEN:
                     self::$_screen = true;
@@ -82,10 +89,10 @@ class Log {
      * Вывод серъезных ошибок
      */
     public static function warning($text, $block = true, $title = 'Warning') {
-        $b = debug_backtrace();
-        for ($i = 1; $i < 4; $i++) {
-               $text .= "\n$i:" . $b[$i]['file'] . ':' . $b[$i]['line'];
-        }
+//        $b = debug_backtrace();
+//        for ($i = 1; $i < 2; $i++) {
+//               $text .= "\n$i:" . $b[$i]['file'] . ':' . $b[$i]['line'];
+//        }
 
         echo self::inputLog($title, $text, true, 'red', 'error');
 
@@ -99,15 +106,19 @@ class Log {
         if (self::$_file) {
             $filename = Helper::logFileWrite($filename, TFormat::txtMessageLog($title, $descr));
         }
+
         if (self::$_screen) {
+            $request = RegistryRequest::instance();
+
             if (self::$_isConsole) {
                 return TFormat::txtMessageLog($title, $descr);
-            }
-            if (!$block) {
-                self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
             } else {
-                self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
-                return TFormat::htmlMessageLog($title, $descr, $block, $color);
+                if (!$block) {
+                    self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
+                } else {
+                    self::$aLog[++self::$i] = TFormat::htmlMessageLog($title, $descr, false, $color);
+                    return TFormat::htmlMessageLog($title, $descr, $block, $color);
+                }
             }
         }
         if (self::$i) {

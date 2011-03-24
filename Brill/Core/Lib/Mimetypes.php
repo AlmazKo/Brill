@@ -47,7 +47,7 @@ class Mimetypes {
         'image/tiff' => "Tag Image File Format; Defined in RFC 3302",
         'image/vnd.microsoft.icon' => "ICO image; Registered[8]");
 
-    private static $_message = array('message/http' => "");
+    private static $_message = array('message/http' => "message/http");
 
     private static $_multipart = array(
         'multipart/mixed' => "MIME E-mail; Defined in RFC 2045 and RFC 2046",
@@ -127,8 +127,8 @@ class Mimetypes {
 
     /**
      * Определяет является тип - web-страницей
-     * @param <type> $mimeType
-     * @return <type>
+     * @param string $mimeType
+     * @return bool
      */
     public static function isWebPage($mimeType) {
         if (isset(self::$_text[$mimeType]) || in_array($mimeType, array('application/xhtml+xml', 'application/xml-dtd'))) {

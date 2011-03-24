@@ -82,7 +82,9 @@ class TFormat {
      * @return string
      */
     public static function txtMessageLog($title, $descr) {
-        return    $text = '[' . self::time() . '] ' . $title . ': ' . $text;
+        $text = '[' . self::time() . '] ' . str_pad(' ' . $title . ' ', 30, '-', STR_PAD_BOTH) . "\n" . $descr;
+        $text .= "\n/" . str_repeat('-', 40);
+        return $text;
     }
 
     /**

@@ -30,11 +30,10 @@ class RegistryRequest extends Registry{
      * Разбираем входящие данные
      */
     protected function __construct() {
-        if (isset($_SERVER['REQUEST_METHOD'])) {
+        if (empty($_SERVER['argv'])) {
             $this->_isConsole = false;
             foreach ($_REQUEST as $key => $val) {
-
-            $this->set($key, $val);
+                $this->set($key, $val);
             }
             //инициализация _POST
             if ($_POST) {
@@ -58,14 +57,21 @@ class RegistryRequest extends Registry{
             }
             $this->HTTP_X_REQUESTED_WITH = isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? $_SERVER['HTTP_X_REQUESTED_WITH'] : null;
 
-        } else if(isset($_SERVER['argv'])) {
+        } else {
             $this->_isConsole = true;
-            foreach ($_SERVER['argv'] as $arg) {
-                if (strpos($arg, '=')) {
-                    list($key, $val) = explode("=", $arg);
-                    $this->set(strtolower($key), $val);
-                }
-            }
+            $argv = $_SERVER['argv'];
+            //убираем первый элемент, т.к. это название скрипта - daemon.php
+            array_shift($argv);
+            $this->set('argv', $argv);
+//            var_dump($_SERVER['argv']); die('---');
+//            $option = null;
+//            foreach ($_SERVER['argv'] as $arg) {
+//                if ('-' == $arg[0]) {
+//                    
+//                }
+//                $value = explode('=', $arg, 2);
+//                $this->set(strtolower($value[0]), isset($value[1]) ? $value[1] : '');
+//            }
         }
     }
 
@@ -74,9 +80,7 @@ class RegistryRequest extends Registry{
      * @return bool
      */
     public function isConsole() {
-        //Mock
-        return true;
-        //return $this->_isConsole;
+        return $this->_isConsole;
     }
 
     /*

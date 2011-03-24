@@ -34,7 +34,7 @@ class st_LibBot extends Lib {
 
         if ($result){
             $interfaceId = array_shift($result);
-            DBExt::query(Stmt::prepare2(se_StmtDaemon::SET_INTERFACE_USED, array(
+            DBExt::query(Stmt::prepare2(st_StmtDaemon::SET_INTERFACE_USED, array(
                 'interface_id' => $interfaceId,
                 'host_id' => $hostId
                 )));

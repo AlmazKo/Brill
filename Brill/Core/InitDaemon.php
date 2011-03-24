@@ -18,8 +18,14 @@ define ('REGISTRY_PATH', CORE_PATH . 'Registry/');
 define ('MODULES_PATH', DIR_PATH . 'Modules/');
 define ('USE_CACHE', false);
 
+if (!extension_loaded('PDO')) {
+        die("Error: PDO extension is not installed\n");
+}
+
 require_once CORE_PATH . 'Common/NewFunctions.php';
 require_once CORE_PATH . 'General.php';
+require_once CORE_PATH . 'Common/Warning.php';
+
 require CORE_PATH . 'Common/Timer.php';
 require_once CORE_PATH . 'Common/RunTimer.php';
 require_once CORE_PATH . 'Common/Encoding.php';
@@ -28,7 +34,7 @@ require_once CORE_PATH . 'Common/Log.php';
 require CORE_PATH . 'Common/LogMysql.php';
 require_once CORE_PATH . 'Common/TFormat.php';
 
-Log::setLevel(0);
+
 //$timer = new RunTimer();
 require_once CORE_PATH . 'Underworld.php';
 require_once CORE_PATH . 'Modules.php';
@@ -48,10 +54,15 @@ require_once CORE_PATH . 'DB/Stmt.php';
 require_once CORE_PATH . 'Lib/Curl.php';
 require_once CORE_PATH . 'Lang/ru/texts.php';
 
+
+
 $timer = new RunTimer();
 
 
 //пользовательские настройки
 require DIR_PATH . 'Config.php';
+
+$request = RegistryRequest::instance();
+Log::setEnv($request->isConsole());
 
 DB::connect();

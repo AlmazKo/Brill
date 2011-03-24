@@ -2,7 +2,7 @@
 /**
  * Класс Curl - ООП обвертка стандартной curl-lib
  *
- * @author almazko a.s.suslov@gmail.com
+ * @author almazko <a.s.suslov@gmail.com>
  */
 require_once CORE_PATH . 'Lib/ConstCurl.php';
 require_once CORE_PATH . 'Lib/Mimetypes.php';
@@ -18,9 +18,9 @@ class Curl {
         $_ch,
         //массив опций для курла
         $_opt = array(),
-        //массив информации о выполненном запросе
+        //массив информации о последнем выполненном запросе
         $_info = array(),
-        //хранит результат запроса, пока его не распарсят
+        //хранит сырой результат запроса, пока его не распарсят
         $_responseRaw,
         // "Тело" ответа, без заголовков
         $_responseBody,
@@ -41,9 +41,13 @@ class Curl {
         $_aRequestFiles,
         //ошибки
         $_errors = array(),
+        // массив Cookies отсылаемых сервером
         $_aResponseCookies = array(),
+        // location, отсылаемый сервером. Т.е. куда хотят нас послать
         $_responseLocation,
+        // способ отправки формы серверу
         $_formEnctype = ConstCurl::FORM_ENCTYPE_APP,
+        //URL-encodes
         $_prepare = false,
         $_responseMyCharset,
         $_responseMyCharsetForcibly;
@@ -561,6 +565,10 @@ class Curl {
         $this->_info = null;
     }
 
+    /**
+     * Закрывает соединение
+     * @return bool 
+     */
     public function close() {
         if ($this->_ch) {
             curl_close($this->_ch);
