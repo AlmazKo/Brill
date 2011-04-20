@@ -3,7 +3,7 @@
  * Daemon
  * Родительский класс всех демонов, пауков, ботов и прочей нечисти
  */
-abstract class Daemon {
+  class Daemon {
     /* ПЛАНИРУЕМЫЕ
      * инициализация
      * просмотр списка демонов
@@ -17,12 +17,13 @@ abstract class Daemon {
      * apaчевский аналог start|stop|restart|reload|force-reload|start-htcacheclean|stop-htcacheclean|status
      *
      */
-
+    //аргумент для получения имени демона
+    const KEY_NAME_DAEMON = 'n';
     protected
     // ссылка на конфигурацию модуля
         $_module,
-        $_params,
-        $_cliParams = array('n' => 'Daemon name.', 'h' => false);
+        $_params;
+    protected static $_cliParams = array('n' => 'Daemon\'s name.', 'h' => 'View help');
     
     public function  __construct() {}
     public function start() {}
@@ -50,8 +51,12 @@ abstract class Daemon {
      * Получить массив принимаемых демоном параметров
      */
     public function getACliParams() {
+  
         
-        
+    }
+    
+    public function getHelp() {
+        return self:: $_cliParams;
     }
     
     /**

@@ -4,6 +4,10 @@
 
 class DB {
     const DEFAULT_LNK = 'default';
+    /**
+     *
+     * @var PDO 
+     */
     protected static $lnk = null;
 
     /**
@@ -17,9 +21,9 @@ class DB {
     final private static function connector($config){
         try {
             $dsn='mysql:dbname=' . $config[3] . ';host=' . $config[0];
-            $lnk = new PDO($dsn , $config[1], $config[2]);
+            $lnk = new PDO($dsn , $config[1], $config[2], array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''));
         } catch (PDOException $e) {
-            die( 'Connection failed: ' . $e->getMessage());
+            throw new Warning($e->getMessage());
         }
 //        try {
 //            $lnk = new mysqli($config[0], $config[1], $config[2], $config[3]);
@@ -68,14 +72,14 @@ class DB {
     static function query($sql, $lnk = null) {
         $result = false;
         $lnk = $lnk ? $lnk : self::$lnk;
-        // тут можно какой нить prepare sql делать //$sql = mysql_real_escape_string($sql);
         RunTimer::addPoint('Mysql');
         $result = $lnk->query($sql);
+
         if($result){
             LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
         }else{
 
-            LogMysql::errorQuery($sql . ' / ' .$lnk->error);
+            LogMysql::errorQuery($sql . ' / ' .$lnk->errorInfo());
             die();
         }
         return $result;
@@ -83,12 +87,43 @@ class DB {
 
     /**
      *
-     * @param <type> $prepare_stmt
-     * @param <type> $params
+     * @param string $prepare_stmt
+     * @param array $params
      * @param <type> $lnk
-     * @return <type>
+     * @return PDOStatement
      */
-    static function execute($prepare_stmt, $params, $returnFields = null, $lnk = null) {
+    static function execute($prepareStmt, array $params = array(), $returnAllFields = false, $lnk = null) {
+        $pdo = $lnk ? $lnk : self::$lnk;
+        
+        
+        
+        $sth = $pdo->prepare($prepareStmt);
+        foreach ($params as $key => &$value) { 
+            $param = self::getPdoType($value);
+            if (is_array($value)) {
+                $param = $value[1];
+                $value = $value[0];
+            }
+         //   var_dump($key, $value, $param);
+            $sth->bindParam($key, $value, $param);
+        }
+        RunTimer::addPoint('Mysql');
+        if($sth->execute()){
+            LogMysql::query($sth->queryString,  RunTimer::endPoint('Mysql'));
+        }else{
+            
+            LogMysql::errorQuery($sth->queryString . "\n\n" . implode('. ' ,$sth->errorInfo()));
+            throw new Exception('Error sql');
+        }
+     //   var_dump($sth->fetchAll());
+        var_dump($sth->debugDumpParams());
+      //  var_dump($params);
+
+        return $sth;
+
+
+
+
 //Log::dump(func_get_args());
 //        $result = false;
 //        $lnk = $lnk ? $lnk : self::$lnk;
@@ -107,13 +142,15 @@ class DB {
 //        Log::dump($stmt);
 
 
-
+/*
         $stmt = self::$lnk->prepare("SELECT id,name,content,date FROM `Pages` WHERE id=?");
         $stmt->bind_param('i', $d);
         $d = 0 ;
         $stmt->execute();
         $stmt->store_result();
         var_dump(self::$lnk->get_result());
+ * 
+ */
 //
 //        foreach($column as $col_name)
 //        {
@@ -138,13 +175,15 @@ class DB {
 //    }
 
 
-        while(mysqli_more_results(self::$lnk)) {
+   /*     while(mysqli_more_results(self::$lnk)) {
     mysqli_next_result(self::$lnk);
 }
    echo '--';
     printf("Number of rows: %d.\n", $stmt->num_rows);
     $stmt->close();
         die();
+
+*/
 //        // тут можно какой нить prepare sql делать //$sql = mysql_real_escape_string($sql);
 //        RunTimer::addPoint('Mysql');
 //        $result = $lnk->query($sql);
@@ -158,6 +197,21 @@ class DB {
     }
 
 
+    public static function begin($lnk = null) {
+        $pdo = $lnk ? $lnk : self::$lnk;
+        return $pdo->beginTransaction();
+    }
+    
+    public static function rollback($lnk = null) {
+        $pdo = $lnk ? $lnk : self::$lnk;
+        return $pdo->rollBack();
+    }
+    
+    public static function commit($lnk = null) {
+        $pdo = $lnk ? $lnk : self::$lnk;
+        return $pdo->commit();
+    }
+    
 
 
      /**
@@ -185,5 +239,12 @@ class DB {
     //static function
 
 
-
+    protected static function getPdoType($var) {
+        if (is_int($var)) {
+            return PDO::PARAM_INT;
+        } else { 
+            return PDO::PARAM_STR;
+        }
+        
+    }
 }

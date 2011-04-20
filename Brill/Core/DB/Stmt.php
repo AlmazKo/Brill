@@ -28,7 +28,7 @@ class Stmt {
      * @param array $args
      * @return string
      */
-    public function prepare($sql, $args = array()) {
+    public static function prepare($sql, $args = array()) {
         if (!$sql) {
             LogMysql::errorQuery('Пустой sql');
         }
@@ -124,4 +124,6 @@ class Stmt {
         }
         return $str;
     }
+    
+
 }

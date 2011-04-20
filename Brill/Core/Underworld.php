@@ -24,11 +24,22 @@ class Underworld {
         if (!$params) {
             throw new Warning(Daemon::option_null());
         }
-        var_dump($params);
+        Cli::setArgs($params);
 
-        $nameDaemon = array_shift($params);
-        //-------------------
-die;
+        if (Cli::hasArg(Daemon::KEY_NAME_DAEMON)) {
+            $nameDaemon = Cli::getArg(Daemon::KEY_NAME_DAEMON);
+        } else {
+            if (Cli::hasArg(Cli::ARG_HELP)){
+                echo Cli::getStringForHelp(Daemon::getHelp());
+
+            }
+        }
+        
+        
+        
+        
+
+
         $module = $this->_loadModuleDaemon($nameDaemon);
         $daemon = new $nameDaemon();
 

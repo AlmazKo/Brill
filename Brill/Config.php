@@ -29,4 +29,4 @@ General::$defaultParentModule = 'Pages';
  * Насройки соединения с базой данных.
  * хост, логин, пароль, база
  */
-RegistryDb::instance()->createConnect(array('127.0.0.1', 'root', '210411', 'brill'));
+RegistryDb::instance()->createConnect(array('127.0.0.1', 'root', '210411', 'newindex'));

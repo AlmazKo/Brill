@@ -2,27 +2,27 @@
 /**
  * Helper
  *
- * Класс различных хелперов
+ * РљР»Р°СЃСЃ СЂР°Р·Р»РёС‡РЅС‹С… С…РµР»РїРµСЂРѕРІ
  */
 
 class Helper {
     /**
-     * Делает запись лога в файл
-     * @param string $name путь к файлу
-     * @param string $text что записываем
-     * @param boolean $clear делать ли очистку файла перед записью
+     * Р”РµР»Р°РµС‚ Р·Р°РїРёСЃСЊ Р»РѕРіР° РІ С„Р°Р№Р»
+     * @param string $name РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ
+     * @param string $text С‡С‚Рѕ Р·Р°РїРёСЃС‹РІР°РµРј
+     * @param boolean $clear РґРµР»Р°С‚СЊ Р»Рё РѕС‡РёСЃС‚РєСѓ С„Р°Р№Р»Р° РїРµСЂРµРґ Р·Р°РїРёСЃСЊСЋ
      * @throw FileException
      */
     public static function logFileWrite($name, $text, $clear = false){
         $mode = ($clear) ? 'w' : 'a';
         $filename = DIR_PATH . '/logs/'.$type.'.log';
         if (!$handle = fopen($filename, $mode)) {
-            throw new FileException('Не могу открыть файл(' . $filename. ') на запись');
+            throw new FileException('РќРµ РјРѕРіСѓ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р»(' . $filename. ') РЅР° Р·Р°РїРёСЃСЊ');
         }
         
         $text .= "\n";
         if (fwrite($handle, $text) === false) {
-           throw new FileException('Не могу записать в файл(' . $filename. ')');
+           throw new FileException('РќРµ РјРѕРіСѓ Р·Р°РїРёСЃР°С‚СЊ РІ С„Р°Р№Р»(' . $filename. ')');
         }
         fclose($handle);
     }

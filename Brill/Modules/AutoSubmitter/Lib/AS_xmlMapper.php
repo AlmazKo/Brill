@@ -1,290 +1,263 @@
 <?php
-
 /**
- * у родителя описано чтение файлов, валидация, сохрание SimpleXMl объекта
- * получение атрубитов и другие общие методы
+ * Description of as_XmlMapper
  *
+ * @author Alexander
  */
-class xmlParser{
-    protected  $filexml = NULL;
+class as_XmlMapper extends XmlParser{
+    public
+        $_currentRule = 0,
+        $_sxe;
 
-    function  __construct() {
+    function  __construct($fileXml) {
+        parent::__construct($fileXml);
+        if (!isset($this->_sxe->rule) || !count($this->_sxe->rule)){
+            Log::warning('Не были найдены правила в конфигурации '.$fileXml);
+        }
     }
-    function xmlOpen($filexml){
-        $this->filexml = simplexml_load_file($filexml);
+    /**
+     * Получить набор действий, которые должны выполниться перед основным действием
+     * @param int $ruleId
+     * @return <type>
+     */
+    function getBeforeActions($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+           $rule = $this->getRule($ruleId);
+           if (isset($rule->before)) {
+               return $rule->before->action;
+           } else {
+               return false;
+           }
+        } else {
+            return null;
+        }
     }
-    function xmlClose(){
-        $this->filexml = NULL;
+
+    /**
+     * Получить набор действий, которые должны выполниться после основного действия
+     * @param int $ruleId
+     * @return <type>
+     */
+    function getAfterActions($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+           $rule = $this->getRule($ruleId);
+           if (isset($rule->after)) {
+               return $rule->after->action;
+           } else {
+                return false;
+           }
+        } else {
+            return null;
+        }
     }
-}
 
+    function getRule($ruleId = 0) {
+        return $this->_sxe->rule[(int)$ruleId];
+    }
 
-class AS_xmlMapper extends xmlParser{
-    protected $RULES = array();
-    protected $obj_UserDataProject = NULL;
-    protected $pathFileRule = NULL;
-    protected $delimeter = '';
+    function hasRule($ruleId) {
+        if (isset($this->_sxe->rule[(int)$ruleId])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function getUrlAction($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            return (string)$this->getRule($ruleId)->action['url'];
+        }
+    }
 
-
-    function  __construct(UserDataProject $obj_UserDataProject, $pathFileRule = null) {
-        $this->obj_UserDataProject = $obj_UserDataProject;
-        $this->pathFileRule = $pathFileRule;
-        $this->xmlOpen($this->pathFileRule);
-        if (isset($this->filexml->rule)){
-            $number = 1;
-            foreach ($this->filexml->rule as $value) {
-                $this->RULES[$number] = AS_xmlMapper::obhod_rule_tags($value, 'rule');
-                $number++;
+    /**
+     * Являетли правило, автоматически выполняемым
+     * @param unt $ruleId
+     * @return bool
+     */
+    function isAutoRule($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            if ($rule['auto'] && 'true' == (string)$rule['auto']) {
+                return true;
             }
-         }else{
-             //правил нет :(
+        }
+        return false;
+    }
+    function getHost() {
+        return (string)$this->_sxe['host'];
+    }
+    /**
+     * получить кодировку сайта
+     * @return string
+     */
+    function getEncoding() {
+        return (string)$this->_sxe['encoding'];
+    }
+    function getHeaders($ruleId = 0){
+        $aHeaders = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->headers->field as $field) {
+                $aField = &current($field);
+                if (isset($field->data)) {
+                    $aHeaders[$aField['name']] = (string)$field->data;
+                }
+            }
+        }
+        return $aHeaders;
+    }
+    function getPost($ruleId = 0) {
+        $post = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->post->field as $field) {
+                $aField = &current($field);
+                $post[$aField['name']] = (string)$field;
+            }
+        }
+        return $post;
+    }
+    function getGet($ruleId = 0) {
+        $get = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->get->field as $field) {
+                $aField = &current($field);
+                if (isset($field->data)) {
+                    $get[$aField['name']] = (string)$field->data;
+                }
+            }
+        }
+        return $get;
+    }
+    function getInfo($rule = 0) {
+
+    }
+
+    function getUrlRule($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            return $rule['url'];
+        }
+    }
+
+    /**
+     * Получает способ используемый для отправки данных на сайт
+     * @param int $ruleId
+     * @return <type>
+     */
+    function getFormEnctypeRule($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            if (isset($rule['enctype'])) {
+                return $rule['enctype'];
+            } else {
+                return false;
+            }
+
+        }
+    }
+
+    /**
+     * Получить "публичные поля" - поля которые необходимо получить от пользователя
+     *
+     * @param int $ruleId
+     * @return string
+     */
+    function getPublicFields($ruleId = 0) {
+        $aFields = array();
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->post->field as $field) {
+                $aField = current($field);
+                if ('true' == $field['form']) {
+
+                    $name = (string)$field['var'];
+
+                    $aFields[$name] = array();
+                    foreach ($aField as $key => $value) {
+                        switch($key) {
+                        // Служебные поля name, source не сохраняем
+                        case 'name':
+                        case 'source':
+                        case 'sourcesite':
+                            continue;
+                        case 'var':
+                            $aFields[$name]['name'] = $value;
+                            break;
+                        case 'required':
+                            $aFields[$name][$key] = ('false' == $value) ? false : true;
+                            break;
+                        case 'data':
+                            $aFields[$name][$key] = unserialize($value);
+                            break;
+                        default:
+                            $aFields[$name][$key] = $value;
+                        }
+                    }
+                    //поле важное для объектов типа oForm, поэтому если не нашли его - все равно создаем
+                    if (!isset($aFields[$name]['value'])) {
+                        $aFields[$name]['value'] = (string)$field;
+                    }
+                }
+             }
          }
-         $this->xmlClose();
+         return $aFields;
     }
 
-    static function obhod_rule_tags($xmlrule = null, $name = ''){
-            $i = 1;
-            $arr = array();
-            if (is_object($xmlrule)){
-                foreach ($xmlrule->attributes() as $property => $value) {
-                    $arr['parameters'][$property] = (string)$value;
-                }
-                foreach ($xmlrule as $object => $value){
-                  if (key_exists($object, $arr)){
-                      $arr[$object . '_' . $i] = AS_xmlMapper::obhod_rule_tags($value, (string)$object);
-                  }else{
-                      $arr[$object] = AS_xmlMapper::obhod_rule_tags($value, (string)$object);
-                  }
-                  $i++;
-                }
-            }
-        return $arr;
-    }
-
-    /*
-     * возвращаем полный массив подобный XML
-     */
-    function getRule($id_rule){
-        if (key_exists($id_rule, $this->RULES)){
-             return $this->RULES[$id_rule];
-        }else{
-            return false;
+    public function getBeforeHtml($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            return (string)$rule->beforeHtml;
         }
     }
 
-    /*
-     * возвращает массив правил
-     *   [1] => Array
-     *   (
-     *       [url] => http://www.press-release.ru/
-     *       [xxxx] => adfasdf
-     *   )
-     *
-     *   [2] => Array
-     *   (
-     *       [url] => http://www.press-release.ru/add/
-     *   )
-     *
-     *   [3] => Array
-     *   (
-     *       [url] => http://www.press-release.ru/
-     *   )
+    public function getAfterHtml($ruleId = 0) {
+        if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            return (string)$rule->afterHtml;
+        }
+    }
+
+    /**
+     * Заполняет форму пользовательскими данными
+     * @param <type> $fields
+     * @param int $ruleId
      */
-    function listRules(){
-        if (count($this->RULES)){
-            $arr = array();
-            foreach ($this->RULES as $key => $value) {
-                foreach ($value['parameters'] as $key1 => $value1) {
-                    $arr[$key][$key1] = $value1;
+    public function fill($fields, $ruleId = 0) {
+         if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->post->field as $field) {
+                $aField = &current($field);
+                if (isset($aField['var']) && isset($fields[$aField['var']]) && 'true' == $aField['form']) {
+                    $value = isset($fields[$aField['var']]['value']) ? $fields[$aField['var']]['value'] : '';
+                    $value = htmlspecialchars($value, ENT_QUOTES, ENCODING_CODE);
+                    $field[0] = $value;
                 }
             }
-            return $arr;
-        }else{
-            return false;
         }
     }
 
-    /*
-     * возвращает true или false
+    /**
+     * Заполняет форму из внешнего источника
+     * @param array $fields
+     * @param int $ruleId
      */
-    function isAjaxRule($id_rule){
-        if ($this->RULES[$id_rule]['action']['parameters']['isajax'] == 'true'){
-             return true;
-        }else{
-            return false;
-        }
-    }
-
-    /*
-     * возвращает двумерный массив параметр = значение
-     * $array_data - это то что мы получили от пользователя
-     */
-    function getGetRule($id_rule){
-        if (isset($this->RULES[$id_rule]['parameters_for_get'])){
-            $arr = array();
-            //тут мы смотрим что заполнено через XML карту
-            foreach ($this->RULES[$id_rule]['parameters_for_get'] as $key => $value) {
-                if (!empty($value['userdataproject'])){
-                    $result = '';
-                    foreach ($value as $key1 => $value1) {
-                        if (substr_count($key1,'userdataproject')){
-                            $method =  'Get' . $value1['parameters']['name'];
-                            $result .= $this->delimeter . $this->obj_UserDataProject->$method();
-                        }
-                    }
-                    $arr[$value['parameters']['htmlname']] = $result;
-                }
-            }
-
-           //тут мы смотрим что заполнено в процессе работы
-
-
-            return $arr;
-        }else{
-            return false;
-        }
-    }
-
-    /*
-     * возвращает двумерный массив параметр = значение
-     */
-    function getPostRule($id_rule){
-        if (isset($this->RULES[$id_rule]['parameters_for_post'])){
-            $arr = array();
-            //тут мы смотрим что заполнено через XML карту
-            foreach ($this->RULES[$id_rule]['parameters_for_post'] as $key => $value) {
-                if (!empty($value['userdataproject'])){
-                    $result = '';
-                    foreach ($value as $key1 => $value1) {
-                        if (substr_count($key1,'userdataproject')){
-                            $method =  'Get' . $value1['parameters']['name'];
-                            $result .= $this->delimeter . $this->obj_UserDataProject->$method();
-                        }
-                    }
-                    $arr[$value['parameters']['htmlname']] = $result;
-                };
-            }
-
-           //тут мы смотрим что заполнено в процессе работы
-
-
-            return $arr;
-        }else{
-            return false;
-        }
-    }
-
-    /*
-     * возвращает в XML подобном виде
-     */
-    function getDynamicFieldsRule($id_rule){
-        $arr = array();
-
-        //тут мы смотрим что заполнено через XML карту
-        if (count($this->RULES[$id_rule]['parameters_for_get'])){
-            $i = 1;
-            foreach ($this->RULES[$id_rule]['parameters_for_get'] as $key => $value) {
-                if (empty($value['userdataproject'])){
-                    $arr['parameters_for_get'][$i] = $value;
-                    $i++;
-                }
-            }
-        }else{
-        }
-        if (count($this->RULES[$id_rule]['parameters_for_post'])){
-            $i = 1;
-            foreach ($this->RULES[$id_rule]['parameters_for_post'] as $key => $value) {
-                if (empty($value['userdataproject'])){
-                    $arr['parameters_for_post'][$i] = $value;
-                    $i++;
-                };
-            }
-        }else{
-        }
-
-        //тут мы смотрим что заполнено в процессе работы, т.к. поля могли уже заполниться
-/*
-        if (count($arr['parameters_for_get'])){
-            foreach ($arr['parameters_for_get'] as $key => $value) {
-                foreach ($value as $key1 => $value1) {
-                    if (key_exists($value1['parameters']['htmlname'], $this->obj_UserDataProject->GetData())){
-                        unset ($value);//он есть в заполненых, поэтому удаляем из пустых
-                        echo '1';
+    public function fillOut($fields, $ruleId = 0) {
+         if ($this->hasRule($ruleId)) {
+            $rule = $this->getRule($ruleId);
+            foreach ($rule->post->field as $field) {
+                $aField = &current($field); echo '<hr>--'.$aField['name'];
+                if (isset($aField['sourcesite']) && isset($fields[$aField['sourcesite']])) {
+                    $value = $fields[$aField['sourcesite']];
+                    var_dump($value);
+                    if ($aField['type'] == 'select') {
+                        $field->addAttribute('data', serialize($value));
+                    } else {
+                        $value = htmlspecialchars((string)$value, ENT_QUOTES, ENCODING_CODE);
+                        $field[0] = $value;
                     }
                 }
             }
         }
-        if (!count($arr['parameters_for_get'])){
-            unset($arr['parameters_for_get']);
-        }
-        if (count($arr['parameters_for_post'])){
-            foreach ($arr['parameters_for_post'] as $key => $value) {
-                foreach ($value as $key1 => $value1) {
-                    if (key_exists($value1['parameters']['htmlname'], $this->obj_UserDataProject->GetData())){
-                        unset ($value);//он есть в заполненых, поэтому удаляем из пустых
-                        echo '2';
-                    }
-                }
-            }
-        }
- * 
- */
-        if (!count($arr['parameters_for_post'])){
-            unset($arr['parameters_for_post']);
-        }
-
-        if (count($arr)){
-            return $arr;
-        }else{
-            return false;
-        }
-
     }
-
-
-    /*
-     *возвращает двумерный массив свойство = значение
-     *     [url] => http://www.press-release.ru/
-     *   [value] => При использовании материалов ссылка на сайт обязательна
-     */
-    function getResponseRule($id_rule){
-        if (count($this->RULES[$id_rule]['response']['parameters'])){
-            $arr = array();
-            foreach ($this->RULES[$id_rule]['response']['parameters'] as $key => $value) {
-                $arr[$key] = $value;
-            }
-            return $arr;
-        }else{
-            return false;
-        }
-    }
-
-    /*например
-     *     [Content-Type] => application/x-www-form-urlencoded; charset=UTF-8;
-     *    [X-Requested-With] => XMLHttpRequest
-     */
-    function getHeadersRule($id_rule){
-        if (isset($this->RULES[$id_rule]['headers'])){
-            $arr = array();
-            foreach ($this->RULES[$id_rule]['headers'] as $key => $value) {
-                $arr[strtolower(trim($value['parameters']['name']))] = trim($value['parameters']['value']);
-            }
-            return $arr;
-        }else{
-            return false;
-        }
-    }
-
-    /*
-     * например http://www.press-release.ru/
-     */
-    function getActionRule($id_rule){
-        if (!empty($this->RULES[$id_rule]['action']['parameters']['url'])){
-            return $this->RULES[$id_rule]['action']['parameters']['url'];
-        }else{
-            return false;
-        }
-    }
-
 }
-

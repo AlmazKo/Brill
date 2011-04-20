@@ -21,7 +21,7 @@ class se_ParserYandexXml extends se_YandexXml {
 
     public function  __construct() {
         parent::__construct();
-        $_cliParams += array('-type' => 'Type 1|0. С точкой или без');
+        self::$_cliParams += array('-type' => 'Type 1|0. С точкой или без');
      }
 
     /**
@@ -106,20 +106,47 @@ class se_ParserYandexXml extends se_YandexXml {
      * @param array $keywords
      */
     private function _parseSimple() {
-        do {
-            $sql = Stmt::prepare(se_StmtDaemon::GET_FREE_SET, array('limit' => 1, 'search_type' => 'YaXml'));
-            $set = DBExt::getOneRowSql($sql);
-            if (!$set) {
-                return;
-                //Log::warning('Все сеты уже отработали');
-            }
-            $sql = Stmt::prepare2(se_StmtDaemon::SET_USED_SET, array('set_id' => $set['id'], 'search_type' => 'YaXml'));
-        } while(!DBExt::tryInsert($sql));
+        try {
+            DB::begin();
+            // получаем сет
+            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE))->fetchColumn(0);
+            if (!$setId) {
+                die('Empty SetId');
+            }        
+            
+            DB::execute(se_StmtDaemon::prepare(
+                    se_StmtDaemon::SET_USED_SET),
+                    array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Ok')
+                    );
+            
 
-        $sql = Stmt::prepare(se_StmtDaemon::GET_KEYWORDS_SET, array('set_id' => $set['id']));
+            // получаем ключевики сета
+            $aKeywords = DB::execute(se_StmtDaemon::prepare(
+                    se_StmtDaemon::GET_KEYWORDS_BY_SET),
+                    array(':set_id' => $setId)
+                    )->fetchALL(PDO::FETCH_ASSOC);
+            
+            // блочим ключевики в newindex
+            
+            
+            
+        } catch (Exception $e) {
+            DB::rollback();
+             Log::warning("Rollback\n");
+        }
+
+        var_dump($aKeywords);die;
+        foreach ($keywords as $kwId => $kwData) {
+            
+            // получаем регион
+            //формируем массив для сета
+            //парсим
+            // если не получилось делаем пазу на 500мс и поновой если опять не удача
+            // добавляем слово в список не пропарсенных, ставим отметку что дублируем запрос
+            //идем дальше
+        }
         
-        // массив всех ключевиков одного проекта
-        $keywords = DBExt::selectToArray($sql);
+
 
         if (count($keywords) > 0) {
             return;

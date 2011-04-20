@@ -52,6 +52,8 @@ require_once CORE_PATH . 'Lib/Xml.php';
 require_once CORE_PATH . 'Lib/DomExt.php';
 require_once CORE_PATH . 'DB/Stmt.php';
 require_once CORE_PATH . 'Lib/Curl.php';
+
+require_once CORE_PATH . 'Common/Cli.php';
 require_once CORE_PATH . 'Lang/ru/texts.php';
 
 
