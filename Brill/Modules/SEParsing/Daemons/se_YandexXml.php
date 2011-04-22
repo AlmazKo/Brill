@@ -21,7 +21,8 @@ abstract class se_YandexXml extends se_Parser {
             
         //Максимальное количество страниц отдаваемое яндексом;
         MAX_LINKS_YA = 1000;
-    
+
+        const DEFAULT_REGION_ID = 213;
     protected
         $_lnk2;
 
@@ -107,17 +108,15 @@ abstract class se_YandexXml extends se_Parser {
  
             $response = $this->curl->requestPost(self::URL_YA_SEARCH)->getResponseBody();
             $attempts--;
-            sleep(1);
+            usleep(500000);
         }
 
         if(self::ATTEMPTS && !$attempts){
-            LogInDb::notice($this, 'Яндекс не ответил на данный запрос. Было сделано '.self::ATTEMPTS.' дополнительных попыток');
-            return;
+            throw new YandexXmlException('Яндекс не ответил на данный запрос. Было сделано '.self::ATTEMPTS.' дополнительных попыток');
         }
         $sxe = simplexml_load_string($response)->response;
         if ($sxe->error) {
-            LogInDb::notice($this, $sxe->error);
-            die('Ошибка на Яндексе: ' . $sxe->error);
+            throw new YandexXmlException($sxe->error);
         }
         return $sxe;
     }

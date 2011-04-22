@@ -27,7 +27,7 @@ where i.type='Usual' and (it.count<L.every_day OR isnull(it.count))
 order by it.count limit 1";
 
 //поставить отметку об использовании ip
-const SET_INTERFACE_USED = "insert   into   st_InterfaceCountCallToday set count=1, interface_id=#interface_id#, host_id=#host_id#
+const SET_INTERFACE_USED = "insert   into   st_InterfaceCountCallToday set count=1, interface_id=:interface_id, host_id=:host_id
 ON DUPLICATE KEY UPDATE count=count + 1, last_date=now()";
 
     const GET_KEYWORDS = "SELECT * FROM `sep_Keywords` where `yandex` = 'NoData'";

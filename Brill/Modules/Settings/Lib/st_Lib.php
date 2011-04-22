@@ -31,13 +31,13 @@ class st_Lib extends Lib {
         }
         if ($result){
             $interfaceId = array_shift($result);
-            DBExt::query(Stmt::prepare2(st_StmtDaemon::SET_INTERFACE_USED, array(
-                'interface_id' => $interfaceId,
-                'host_id' => $hostId
-                )));
+            DBExt::execute(Stmt::prepare2(st_StmtDaemon::SET_INTERFACE_USED), array(
+                ':interface_id' => (int)$interfaceId,
+                ':host_id' => (int)$hostId
+                ));
             return $result;
         } else {
-            Log::warning('Закончились IP');
+            throw new LimitInterfacesException('закончились IP');
         }
     }
 }

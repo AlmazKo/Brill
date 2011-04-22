@@ -88,14 +88,13 @@ class DBExt extends DB{
      * @return array
      */
     public static function getOneRowSql($sql, $lnk = null) {
-        $result = parent::query($sql);
-        $values = null;
+        $result = parent::execute($sql);
+        $values = array();
 
-        if ($result->num_rows == 1) {
-            $values = $result->fetch_assoc();
-        } else if ($result->num_rows > 0) {
-            Log::warning("Получено больше одной строки");
+        if ($result->rowCount() == 1) {
+            $values = $result->fetch(PDO::FETCH_ASSOC);
         }
+       // var_dump( $result->debugDumpParams());
         return $values;
     }
 

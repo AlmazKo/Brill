@@ -43,7 +43,7 @@ abstract class Modules {
         $this->pathViews    = $this->pathModule . General::NAME_DIR_VIEWS . '/';
         $this->pathDB       = $this->pathModule . General::NAME_DIR_DB . '/';
         $this->pathLib      = $this->pathModule . General::NAME_DIR_LIB . '/';
-        $this->pathDaemons  = $this->pathDaemons . General::NAME_DIR_DAEMONS . '/';
+        $this->pathDaemons  = $this->pathModule . General::NAME_DIR_DAEMONS . '/';
         $this->configure();
     }
 

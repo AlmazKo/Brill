@@ -17,7 +17,7 @@ class se_ParserYandexXml extends se_YandexXml {
     protected
         $_depth = 1,
         //сколько позиций брать за раз
-        $_linksInPages = 10;
+        $_linksInPages = 100;
 
     public function  __construct() {
         parent::__construct();
@@ -35,6 +35,13 @@ class se_ParserYandexXml extends se_YandexXml {
         require_once $this->_module->pathModels . 'sep_Regions.php';
         require_once $this->_module->pathModels . 'sep_Positions.php';
         require_once $this->_module->pathModels . 'sep_Urls.php';
+
+        require_once $this->_module->pathDaemons . 'Exceptions/YandexXmlException.php';
+        require_once $this->_module->pathDaemons . 'Exceptions/LimitInterfacesException.php';
+        
+        
+        require_once $this->_module->pathDaemons . 'Mocks/getMockResultParsingYaXml.php';
+        
     }
 
     // cleaning url for compare
@@ -66,20 +73,20 @@ class se_ParserYandexXml extends se_YandexXml {
             $ps[$pos]['site'] = $parsedUrl['host'];//
             $ps[$pos]['url'] = $url;
             $ps[$pos]['links_search'] = (string) $value->doc->properties->_PassagesType;//найдено по ссылке
-            $positions[md5($url)] = $ps;
         }
         return $ps;
     }
 
     /**
      *
-     * @param sep_Keywords $k
+     * @param array $keyword
      * @param int $dot тип парсинга
      * @return array
      */
-    protected function parsing($k, $conf = 0) {
-        $query = $k['name'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
-     //   Log::dump($query);
+    protected function parsing($keyword, $conf = 0) {
+        $query = $keyword['kw_keyword'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
+        
+        $this->curl->setGet(array('lr' => $keyword['ss_isyaregion']));
         $xmlQuery = $this->getXMLRequest($query);
         $xmlResponse = $this->requestYandex($xmlQuery);
         return $this->parsingXml($xmlResponse);
@@ -135,24 +142,52 @@ class se_ParserYandexXml extends se_YandexXml {
              Log::warning("Rollback\n");
         }
 
-        var_dump($aKeywords);die;
-        foreach ($keywords as $kwId => $kwData) {
+       // var_dump($aKeywords);die;
+        foreach ($aKeywords as &$kw) {
+            echo $kw['kw_keyword'] ."\n";
             
-            // получаем регион
-            //формируем массив для сета
-            //парсим
-            // если не получилось делаем пазу на 500мс и поновой если опять не удача
-            // добавляем слово в список не пропарсенных, ставим отметку что дублируем запрос
-            //идем дальше
-        }
-        
 
+            
+            
+            try {
+                if (!$kw['ss_isyaregion']) {
+                    $kw['ss_isyaregion'] = self::DEFAULT_REGION_ID;
+                }
+                
+               // $result = $this->parsing($kw);
+                $result = getMockResultParsingYaXml();
+                $kw['pos'] = 0;
+                foreach ($result as $key => $sePos) {
+                    if (strtolower($this->getHost($sePos['url'])) === strtolower($this->getHost($kw['kw_url']))) {
+                        $kw['pos'] = $key;
+                        $kw['url_search'] = $sePos['url'];
+                        $kw['links_search'] = $sePos['links_search'];
+                        break;
+                    }
+                }
+               
+               // $kw[]
+                $strSeoComp = $this->createStringForSeoComp($result);
 
-        if (count($keywords) > 0) {
-            return;
-            Log::warning('Не найдены ключевики у сета');
+              // формируем полученные данные для SeoComp
+             // сохраняем эти данные, ставим отметку ключевику об успешном парсинге
+             //сохраняем в массив сета ключевиков, нашли ли наш
+            } catch (YandexXmlException $e) {
+                 // яндекс нас послал подальше
+                //ставим ключевик ошибку
+            } catch (LimitInterfacesException $e) {
+                //закончились айпи
+                break;
+            } catch (Exception $e) {
+
+            }
+             
+            var_dump($this->createStringForSeo($aKeywords));
+         //   $strSeoComp = $this->createStringForSeo($aKeywords);
+             
         }
-        
+
+ /*       
         foreach ($keywords as $kw) {
             $this->curl->setGet(array('lr' => $kw['region_id']));
             $parseKw = $this->parsing($kw);
@@ -190,7 +225,8 @@ class se_ParserYandexXml extends se_YandexXml {
             }
             $p->executeBuffer();
         }
-        
+        */
+        echo 'Сохраняем все что не сохранили. а точнее сет';
     }
 
     /**
@@ -245,4 +281,34 @@ class se_ParserYandexXml extends se_YandexXml {
          //  Log::warning('');
         }
     }
+    
+    function createStringForSeo (array $keywords) {
+            $tmpArr = array();
+        foreach ($keywords as  $kw) {
+            $str = $kw['kw_keyword'];
+            if (!$kw['pos']) {
+                $str .= '|-|-|-|' . $kw['kw_url'];
+            } else {
+                $str .= '|'.$kw['pos'].'|'.$kw['links_search'].'|'.$kw['url_search'].'|' . $kw['kw_url'];
+            }
+            $tmpArr[] = $str;
+        }
+        //TODO проверить сепаратор!
+        return implode("\n", $tmpArr);
+    }
+    
+    /**
+     * Формирует строку для вставки в таблицу SeoComp
+     * @param array $result
+     * @return string
+     */
+    function createStringForSeoComp(array $result) {
+        $tmpArr = array();
+        foreach ($result as $key => $value) {
+            $tmpArr[] = $key . '|' . $value['url'];
+        }
+        //TODO проверить сепаратор!
+        return implode("\n", $tmpArr);
+    }
+
 }

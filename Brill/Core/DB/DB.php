@@ -111,12 +111,12 @@ class DB {
         if($sth->execute()){
             LogMysql::query($sth->queryString,  RunTimer::endPoint('Mysql'));
         }else{
-            
+            var_dump($sth->debugDumpParams());
             LogMysql::errorQuery($sth->queryString . "\n\n" . implode('. ' ,$sth->errorInfo()));
             throw new Exception('Error sql');
         }
      //   var_dump($sth->fetchAll());
-        var_dump($sth->debugDumpParams());
+    //    var_dump($sth->debugDumpParams());
       //  var_dump($params);
 
         return $sth;

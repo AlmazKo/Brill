@@ -19,7 +19,7 @@ class LogMysql extends Log{
 
     }
     
-    function getLog() {
+    static function  getLog() {
         return self::$log;
         
     }

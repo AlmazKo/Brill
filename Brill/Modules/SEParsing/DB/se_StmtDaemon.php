@@ -68,7 +68,7 @@ FROM #DB_ACC#.z_keywords AS t1
 JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
 LEFT JOIN #DB_ACC#.z_regions AS t3 ON t2.ss_region = t3.rg_id
 WHERE  t1.kw_parsed='0' AND t2.ss_id = :set_id
-ORDER BY t1.kw_parent Desc";
+ORDER BY t1.kw_parent Desc limit 1"; //TODO убрать лимит
 
 const GET_SETS_BY_IDS = "SELECT ss_id, ss_queries FROM #DB_ACC#.`z_seoset` WHERE ss_id in (:sets)";
 
