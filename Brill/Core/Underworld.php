@@ -29,7 +29,7 @@ class Underworld {
         if (Cli::hasArg(Daemon::KEY_NAME_DAEMON)) {
             $nameDaemon = Cli::getArg(Daemon::KEY_NAME_DAEMON);
         } else {
-            if (Cli::hasArg(Cli::ARG_HELP)){
+            if (Cli::hasArg(Cli::ARG_HELP) || Cli::hasArg(Daemon::CLI_ARG_HELP)){
                 echo Cli::getStringForHelp(Daemon::getHelp());
 
             }

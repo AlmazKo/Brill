@@ -23,7 +23,7 @@ class DB {
             $dsn='mysql:dbname=' . $config[3] . ';host=' . $config[0];
             $lnk = new PDO($dsn , $config[1], $config[2], array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''));
         } catch (PDOException $e) {
-            throw new Warning($e->getMessage());
+            throw new DBException($e->getMessage(), $e->getCode());
         }
 //        try {
 //            $lnk = new mysqli($config[0], $config[1], $config[2], $config[3]);
