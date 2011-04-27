@@ -1,6 +1,6 @@
 <?php
 function getMockResultParsingYaXml() {
-return 
+$result =
 array (
   1 => 
   array (
@@ -603,5 +603,11 @@ array (
     'links_search' => '0',
   ),
 );
+
+if(!rand(0,3)) {
+    unset($result[8]);
+}
+shuffle($result);
+return $result;
 
 }

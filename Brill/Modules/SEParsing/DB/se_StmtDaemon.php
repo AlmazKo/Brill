@@ -68,13 +68,15 @@ FROM #DB_ACC#.z_keywords AS t1
 JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
 LEFT JOIN #DB_ACC#.z_regions AS t3 ON t2.ss_region = t3.rg_id
 WHERE  t1.kw_parsed='0' AND t2.ss_id = :set_id
-ORDER BY t1.kw_parent Desc limit 1"; //TODO убрать лимит
+ORDER BY t1.kw_parent Desc"; //TODO убрать лимит
 
 const GET_SETS_BY_IDS = "SELECT ss_id, ss_queries FROM #DB_ACC#.`z_seoset` WHERE ss_id in (:sets)";
 
 //const SET_USED_SET = "insert ignore into #DB_ACC#.sep_StatusSetsSearchTypes set set_id=:set_id, search_type=:search_type, status = :status";
-const SET_USED_SET = "insert ignore into #DB_ACC#.sep_StatusSetsSearchTypes set set_id=:set_id, search_type=:search_type, status = :status";
+const SET_USED_SET = "insert ignore into #DB_ACC#.sep_StatusSetsSearchTypes set set_id=:set_id, search_type=:search_type, status = :status
+    ON DUPLICATE KEY UPDATE status = :status";
 
+//const SET_USED_SET = "insert into sep_StatusSetsSearchTypes set set_id=7";
 const GET_PROJECT_FREE ="SELECT p.id, p.site, p.site_id FROM sep_Projects as p
 left join sep_StatusProjectsSearchTypes as spt on (spt.project_id=p.id and spt.search_type='#search_type#')
 where  (spt.status='No' OR isnull(spt.status))";

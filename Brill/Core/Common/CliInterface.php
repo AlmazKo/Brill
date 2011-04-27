@@ -11,11 +11,11 @@
  * @author almazko
  */
 interface CliInterface {
-    const CLI_ARG_HELP = '-h';
+    const CLI_ARG_HELP = 'h';
     
-    public function getCliString() {}
-    public function getCliArray() {}
-    public function getCliParams() {}
-    public function getNeedParams() {}
+    public function getCliString();
+    public function getCliArray();
+    public function getCliParams();
+    public function getNeedParams();
 }
 

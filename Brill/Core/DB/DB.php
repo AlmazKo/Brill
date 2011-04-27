@@ -22,6 +22,8 @@ class DB {
         try {
             $dsn='mysql:dbname=' . $config[3] . ';host=' . $config[0];
             $lnk = new PDO($dsn , $config[1], $config[2], array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''));
+            $lnk->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            
         } catch (PDOException $e) {
             throw new DBException($e->getMessage(), $e->getCode());
         }
@@ -78,13 +80,40 @@ class DB {
         if($result){
             LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
         }else{
-
             LogMysql::errorQuery($sql . ' / ' .$lnk->errorInfo());
-            die();
+            throw new Exception('Error sql');
         }
         return $result;
     }
 
+    /**
+     *
+     * @param type $prepareStmt
+     * @param array $params
+     * @param type $returnAllFields
+     * @param int Количество изменных строк
+     */
+    static function exec($sql, $lnk = null) {
+       // var_dump($sql);
+        $pdo = $lnk ? $lnk : self::$lnk;
+ 
+        RunTimer::addPoint('Mysql');
+     //   $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        $result = $pdo->exec($sql);
+      //  if($result){
+            var_dump($result);
+            LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
+   //     }else{
+       //     var_dump($sth->debugDumpParams());
+    //        LogMysql::errorQuery($sql . "\n\n" . implode('. ' ,$pdo->errorInfo()));
+  //          throw new Exception('Error sql');
+   //     }
+     //   var_dump($sth->fetchAll());
+     //   var_dump($sth->debugDumpParams());
+      //  var_dump($params);
+
+        return $result;
+    }
     /**
      *
      * @param string $prepare_stmt
@@ -96,6 +125,9 @@ class DB {
         $pdo = $lnk ? $lnk : self::$lnk;
         
         
+//        $sth = $pdo->prepare("insert into webexpert_acc.sep_StatusSetsSearchTypes set set_id=7");
+//        $sth->execute();
+//        die;
         
         $sth = $pdo->prepare($prepareStmt);
         foreach ($params as $key => &$value) { 
@@ -104,19 +136,20 @@ class DB {
                 $param = $value[1];
                 $value = $value[0];
             }
-         //   var_dump($key, $value, $param);
+ //           var_dump($key, $value, $param);
             $sth->bindParam($key, $value, $param);
         }
         RunTimer::addPoint('Mysql');
         if($sth->execute()){
+           // var_dump($sth->errorInfo());
             LogMysql::query($sth->queryString,  RunTimer::endPoint('Mysql'));
         }else{
-            var_dump($sth->debugDumpParams());
+       //     var_dump($sth->debugDumpParams());
             LogMysql::errorQuery($sth->queryString . "\n\n" . implode('. ' ,$sth->errorInfo()));
             throw new Exception('Error sql');
         }
      //   var_dump($sth->fetchAll());
-    //    var_dump($sth->debugDumpParams());
+     //   var_dump($sth->debugDumpParams());
       //  var_dump($params);
 
         return $sth;
@@ -197,18 +230,26 @@ class DB {
     }
 
 
+    /**
+     *
+     * @param PDO $lnk
+     * @return bool 
+     */
     public static function begin($lnk = null) {
         $pdo = $lnk ? $lnk : self::$lnk;
+        LogMysql::query('START TRANSACTION');
         return $pdo->beginTransaction();
     }
     
     public static function rollback($lnk = null) {
         $pdo = $lnk ? $lnk : self::$lnk;
+        LogMysql::query('ROLLBACK');
         return $pdo->rollBack();
     }
     
     public static function commit($lnk = null) {
         $pdo = $lnk ? $lnk : self::$lnk;
+        LogMysql::query('COMMIT');
         return $pdo->commit();
     }
     

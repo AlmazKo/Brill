@@ -72,7 +72,7 @@ abstract class se_YandexXml extends se_Parser {
                 '<query>' . Xml::prepareTextForXml($query) . "</query>\r\n" .
                 "<page>$page</page>\r\n" .
                 "<groupings>\r\n" .
-                '<groupby attr="d" mode="flat" groups-on-page="' . $this->_linksInPages .'"/>' . "\r\n" .
+                '<groupby attr="d" mode="deep" groups-on-page="' . $this->_linksInPages .'"/>' . "\r\n" .
                 "</groupings>\r\n".
                 "</request>\r\n";
         return  $data;

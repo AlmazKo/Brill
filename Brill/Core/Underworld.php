@@ -29,9 +29,11 @@ class Underworld {
         if (Cli::hasArg(Daemon::KEY_NAME_DAEMON)) {
             $nameDaemon = Cli::getArg(Daemon::KEY_NAME_DAEMON);
         } else {
-            if (Cli::hasArg(Cli::ARG_HELP) || Cli::hasArg(Daemon::CLI_ARG_HELP)){
+            if (Cli::hasArg(Daemon::CLI_ARG_HELP)){
                 echo Cli::getStringForHelp(Daemon::getHelp());
-
+            } else {
+                 throw new Warning(Daemon::option_null());
+                 
             }
         }
         
@@ -44,7 +46,7 @@ class Underworld {
         $daemon = new $nameDaemon();
 
         if (!is_subclass_of($daemon, 'Daemon')) {
-            Log::warning($nameDaemon . ' должен быть унаследован от  Daemon');
+            throw new Warning($nameDaemon . ' должен быть унаследован от  Daemon');
         }
         $daemon->setModule($module);
         $daemon->setParams($params); 

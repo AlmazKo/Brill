@@ -7,7 +7,8 @@
 
 class LogMysql extends Log{
     public static $log = array();
-    public static function query($query, $time) {
+    public static function query($query, $time = null) {
+        $time = $time ? $time : microtime(true);
         self::$log[] = array($time, $query);
         self::inputLog($time, $query, false, "#82F");
     }

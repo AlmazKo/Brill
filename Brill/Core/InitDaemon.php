@@ -33,7 +33,8 @@ require_once CORE_PATH . 'Common/StringUtf8.php';
 require_once CORE_PATH . 'Common/Log.php';
 require CORE_PATH . 'Common/LogMysql.php';
 require_once CORE_PATH . 'Common/TFormat.php';
-
+require_once CORE_PATH . 'Common/Cli.php';
+require_once CORE_PATH . 'Common/CliInterface.php';
 
 //$timer = new RunTimer();
 require_once CORE_PATH . 'Underworld.php';
@@ -55,7 +56,7 @@ require_once CORE_PATH . 'Lib/DomExt.php';
 require_once CORE_PATH . 'DB/Stmt.php';
 require_once CORE_PATH . 'Lib/Curl.php';
 
-require_once CORE_PATH . 'Common/Cli.php';
+
 require_once CORE_PATH . 'Lang/ru/texts.php';
 
 

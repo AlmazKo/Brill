@@ -116,16 +116,20 @@ class se_ParserYandexXml extends se_YandexXml {
         try {
             DB::begin();
             // получаем сет
-            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE))->fetchColumn(0);
-            if (!$setId) {
-                die('Empty SetId');
-            }        
-            
-            DB::execute(se_StmtDaemon::prepare(
+            $setId = 203;
+//            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE))->fetchColumn(0);
+//            if (!$setId) {
+//                throw new Exception('Empty SetId');
+//            }   
+
+echo "\nПолучили сет: id=" . $setId;
+            if (!DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::SET_USED_SET),
-                    array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Ok')
-                    );
-            
+                    array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Busy')
+                    )->rowCount()) {
+                throw new Exception('Error blocking set');
+            }
+
 
             // получаем ключевики сета
             $aKeywords = DB::execute(se_StmtDaemon::prepare(
@@ -134,29 +138,26 @@ class se_ParserYandexXml extends se_YandexXml {
                     )->fetchALL(PDO::FETCH_ASSOC);
             
             // блочим ключевики в newindex
-            
-            
-            
+
+            DB::commit();
         } catch (Exception $e) {
             DB::rollback();
-             Log::warning("Rollback\n");
+            // чтото не получилось, отдаем назад все
+            throw new Warning($e->getMessage());
         }
+        
+echo "\nВзято ключевиков для обработки: " . count($aKeywords);
 
-       // var_dump($aKeywords);die;
         foreach ($aKeywords as &$kw) {
-            echo $kw['kw_keyword'] ."\n";
-            
-
-            
-            
+            $kw['pos'] = 0;
+            $kw['error'] = false;
             try {
                 if (!$kw['ss_isyaregion']) {
                     $kw['ss_isyaregion'] = self::DEFAULT_REGION_ID;
                 }
-                
-               // $result = $this->parsing($kw);
-                $result = getMockResultParsingYaXml();
-                $kw['pos'] = 0;
+                $result = $this->parsing($kw);
+                //$result = getMockResultParsingYaXml();
+               
                 foreach ($result as $key => $sePos) {
                     if (strtolower($this->getHost($sePos['url'])) === strtolower($this->getHost($kw['kw_url']))) {
                         $kw['pos'] = $key;
@@ -165,28 +166,79 @@ class se_ParserYandexXml extends se_YandexXml {
                         break;
                     }
                 }
-               
-               // $kw[]
                 $strSeoComp = $this->createStringForSeoComp($result);
-
+                // сохранение этой фигни
+                
+//                if (!rand(0,5)) {
+//                    throw new YandexXmlException('Ошибка в XML-запросе — проверьте валидность отправляемого XML и корректность параметров');
+//                }
+//                
+//                
+//                if (!rand(0,8)) {
+//                    throw new LimitInterfacesException('');
+//                }
               // формируем полученные данные для SeoComp
              // сохраняем эти данные, ставим отметку ключевику об успешном парсинге
              //сохраняем в массив сета ключевиков, нашли ли наш
             } catch (YandexXmlException $e) {
+                $kw['error'] = true;
+                echo "\nYandex error for keyword[" .$kw['kw_id'] . "]: " . $e->getMessage() . '';
+                continue;
                  // яндекс нас послал подальше
                 //ставим ключевик ошибку
             } catch (LimitInterfacesException $e) {
                 //закончились айпи
+                unset($kw['pos']);
+                echo "\nЗаконочились ip на keyword[" .$kw['kw_id'] . "]: " . $e->getMessage() . ''; 
                 break;
             } catch (Exception $e) {
-
+                unset($kw['pos']);
+                break;
             }
-             
-            var_dump($this->createStringForSeo($aKeywords));
+             echo "\nOK keyword[" .$kw['kw_id'] . "]!";
+           # var_dump($this->createStringForSeo($aKeywords));
          //   $strSeoComp = $this->createStringForSeo($aKeywords);
              
-        }
+        } echo "\n\n";
+        #var_dump($aKeywords);
+        $successKeywords = self::getListSuccessfullyKeywords($aKeywords);
+        $failKeywords = self::getListFailKeywords($aKeywords);
+        echo "\nПропарсенных ключевиков: " . count($successKeywords) . ''; 
+        echo "\nОшибки при парсинге : " . count($failKeywords) . ' ключевиков'; 
+        
+        $strSeoComp = $this->createStringForSeo($aKeywords);
+        var_dump($strSeoComp);
+//        if ($successKeywords) {
+//            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "1" WHERE kw_id in ('.implode(',',$successKeywords).')');
+//        }
+//        if ($failKeywords) {
+//            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "2" WHERE kw_id in ('.implode(',',$failKeywords).')');
+//        }
+        
+        
+        $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
 
+        
+        $result = DB::execute("SELECT se_id FROM webexpert_acc.z_seo WHERE se_parent = ".$setId." AND se_date = ".$today8.' limit 0,1')->fetchColumn(0);
+        var_dump("SELECT se_id FROM webexpert_acc.z_seo WHERE se_parent = ".$setId." AND se_date = ".$today8.' limit 0,1');
+        if ($result){
+         //обновляет катенацией, а надо сделать обновление умной вставкой
+            DB::exec('UPDATE webexpert_acc.z_seo SET se_poss = "'.$strSeoComp.'" WHERE se_id = '.(int)$result);
+        }else{
+            
+       //     var_dump('INSERT INTO webexpert_acc.z_seo SET se_parent = '.$setId.', se_date = '.$today8.', se_poss = "'.$strSeoComp.'"');
+            DB::exec ('INSERT INTO webexpert_acc.z_seo SET se_parent = '.$setId.', se_date = '.$today8.', se_poss = "'.$strSeoComp.'"');
+            
+
+
+        }        
+
+            if (!DB::execute(se_StmtDaemon::prepare(
+                    se_StmtDaemon::SET_USED_SET),
+                    array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Ok')
+                    )->rowCount()) {
+                throw new Exception('Error blocking set');
+            }
  /*       
         foreach ($keywords as $kw) {
             $this->curl->setGet(array('lr' => $kw['region_id']));
@@ -283,10 +335,10 @@ class se_ParserYandexXml extends se_YandexXml {
     }
     
     function createStringForSeo (array $keywords) {
-            $tmpArr = array();
+        $tmpArr = array();
         foreach ($keywords as  $kw) {
             $str = $kw['kw_keyword'];
-            if (!$kw['pos']) {
+            if (empty($kw['pos'])) {
                 $str .= '|-|-|-|' . $kw['kw_url'];
             } else {
                 $str .= '|'.$kw['pos'].'|'.$kw['links_search'].'|'.$kw['url_search'].'|' . $kw['kw_url'];
@@ -294,7 +346,7 @@ class se_ParserYandexXml extends se_YandexXml {
             $tmpArr[] = $str;
         }
         //TODO проверить сепаратор!
-        return implode("\n", $tmpArr);
+        return "\n" . implode("\n", $tmpArr);
     }
     
     /**
@@ -310,5 +362,25 @@ class se_ParserYandexXml extends se_YandexXml {
         //TODO проверить сепаратор!
         return implode("\n", $tmpArr);
     }
-
+    
+    
+    public static function getListFailKeywords (array &$aKeywords) {
+        $list = array();
+        foreach ($aKeywords as $keyword) {
+            if (isset($keyword['pos']) && !empty($keyword['error'])) {
+                $list[] = $keyword['kw_id'];
+            }
+        }
+        return $list;
+    }
+    
+    public static function getListSuccessfullyKeywords (array &$aKeywords) {
+        $list = array();
+        foreach ($aKeywords as $keyword) {
+            if (isset($keyword['pos']) && empty($keyword['error'])) {
+                $list[] = $keyword['kw_id'];
+            }
+        }
+        return $list;
+    }
 }

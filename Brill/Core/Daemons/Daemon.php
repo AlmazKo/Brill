@@ -3,7 +3,15 @@
  * Daemon
  * Родительский класс всех демонов, пауков, ботов и прочей нечисти
  */
-  class Daemon implements CliInterface{
+  class Daemon implements CliInterface {
+      
+   // const CLI_ARG_HELP = 'h';
+    
+    public function getCliString() {}
+    public function getCliArray() {}
+    public function getCliParams() {}
+    public function getNeedParams() {}
+    
     /* ПЛАНИРУЕМЫЕ
      * инициализация
      * просмотр списка демонов

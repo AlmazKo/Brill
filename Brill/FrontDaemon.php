@@ -48,7 +48,14 @@ class FrontDeamon {
                  $daemon->start();
             }
             } catch (Warning $e) {
+                $log = LogMysql::getLog();
+                foreach ($log as $key => $value) {
+                    $log[] = $value[1];
+                    unset($log[$key]);
+                }
+                var_export($log);
                 Log::warning($e->getMessage());
+                
             }
         }
     }
