@@ -94,24 +94,15 @@ class DB {
      * @param int Количество изменных строк
      */
     static function exec($sql, $lnk = null) {
-       // var_dump($sql);
         $pdo = $lnk ? $lnk : self::$lnk;
- 
-        RunTimer::addPoint('Mysql');
-     //   $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-        $result = $pdo->exec($sql);
-      //  if($result){
-            var_dump($result);
+        try {
+            RunTimer::addPoint('Mysql');
+            $result = $pdo->exec($sql);
             LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
-   //     }else{
-       //     var_dump($sth->debugDumpParams());
-    //        LogMysql::errorQuery($sql . "\n\n" . implode('. ' ,$pdo->errorInfo()));
-  //          throw new Exception('Error sql');
-   //     }
-     //   var_dump($sth->fetchAll());
-     //   var_dump($sth->debugDumpParams());
-      //  var_dump($params);
-
+        } catch (PDOException $e) {
+            LogMysql::errorQuery($sql . "\n\n" . implode('. ' , $e->getMessage()));
+            throw new Warning('Error PDO: ' . $e->getMessage());
+        }
         return $result;
     }
     /**

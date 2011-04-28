@@ -40,6 +40,7 @@ class FrontDeamon {
      */
     private function handleRequest() {
         $request = RegistryRequest::instance();
+        ob_start();
         if ($request->isConsole()) {
             try {
             $daemonR = new Underworld();
@@ -58,5 +59,9 @@ class FrontDeamon {
                 
             }
         }
+        $content = ob_get_clean();
+        Helper::logwrite('ya_'.date('Y-m-d'), $content);
+      //  echo $content;
+        
     }
 }

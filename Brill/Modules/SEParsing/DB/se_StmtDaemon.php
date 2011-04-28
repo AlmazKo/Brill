@@ -72,11 +72,9 @@ ORDER BY t1.kw_parent Desc"; //TODO убрать лимит
 
 const GET_SETS_BY_IDS = "SELECT ss_id, ss_queries FROM #DB_ACC#.`z_seoset` WHERE ss_id in (:sets)";
 
-//const SET_USED_SET = "insert ignore into #DB_ACC#.sep_StatusSetsSearchTypes set set_id=:set_id, search_type=:search_type, status = :status";
 const SET_USED_SET = "insert ignore into #DB_ACC#.sep_StatusSetsSearchTypes set set_id=:set_id, search_type=:search_type, status = :status
     ON DUPLICATE KEY UPDATE status = :status";
 
-//const SET_USED_SET = "insert into sep_StatusSetsSearchTypes set set_id=7";
 const GET_PROJECT_FREE ="SELECT p.id, p.site, p.site_id FROM sep_Projects as p
 left join sep_StatusProjectsSearchTypes as spt on (spt.project_id=p.id and spt.search_type='#search_type#')
 where  (spt.status='No' OR isnull(spt.status))";
@@ -92,8 +90,12 @@ where set_id=#set_id#";
 const GET_SITE = "SELECT id FROM `sep_Sites` where name='#name#' limit 1";
 const GET_URL = "SELECT id FROM `sep_Urls` where url='#url#' limit 1";
 
+const GET_SEOCOMP_YA = 
+"SELECT sc_id  FROM #DB_ACC#.z_seocomp WHERE sc_parent = :parent AND sc_date = :date AND sc_keyword = :keyword LIMIT 1";
 
-
+const SET_SEOCOMP_YA =
+"INSERT ignore INTO #DB_ACC#.z_seocomp SET sc_parent = :parent, sc_date = :date, sc_poss = :seoh, sc_keyword = :keyword, sc_range = :range, sc_premiya = :premiya
+     ON DUPLICATE KEY UPDATE sc_poss = :seoh";
     public static function prepare($nameStmt) {
         return str_replace("#DB_ACC#", se_StmtDaemon::DB_ACC, $nameStmt);
     }

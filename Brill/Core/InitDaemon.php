@@ -35,6 +35,7 @@ require CORE_PATH . 'Common/LogMysql.php';
 require_once CORE_PATH . 'Common/TFormat.php';
 require_once CORE_PATH . 'Common/Cli.php';
 require_once CORE_PATH . 'Common/CliInterface.php';
+require_once CORE_PATH . 'Common/Helper.php';
 
 //$timer = new RunTimer();
 require_once CORE_PATH . 'Underworld.php';

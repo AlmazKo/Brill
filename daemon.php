@@ -1,4 +1,5 @@
 <?php
+$GLOBALS['start'] = microtime(true);
 /*
  * Фасад для демонов
  *

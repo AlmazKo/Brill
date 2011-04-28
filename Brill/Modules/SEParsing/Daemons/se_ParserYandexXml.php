@@ -86,7 +86,7 @@ class se_ParserYandexXml extends se_YandexXml {
     protected function parsing($keyword, $conf = 0) {
         $query = $keyword['kw_keyword'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
         
-        $this->curl->setGet(array('lr' => $keyword['ss_isyaregion']));
+        $this->curl->setGet(array('lr' => $keyword['rg_region']));
         $xmlQuery = $this->getXMLRequest($query);
         $xmlResponse = $this->requestYandex($xmlQuery);
         return $this->parsingXml($xmlResponse);
@@ -116,13 +116,13 @@ class se_ParserYandexXml extends se_YandexXml {
         try {
             DB::begin();
             // получаем сет
-            $setId = 203;
-//            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE))->fetchColumn(0);
-//            if (!$setId) {
-//                throw new Exception('Empty SetId');
-//            }   
+            
+            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE))->fetchColumn(0);
+            if (!$setId) {
+                throw new Exception('Empty SetId');
+            }   
 
-echo "\nПолучили сет: id=" . $setId;
+            echo "\nПолучили сет: id=" . $setId;
             if (!DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::SET_USED_SET),
                     array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Busy')
@@ -146,17 +146,22 @@ echo "\nПолучили сет: id=" . $setId;
             throw new Warning($e->getMessage());
         }
         
-echo "\nВзято ключевиков для обработки: " . count($aKeywords);
-
+        echo "\nВзято ключевиков для обработки: " . count($aKeywords);
+        $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
+        
         foreach ($aKeywords as &$kw) {
             $kw['pos'] = 0;
             $kw['error'] = false;
             try {
-                if (!$kw['ss_isyaregion']) {
-                    $kw['ss_isyaregion'] = self::DEFAULT_REGION_ID;
+                if (!$kw['rg_region']) {
+                    $kw['rg_region'] = self::DEFAULT_REGION_ID;
                 }
                 $result = $this->parsing($kw);
                 //$result = getMockResultParsingYaXml();
+                /*
+                 * Mock 
+                 * $result = getMockResultParsingYaXml();
+                 */
                
                 foreach ($result as $key => $sePos) {
                     if (strtolower($this->getHost($sePos['url'])) === strtolower($this->getHost($kw['kw_url']))) {
@@ -166,26 +171,29 @@ echo "\nВзято ключевиков для обработки: " . count($aK
                         break;
                     }
                 }
-                $strSeoComp = $this->createStringForSeoComp($result);
-                // сохранение этой фигни
                 
+                
+                // сохранение этой фигни
+              //  throw new LimitInterfacesException('');
 //                if (!rand(0,5)) {
 //                    throw new YandexXmlException('Ошибка в XML-запросе — проверьте валидность отправляемого XML и корректность параметров');
 //                }
-//                
-//                
 //                if (!rand(0,8)) {
 //                    throw new LimitInterfacesException('');
 //                }
+                
               // формируем полученные данные для SeoComp
              // сохраняем эти данные, ставим отметку ключевику об успешном парсинге
              //сохраняем в массив сета ключевиков, нашли ли наш
             } catch (YandexXmlException $e) {
+                /* 
+                 * яндекс нас послал подальше
+                 * ставим ключевик ошибку
+                 */
                 $kw['error'] = true;
                 echo "\nYandex error for keyword[" .$kw['kw_id'] . "]: " . $e->getMessage() . '';
                 continue;
-                 // яндекс нас послал подальше
-                //ставим ключевик ошибку
+
             } catch (LimitInterfacesException $e) {
                 //закончились айпи
                 unset($kw['pos']);
@@ -193,52 +201,67 @@ echo "\nВзято ключевиков для обработки: " . count($aK
                 break;
             } catch (Exception $e) {
                 unset($kw['pos']);
+                echo "\nЧертовщина с keyword[" .$kw['kw_id'] . "]: " . $e->getMessage() . ''; 
                 break;
             }
-             echo "\nOK keyword[" .$kw['kw_id'] . "]!";
-           # var_dump($this->createStringForSeo($aKeywords));
-         //   $strSeoComp = $this->createStringForSeo($aKeywords);
+             echo "\n Yandex OK keyword[" .$kw['kw_id'] . "]!";
              
-        } echo "\n\n";
-        #var_dump($aKeywords);
+            // должно упроститься до DBExt::getColumn(se_StmtDaemon::GET_SEOCOMP_YA)
+//
+//            $seoComp = DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SEOCOMP_YA),
+//                                      array(':parent' => $setId, ':date' => $today8, ':keyword' => $kw['kw_keyword'])
+//                                  )->fetchColumn(0);
+//            if (!$seoComp) {
+                $strSeoComp = $this->createStringForSeoComp($result);
+                echo "\nВставляем в seocomp информацию по КЧ `" .$kw['kw_keyword'] . "`"; 
+                DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_SEOCOMP_YA),
+                            array(  ':parent'   => $setId, 
+                                    ':date'     => $today8, 
+                                    ':seoh'     => $strSeoComp,
+                                    ':keyword'  => $kw['kw_keyword'],
+                                    ':range'    => $kw['kw_range'],
+                                    ':premiya'  => $kw['kw_premiya'])
+                            );
+    //    }
+        
+             
+        } 
+        
+        echo "\n";
         $successKeywords = self::getListSuccessfullyKeywords($aKeywords);
         $failKeywords = self::getListFailKeywords($aKeywords);
-        echo "\nПропарсенных ключевиков: " . count($successKeywords) . ''; 
+        echo "\nПропарсенных ключевиков: " . count($successKeywords) ; 
         echo "\nОшибки при парсинге : " . count($failKeywords) . ' ключевиков'; 
         
-        $strSeoComp = $this->createStringForSeo($aKeywords);
-        var_dump($strSeoComp);
-//        if ($successKeywords) {
-//            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "1" WHERE kw_id in ('.implode(',',$successKeywords).')');
-//        }
-//        if ($failKeywords) {
-//            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "2" WHERE kw_id in ('.implode(',',$failKeywords).')');
-//        }
         
-        
-        $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
 
+        if ($successKeywords) {
+            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "1" WHERE kw_id in ('.implode(',',$successKeywords).')');
+        }
+        if ($failKeywords) {
+            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "3" WHERE kw_id in ('.implode(',',$failKeywords).')');
+        }
+        
+        
+        
+
+        $strSeo = $this->createStringForSeo($aKeywords);
         
         $result = DB::execute("SELECT se_id FROM webexpert_acc.z_seo WHERE se_parent = ".$setId." AND se_date = ".$today8.' limit 0,1')->fetchColumn(0);
-        var_dump("SELECT se_id FROM webexpert_acc.z_seo WHERE se_parent = ".$setId." AND se_date = ".$today8.' limit 0,1');
         if ($result){
-         //обновляет катенацией, а надо сделать обновление умной вставкой
-            DB::exec('UPDATE webexpert_acc.z_seo SET se_poss = "'.$strSeoComp.'" WHERE se_id = '.(int)$result);
-        }else{
-            
-       //     var_dump('INSERT INTO webexpert_acc.z_seo SET se_parent = '.$setId.', se_date = '.$today8.', se_poss = "'.$strSeoComp.'"');
-            DB::exec ('INSERT INTO webexpert_acc.z_seo SET se_parent = '.$setId.', se_date = '.$today8.', se_poss = "'.$strSeoComp.'"');
-            
-
-
+            // обновляет катенацией, а надо сделать обновление умной вставкой
+            // пока сделано тупой вставкой 
+            DB::exec('UPDATE webexpert_acc.z_seo SET se_poss = "'.$strSeo.'" WHERE se_id = '.(int)$result);
+        } else {
+            DB::exec ('INSERT INTO webexpert_acc.z_seo SET se_parent = '.$setId.', se_date = '.$today8.', se_poss = "'.$strSeo.'"');
         }        
 
-            if (!DB::execute(se_StmtDaemon::prepare(
-                    se_StmtDaemon::SET_USED_SET),
-                    array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Ok')
-                    )->rowCount()) {
-                throw new Exception('Error blocking set');
-            }
+        if (!DB::execute(se_StmtDaemon::prepare(
+                se_StmtDaemon::SET_USED_SET),
+                array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Ok')
+                )->rowCount()) {
+            throw new Exception('Error blocking set');
+        }
  /*       
         foreach ($keywords as $kw) {
             $this->curl->setGet(array('lr' => $kw['region_id']));
@@ -278,7 +301,8 @@ echo "\nВзято ключевиков для обработки: " . count($aK
             $p->executeBuffer();
         }
         */
-        echo 'Сохраняем все что не сохранили. а точнее сет';
+     //   var_dump(LogMysql::getLog());
+        echo "\n...Ok...\n ";
     }
 
     /**

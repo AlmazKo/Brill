@@ -104,6 +104,8 @@ class Curl {
         if ($aGet) {
             $url = $url . '?' . $aGet;
         }
+         //TODO сделать по нормальному и всунуть в демона    
+         echo "\nCurl GET: " . $url;
         if ($this->getOpt(CURLOPT_POST)) {
             $this->_preparePost();
         }

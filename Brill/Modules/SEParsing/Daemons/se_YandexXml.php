@@ -58,7 +58,9 @@ abstract class se_YandexXml extends se_Parser {
      * @return array
      */
     protected function getInterface() {
-       return st_Lib::getInterface(st_Lib::INTERFACE_YA_XAML);
+       $interface = st_Lib::getInterface(st_Lib::INTERFACE_YA_XAML);
+       echo "\nПолучили ip: " . $interface['interface'];
+       return $interface;
     }
 
     /**

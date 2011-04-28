@@ -26,5 +26,19 @@ class Helper {
         }
         fclose($handle);
     }
+    
+    
+    
+    static function logwrite($type, $str){
+        $filename = 'logs/'.$type.'_logs';
+        if (!$handle = fopen($filename, 'a')) return false;
+        $time = date("Y.m.d H:i:s");
+        $str = $time.'  '.$str.".\n";
+        if (fwrite($handle, $str) === FALSE) {
+           return false;
+        }
+        fclose($handle);
+    return true;
+}
 }
 ?>
