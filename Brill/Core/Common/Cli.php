@@ -12,14 +12,22 @@
  */
 final class Cli {
     const ARG_HELP = 'h';
+    const ARG_INFO = '-';
    private static $_args;
    
    
   
    public function getStringForHelp($args, $prefix = '-', $encode = 'utf8') {
-       $string = "Use the following arguments:\n";
+       $string = '';
+       if (isset($args[self::ARG_INFO])) {
+           $string .= $args[self::ARG_INFO] . "\n";
+       }
+       $string .= "Use the following arguments:\n";
        foreach ($args as $key => $value) {
-           $string .= str_pad($prefix . $key, 8, " ", STR_PAD_LEFT) . "\t" . $value . "\n";
+           if (self::ARG_INFO != $key) {
+               $string .= str_pad($prefix . $key, 8, " ", STR_PAD_LEFT) . "\t" . $value . "\n";
+           }
+           
        } 
        return $string;
     }

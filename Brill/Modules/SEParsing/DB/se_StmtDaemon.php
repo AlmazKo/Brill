@@ -57,6 +57,14 @@ WHERE t2.ss_isactive = '1' AND  t1.kw_parsed= '0' AND (ISNULL(ssst.status) OR ss
 order by kw_parent desc
 LIMIT 1";
 
+
+const GET_SET_FREE_GOOGLE = "SELECT kw_parent, ssst.* FROM #DB_ACC#.z_keywords AS t1
+JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
+left JOIN #DB_ACC#.sep_StatusSetsSearchTypes AS ssst ON ssst.set_id = t2.ss_id
+WHERE t2.ss_isactive = '1' AND  t1.kw_parsedgoogle= '0' AND (ISNULL(ssst.status) OR ssst.status='No')
+order by kw_parent desc
+LIMIT 1";
+
 const GET_FREE_SET_ACC = "SELECT kw_parent FROM #DB_ACC#.z_keywords AS t1
 JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
 WHERE t2.ss_isactive = '1' AND  t1.kw_parsed= '0'
@@ -68,7 +76,15 @@ FROM #DB_ACC#.z_keywords AS t1
 JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
 LEFT JOIN #DB_ACC#.z_regions AS t3 ON t2.ss_region = t3.rg_id
 WHERE  t1.kw_parsed='0' AND t2.ss_id = :set_id
-ORDER BY t1.kw_parent Desc"; //TODO убрать лимит
+ORDER BY t1.kw_parent Desc";
+
+
+const GET_KEYWORDS_BY_SET_GOOGLE = "SELECT kw_id, kw_parent,kw_keyword, kw_url, kw_range, kw_premiya, ss_isyaregion, rg_region 
+FROM #DB_ACC#.z_keywords AS t1
+JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
+LEFT JOIN #DB_ACC#.z_regions AS t3 ON t2.ss_region = t3.rg_id
+WHERE  t1.kw_parsedgoogle='0' AND t2.ss_id = :set_id
+ORDER BY t1.kw_parent Desc";
 
 const GET_SETS_BY_IDS = "SELECT ss_id, ss_queries FROM #DB_ACC#.`z_seoset` WHERE ss_id in (:sets)";
 

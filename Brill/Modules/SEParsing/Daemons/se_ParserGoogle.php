@@ -6,10 +6,7 @@
  * Парсит Yandex.Xml
  * @author almaz
  */
-class se_ParserYandexXml extends se_YandexXml {
-    const
-        CONF_NULL = 0,
-        CONF_WITH_DOT = 1;
+class se_ParserGoogle extends se_Parser {
 
     protected
         $_lnk2;
@@ -17,13 +14,12 @@ class se_ParserYandexXml extends se_YandexXml {
     protected
         $_depth = 1,
         //сколько позиций брать за раз
-        $_linksInPages = 100;
+        $_linksInPages = 60;
 
     public function  __construct() {
         parent::__construct();
         unset(self::$_cliParams[Daemon::KEY_NAME_DAEMON]);
-        self::$_cliParams += array('t' => 'Type 1|0. С точкой или без. default t=1');
-        self::$_cliParams[Cli::ARG_INFO] = 'Демон проверки наличия страниц в выдаче YandexXml';
+        self::$_cliParams[Cli::ARG_INFO] = 'Демон проверки наличия страниц в выдаче Google';
         
         //protected static $_cliParams = array('n' => 'Daemon\'s name.', 'h' => 'View help');
      }
@@ -40,12 +36,8 @@ class se_ParserYandexXml extends se_YandexXml {
         require_once $this->_module->pathModels . 'sep_Positions.php';
         require_once $this->_module->pathModels . 'sep_Urls.php';
 
-        require_once $this->_module->pathDaemons . 'Exceptions/YandexXmlException.php';
         require_once $this->_module->pathDaemons . 'Exceptions/LimitInterfacesException.php';
-        
-        
         require_once $this->_module->pathDaemons . 'Mocks/getMockResultParsingYaXml.php';
-        
     }
 
     // cleaning url for compare
@@ -58,42 +50,51 @@ class se_ParserYandexXml extends se_YandexXml {
     }
 
     /**
-     * Parsing Yandex Xml string
-     * @param SimpleXMLElement $response response YanderXML
-     * @param string $url_comp  url для сравнения
-     * @return array (z_Seo, z_Seocomp)
-     */
-    private function parsingXml($response){
-        $positions = array();
-        $pos       = 0;
-        $groups    = $response->results->grouping->group;
-        $i         = 0;
-        $ps = array();
-
-        foreach ($groups as $value) {
-            $pos++;
-            $url = (string) $value->doc->url;
-            $parsedUrl = @parse_url($url);
-            $ps[$pos]['site'] = $parsedUrl['host'];//
-            $ps[$pos]['url'] = $url;
-            $ps[$pos]['links_search'] = (string) $value->doc->properties->_PassagesType;//найдено по ссылке
-        }
-        return $ps;
-    }
-
-    /**
      *
      * @param array $keyword
      * @param int $dot тип парсинга
      * @return array
      */
     protected function parsing($keyword, $conf = 0) {
-        $query = $keyword['kw_keyword'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
         
-        $this->curl->setGet(array('lr' => $keyword['rg_region']));
-        $xmlQuery = $this->getXMLRequest($query);
-        $xmlResponse = $this->requestYandex($xmlQuery);
-        return $this->parsingXml($xmlResponse);
+        
+        $google_url = 'http://www.google.ru/search?hl=ru&q='.rawurlencode($query).'&start='.($page * $perPage);
+		$user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3";
+curl_setopt ($ch, CURLOPT_URL, $google_url);
+		curl_setopt ($ch, CURLOPT_INTERFACE, $iIP);
+		curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
+		curl_setopt($ch, CURLOPT_HEADER , 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt ($ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt ($ch, CURLOPT_COOKIEFILE, "cookie/cookiegoogle.txt"); 
+		curl_setopt ($ch, CURLOPT_COOKIEJAR, "cookie/cookiegoogle.txt");
+		$respose = curl_exec ($ch);
+preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $respose, $match);
+        		foreach ($match[1] as $key=>$url)
+		{
+			//$pos = isset ($match[6][$key]) ? $match[6][$key] : 0;
+			$pos = ($key + 1) + $page * $perPage;
+			$fHost = strtolower ($fUrl);
+			$sHost = @parse_url (strtolower ($url), PHP_URL_HOST);
+			$seoComp .= $pos.'|'.$url.'\n';
+				$ccount++;
+			if (str_replace ("www.", "", $fHost) == str_replace ("www.", "", $sHost))
+			{
+				$fPage = $page + 1;
+				$fPos = $pos;
+				$pUrl = $url;
+				$finded = true;
+				
+			}
+		}
+
+//        $query = $keyword['kw_keyword'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
+//        
+//        $this->curl->setGet(array('lr' => $keyword['rg_region']));
+//        $xmlQuery = $this->getXMLRequest($query);
+//        $xmlResponse = $this->requestYandex($xmlQuery);
+//        return $this->parsingXml($xmlResponse);
     }
 
     /**
@@ -104,24 +105,19 @@ class se_ParserYandexXml extends se_YandexXml {
     public function start() {
         $this->_configure();
         parent::start();
-
-        if (isset($this->_params['type']) && self::CONF_WITH_DOT == $this->_params['type']) {
-            $this->_parseDot();
-        } else {
-            $this->_parseSimple();
-        }
+        $this->_parse();
     }
 
     /**
      * Стандартный парсинг
      * @param array $keywords
      */
-    private function _parseSimple() {
+    private function _parse() {
         try {
             DB::begin();
             // получаем сет
             
-            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE))->fetchColumn(0);
+            $setId = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_FREE_GOOGLE))->fetchColumn(0);
             if (!$setId) {
                 throw new Exception('Empty SetId');
             }   
@@ -129,7 +125,7 @@ class se_ParserYandexXml extends se_YandexXml {
             echo "\nПолучили сет: id=" . $setId;
             if (!DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::SET_USED_SET),
-                    array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Busy')
+                    array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Busy')
                     )->rowCount()) {
                 throw new Exception('Error blocking set');
             }
@@ -137,7 +133,7 @@ class se_ParserYandexXml extends se_YandexXml {
 
             // получаем ключевики сета
             $aKeywords = DB::execute(se_StmtDaemon::prepare(
-                    se_StmtDaemon::GET_KEYWORDS_BY_SET),
+                    se_StmtDaemon::GET_KEYWORDS_BY_SET_GOOGLE),
                     array(':set_id' => $setId)
                     )->fetchALL(PDO::FETCH_ASSOC);
             
@@ -152,7 +148,8 @@ class se_ParserYandexXml extends se_YandexXml {
         
         echo "\nВзято ключевиков для обработки: " . count($aKeywords);
         $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
-        
+              
+ 
         foreach ($aKeywords as &$kw) {
             $kw['pos'] = 0;
             $kw['error'] = false;
@@ -209,13 +206,7 @@ class se_ParserYandexXml extends se_YandexXml {
                 break;
             }
              echo "\n Yandex OK keyword[" .$kw['kw_id'] . "]!";
-             
-            // должно упроститься до DBExt::getColumn(se_StmtDaemon::GET_SEOCOMP_YA)
-//
-//            $seoComp = DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SEOCOMP_YA),
-//                                      array(':parent' => $setId, ':date' => $today8, ':keyword' => $kw['kw_keyword'])
-//                                  )->fetchColumn(0);
-//            if (!$seoComp) {
+
                 $strSeoComp = $this->createStringForSeoComp($result);
                 echo "\nВставляем в seocomp информацию по КЧ `" .$kw['kw_keyword'] . "`"; 
                 DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_SEOCOMP_YA),
@@ -226,9 +217,6 @@ class se_ParserYandexXml extends se_YandexXml {
                                     ':range'    => $kw['kw_range'],
                                     ':premiya'  => $kw['kw_premiya'])
                             );
-    //    }
-        
-             
         } 
         
         echo "\n";
@@ -266,102 +254,11 @@ class se_ParserYandexXml extends se_YandexXml {
                 )->rowCount()) {
             throw new Exception('Error blocking set');
         }
- /*       
-        foreach ($keywords as $kw) {
-            $this->curl->setGet(array('lr' => $kw['region_id']));
-            $parseKw = $this->parsing($kw);
-            $p = new sep_Positions();
-            foreach($parseKw as $pos => $info) {
-                $sql = Stmt::prepare2(se_StmtDaemon::GET_SITE, array('name' => $info['site']));
-                $aSite = DBExt::getOneRowSql($sql);
-                if (!$aSite) {
-                    $site = new sep_Sites();
-                    $site->name = $info['site'];
-                    $site->save();
-                    $siteId = $site->id;
-                } else {
-                    $siteId = $aSite['id'];
-                }
-
-
-                $sql = Stmt::prepare2(se_StmtDaemon::GET_URL, array('url' => $info['url']));
-                $aUrl = DBExt::getOneRowSql($sql);
-                if (!$aUrl) {
-                    $url = new sep_Urls();
-                    $url->url = $info['url'];
-                    $url->site_id = $siteId;
-                    $url->save();
-                    $urlId = $url->id;
-                } else {
-                    $urlId = $aUrl['id'];
-                }
-                $p->keyword_id = $kw['id'];
-                $p->site_id = $siteId;
-                $p->url_id = $urlId;
-                $p->pos = $pos;
-                $p->links_search = $info['links_search'];
-                $p->saveInBuffer()->reset();
-            }
-            $p->executeBuffer();
-        }
-        */
-     //   var_dump(LogMysql::getLog());
+ 
         echo "\n...Ok...\n ";
     }
 
-    /**
-     * Парсинг с "точкой"
-     * @param array $keywords
-     */
-    private function _parseDot($keywords) {
-        foreach ($keywords as $kw){
-           $this->curl->setGet(array('lr' => $kw->region_id));
-           $psDot = $this->parsing($kw, self::CONF_WITH_DOT);
-           if ($psDot) {
-               $ps = $this->parsing($kw);
-               $p = new sep_Positions();
-               $site = new sep_Sites();
-               $url = new sep_Urls();
-               foreach ($psDot as $val) {
-                    $pos = 0;
-                    $idPosDot = md5($val['url']);
-                    if (isset($ps[$idPosDot])) {
-                        $pos = $ps[$idPosDot]['pos'];
-                    }
-                    $p->keyword_id = $kw->id;
-                    // есть ли такой сайт в базе
-                    if (!$site->getObjectField('name', $val['site'])) {
-                       $site->name = $val['site'];
-                       $site->save();
-                    }
-
-                    // есть ли такой url в базе
-                    if (!$url->getObjectField('url', $val['url'])) {
-                       $url->url = $val['url'];
-                       $url->site_id = $site->id;
-                       $url->save();
-                    }
-                    $p->site_id = $site->id;
-                    $p->url_id = $url->id;
-
-                    $p->pos_dot = $val['pos'];
-                    $p->pos = $pos;
-
-                    $p->links_search = $val['links_search'];
-                    $p->saveInBuffer()->reset();
-                    $url->reset();
-                    $site->reset();
-               }
-               $p->executeBuffer();
-               $kw->yandex = 'Сalculated';
-           } else {
-               $kw->yandex = 'Error';
-           }
-           $kw->save();
-         //  Log::warning('');
-        }
-    }
-    
+ 
     function createStringForSeo (array $keywords) {
         $tmpArr = array();
         foreach ($keywords as  $kw) {
