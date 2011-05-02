@@ -52,7 +52,7 @@ final class RunTimer {
         foreach (self::$_listTimers as $key => $value) {
            ##$descr .= '"' . $key . '": ' . TFormat::timer($value->getAllTime(true)) . "\n";
             $timers[$key] = TFormat::timer($value->getAllTime(true));
-            Log::info($key, $timers[$key], true);
+            Log::info($timers[$key], true,$key);
         }
         return $timers;
     }

@@ -22,7 +22,7 @@ class Underworld {
         //$params = $_GET;
         $params = $request->get('argv');
         if (!$params) {
-            throw new Warning(Daemon::option_null());
+            throw new CliInput(Daemon::option_null());
         }
         Cli::setArgs($params);
 
@@ -39,7 +39,6 @@ class Underworld {
         
 
         
-
 
         $module = $this->_loadModuleDaemon($nameDaemon);
         $daemon = new $nameDaemon();
@@ -81,7 +80,7 @@ class Underworld {
             }
         }
 
-        Log::warning('Не найден модуль для демона : '.$nameDaemon);
+        throw new Warning('Не найден модуль для демона : '.$nameDaemon);
     }
 
     /**

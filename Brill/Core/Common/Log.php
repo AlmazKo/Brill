@@ -105,10 +105,10 @@ class Log {
     /**
      * Вывод серъезных ошибок
      */
-    public static function info($text, $block = true, $title = 'Warning') {
+    public static function info($text, $block = true, $title = 'Info') {
         echo self::inputLog($title, $text, true, 'green', 'Info');
-        echo self::viewLog();
-        die;
+//        echo self::viewLog();
+//        die;
     }
 
     protected  static function inputLog($title, $descr, $block = true, $color = '#ff0' , $filename = 'info') {
