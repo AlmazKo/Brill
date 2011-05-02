@@ -26,7 +26,7 @@ abstract class Modules {
     public static function init() {
         if (self::$instance === null) {
 
-            var_dump(__CLASS__);
+        //    var_dump(__CLASS__);
          //   self::$instance = self::;
 
         }

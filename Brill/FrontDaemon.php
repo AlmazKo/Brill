@@ -43,20 +43,21 @@ class FrontDeamon {
         ob_start();
         if ($request->isConsole()) {
             try {
-            $daemonR = new Underworld();
-            $daemon = $daemonR->summon();
-            if (Underworld::countRunningDaemons($daemon) <= $daemon->maxCountRun()) {
-                 $daemon->start();
-            }
+                $daemonR = new Underworld();
+                $daemon = $daemonR->summon();
+                if (Underworld::countRunningDaemons($daemon) <= $daemon->maxCountRun()) {
+                     $daemon->start();
+                }
+            } catch (CliInput $input) {
+                 Log::info($input->getMessage());
             } catch (Warning $e) {
                 $log = LogMysql::getLog();
                 foreach ($log as $key => $value) {
                     $log[] = $value[1];
                     unset($log[$key]);
                 }
-                var_export($log);
+              //  var_export($log);
                 Log::warning($e->getMessage());
-                
             }
         }
         $content = ob_get_clean();

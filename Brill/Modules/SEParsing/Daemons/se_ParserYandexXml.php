@@ -22,6 +22,7 @@ class se_ParserYandexXml extends se_YandexXml {
     public function  __construct() {
         parent::__construct();
         self::$_cliParams += array('-type' => 'Type 1|0. С точкой или без');
+        //protected static $_cliParams = array('n' => 'Daemon\'s name.', 'h' => 'View help');
      }
 
     /**

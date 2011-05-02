@@ -30,15 +30,14 @@ class Underworld {
             $nameDaemon = Cli::getArg(Daemon::KEY_NAME_DAEMON);
         } else {
             if (Cli::hasArg(Daemon::CLI_ARG_HELP)){
-                echo Cli::getStringForHelp(Daemon::getHelp());
+                throw new CliInput(Cli::getStringForHelp(Daemon::getHelp()));
             } else {
-                 throw new Warning(Daemon::option_null());
-                 
+                 throw new CliInput(Daemon::option_null());
             }
         }
         
         
-        
+
         
 
 
@@ -50,6 +49,10 @@ class Underworld {
         }
         $daemon->setModule($module);
         $daemon->setParams($params); 
+        
+        if (Cli::hasArg($daemon::CLI_ARG_HELP)){
+            throw new CliInput(Cli::getStringForHelp(Daemon::getHelp()));
+        }
         return $daemon;
     }
 

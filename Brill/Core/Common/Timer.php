@@ -33,8 +33,8 @@ class Timer {
      * @return float
      */
     public  function endPoint(){
-        if ($this->_datepoint === null) {
-            Log::warning('Для таймера  не была создана начальная точка');
+        if ($this->_datepoint === null) {//$GLOBALS['start']
+          //  Log::warning('Для таймера  не была создана начальная точка');
             return 0;
         } else {
             $current_runtime = microtime(true) - $this->_datepoint;

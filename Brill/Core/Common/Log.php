@@ -68,14 +68,14 @@ class Log {
         }
     }
 
-    /**
-     * Вывод  чего либо
-     * @param object $obj
-     * @param string $color
-     */
-    public static function info($title, $descr, $block = false, $color = '#2a2') {
-        self::inputLog($title, $descr, $block, $color);
-    }
+//    /**
+//     * Вывод  чего либо
+//     * @param object $obj
+//     * @param string $color
+//     */
+//    public static function info($title, $descr, $block = false, $color = '#2a2') {
+//        self::inputLog($title, $descr, $block, $color);
+//    }
 
     /**
      * Вывод ошибок, не влияющих на работу
@@ -100,6 +100,15 @@ class Log {
        //  RegistryContext::instance()->set('error', self::viewLog());
         echo self::viewLog();
         die();
+    }
+    
+    /**
+     * Вывод серъезных ошибок
+     */
+    public static function info($text, $block = true, $title = 'Warning') {
+        echo self::inputLog($title, $text, true, 'green', 'Info');
+        echo self::viewLog();
+        die;
     }
 
     protected  static function inputLog($title, $descr, $block = true, $color = '#ff0' , $filename = 'info') {
