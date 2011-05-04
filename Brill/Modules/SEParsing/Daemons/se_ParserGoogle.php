@@ -7,7 +7,7 @@
  * @author almaz
  */
 class se_ParserGoogle extends se_Parser {
-
+    const URL_SEARCH = 'http://www.google.ru/search';
     protected
         $_lnk2;
 
@@ -20,7 +20,14 @@ class se_ParserGoogle extends se_Parser {
         parent::__construct();
         unset(self::$_cliParams[Daemon::KEY_NAME_DAEMON]);
         self::$_cliParams[Cli::ARG_INFO] = 'Демон проверки наличия страниц в выдаче Google';
-        
+                $opt = array (CURLOPT_HEADER => true,
+                      CURLOPT_RETURNTRANSFER => true,
+                      CURLOPT_FOLLOWLOCATION => false,
+                      CURLOPT_TIMEOUT => 20,
+                      CURLOPT_CONNECTTIMEOUT => 7,
+                      CURLOPT_USERAGENT => "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3"
+                     );
+        $this->curl->setOptArray($opt);
         //protected static $_cliParams = array('n' => 'Daemon\'s name.', 'h' => 'View help');
      }
 
@@ -49,52 +56,32 @@ class se_ParserGoogle extends se_Parser {
         return parse_url ($url, PHP_URL_PATH);
     }
 
+
     /**
      *
-     * @param array $keyword
-     * @param int $dot тип парсинга
-     * @return array
+     * @param type $keyword
+     * @param type $depth 
      */
-    protected function parsing($keyword, $conf = 0) {
-        
-        
-        $google_url = 'http://www.google.ru/search?hl=ru&q='.rawurlencode($query).'&start='.($page * $perPage);
-		$user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3";
-curl_setopt ($ch, CURLOPT_URL, $google_url);
-		curl_setopt ($ch, CURLOPT_INTERFACE, $iIP);
-		curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-		curl_setopt($ch, CURLOPT_HEADER , 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt ($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt ($ch, CURLOPT_COOKIEFILE, "cookie/cookiegoogle.txt"); 
-		curl_setopt ($ch, CURLOPT_COOKIEJAR, "cookie/cookiegoogle.txt");
-		$respose = curl_exec ($ch);
-preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $respose, $match);
-        		foreach ($match[1] as $key=>$url)
-		{
-			//$pos = isset ($match[6][$key]) ? $match[6][$key] : 0;
-			$pos = ($key + 1) + $page * $perPage;
-			$fHost = strtolower ($fUrl);
-			$sHost = @parse_url (strtolower ($url), PHP_URL_HOST);
-			$seoComp .= $pos.'|'.$url.'\n';
-				$ccount++;
-			if (str_replace ("www.", "", $fHost) == str_replace ("www.", "", $sHost))
-			{
-				$fPage = $page + 1;
-				$fPos = $pos;
-				$pUrl = $url;
-				$finded = true;
-				
-			}
-		}
+    protected function parsing($keyword, $depth = 3) {
+        $urls = array();
+        for ($page = 0; $page < $depth; $page++) {
+            $this->curl->setGet(array(
+                 'hl'       => 'ru', 
+                 'q'        => rawurlencode($keyword['kw_keyword']),
+                 'start'    => $page * 10
+            ));
 
-//        $query = $keyword['kw_keyword'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
-//        
-//        $this->curl->setGet(array('lr' => $keyword['rg_region']));
-//        $xmlQuery = $this->getXMLRequest($query);
-//        $xmlResponse = $this->requestYandex($xmlQuery);
-//        return $this->parsingXml($xmlResponse);
+            $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
+           // $response = file_get_contents($this->_module->pathDaemons . 'Mocks/googleAnswer.html');
+            preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
+            if (empty($match[1])) {
+                 throw new GoogleException($sxe->error);
+            }
+           $urls = array_merge($urls, $match[1]);
+        }
+        var_dump($urls);
+        die;
+        return $urls;
     }
 
     /**
@@ -154,9 +141,6 @@ preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $respose, $match);
             $kw['pos'] = 0;
             $kw['error'] = false;
             try {
-                if (!$kw['rg_region']) {
-                    $kw['rg_region'] = self::DEFAULT_REGION_ID;
-                }
                 $result = $this->parsing($kw);
                 //$result = getMockResultParsingYaXml();
                 /*

@@ -189,6 +189,22 @@ class Curl {
     }
 
     /**
+     * Получить url, который будет использоваться в запросе.
+     * Собирается из get-параметров
+     * @param string $url url, к которому присоденится  результат
+     * @return string
+     */
+    function getUrl($url = '') {
+        $strGet = $this->_preparedGet();
+
+        if ($strGet) {
+            $url = (string) $url . '?' . $strGet;
+        } else {
+            $url = (string) $url;
+        }
+        return $url;
+    }
+    /**
      * Задать заголовки запроса
      */
     function setHeaders(array $aHeaders) {
