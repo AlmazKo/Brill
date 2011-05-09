@@ -5,26 +5,28 @@
  * @author almaz
  */
 
-abstract class se_Parser extends Daemon
-{
+abstract class se_Parser extends Daemon {
     protected 
-        $_curl,
-        $_countRequests,
         //сколько страниц проходить по поисковой выдаче
         $_depth = 1,
         //сколько ссылок запрашивать на страницу
-        $_linksInPages = 20;
+        $_linksInPages = 10,
+        $_strategy;
+    
+    public function initialize($options) {
+        if (isset($options['s'])) {
+            $this->_strategy = new $options['s'];
+        } else {
+            $this->_strategy = new GoogleStrategy();
+        }
+        $this->options = $options;
+    }
 
     public function  __construct() {
-        parent::__construct();
-        $this->curl = new Curl();
-        $opt = array (CURLOPT_HEADER => true,
-                      CURLOPT_RETURNTRANSFER => true,
-                      CURLOPT_FOLLOWLOCATION => false,
-                      CURLOPT_TIMEOUT => 20,
-);
-        $this->curl->setOptArray($opt);
+   //     parent::__construct();
+        unset(self::$_cliParams[Daemon::KEY_NAME_DAEMON]);
     }
+
     /**
      *
      * Посылает запросы и по циклу проходит страницы
@@ -54,11 +56,7 @@ abstract class se_Parser extends Daemon
 
     }
 
-
     public function  __destruct() {
-        if(isset($this->curl)) {
-            $this->curl->close();
-        }
     }
 
 }

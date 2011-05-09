@@ -13,11 +13,22 @@
 final class Cli {
     const ARG_HELP = 'h';
     const ARG_INFO = '-';
-   private static $_args;
+    private  static $_args;
+    private  static $instance;
    
-   
+  public function getArgs() {
+      return self::$_args;
+  } 
   
-   public function getStringForHelp($args, $prefix = '-', $encode = 'utf8') {
+  
+  public function getArg($name) {
+      if (!$this->hasArg($name)) {
+          throw new Warning('Not found argument `' . $name . '`');
+      }
+      return self::$_args[$name];
+  }
+  
+   public static function getStringForHelp($args, $prefix = '-', $encode = 'utf8') {
        $string = '';
        if (isset($args[self::ARG_INFO])) {
            $string .= $args[self::ARG_INFO] . "\n";
@@ -31,7 +42,20 @@ final class Cli {
        } 
        return $string;
     }
-   public static function setArgs (array $args) {
+    
+    public static function getInstance() {
+        if (!self::$instance) {
+            self::$instance = new self();
+        } 
+        return self::$instance;
+    }
+    
+    protected function __construct() {
+        $request = RegistryRequest::instance();
+        $this->setArgs($request->get('argv'));
+    }
+    
+    private function setArgs (array $args) {
        if (is_null(self::$_args)) {
            foreach ($args as $key => $value) {
               if (preg_match('/(?:\-([^=]))(?:=(.*))?/i', $value, $matches)) {
@@ -44,20 +68,11 @@ final class Cli {
        }
    }
    
-   public static function hasArg($key) {
+   public function hasArg($key) {
        if (array_key_exists($key, self::$_args)) {
            return true;
        } else {
            return false;
        }
-   }
-   
-   public static function getArg($key) {
-       if (self::hasArg($key)) {
-           return self::$_args[$key];
-       } else {
-           return false;
-       }
-   }
-   
+   } 
 }

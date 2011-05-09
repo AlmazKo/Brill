@@ -51,9 +51,14 @@ class SEParsing extends Modules {
 
         require_once $this->pathModels . 'sep_Urls.php';
         require_once $this->pathModels . 'sep_Sites.php';
+        require_once $this->pathModels . 'Keyword.php';
         require_once $this->pathDB . 'se_StmtDaemon.php';
         include_once MODULES_PATH . 'Settings/' . General::NAME_DIR_DB. '/st_StmtDaemon.php';
         include_once MODULES_PATH . 'Settings/' . General::NAME_DIR_LIB. '/st_Lib.php';
+        
+        include_once $this->pathDaemons . 'Strategies/ParsingStrategy.php';
+        include_once $this->pathDaemons . 'Strategies/GoogleStrategy.php';
+        include_once $this->pathDaemons . 'Strategies/GoogleStrategy.php';
     }
 
     public  static function instance() {

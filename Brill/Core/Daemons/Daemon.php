@@ -33,7 +33,7 @@
         $_params;
     protected static $_cliParams = array('n' => 'Daemon\'s name.', 'h' => 'View help');
     
-    public function  __construct() {}
+   // public function  __construct() {}
     public function start() {}
     public function stop() {}
     

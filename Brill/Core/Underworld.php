@@ -17,53 +17,47 @@ class Underworld {
      * @return Daemon
      */
     public function summon() {
-        $request = RegistryRequest::instance();
-        // временный костыль, а так все должнол получаться из консоли
-        //$params = $_GET;
-        $params = $request->get('argv');
-        if (!$params) {
+        $cli = Cli::getInstance();
+        if (!$cli->getArgs()) {
             throw new CliInput(Daemon::option_null());
         }
-        Cli::setArgs($params);
-
-        if (Cli::hasArg(Daemon::KEY_NAME_DAEMON)) {
-            $nameDaemon = Cli::getArg(Daemon::KEY_NAME_DAEMON);
+        
+        if ($cli->hasArg(Daemon::KEY_NAME_DAEMON)) {
+            $nameDaemon = $cli->getArg(Daemon::KEY_NAME_DAEMON);
         } else {
-            if (Cli::hasArg(Daemon::CLI_ARG_HELP)){
-                throw new CliInput(Cli::getStringForHelp(Daemon::getHelp()));
+            if ($cli->hasArg(Daemon::CLI_ARG_HELP)){
+                throw new CliInput($cli->getStringForHelp(Daemon::getHelp()));
             } else {
                  throw new CliInput(Daemon::option_null());
             }
         }
-        
-        
 
-        
+        $daemon = $this->_getDaemon($cli->getArg(Daemon::KEY_NAME_DAEMON));
 
-        $module = $this->_loadModuleDaemon($nameDaemon);
-        $daemon = new $nameDaemon();
-
-        if (!is_subclass_of($daemon, 'Daemon')) {
-            throw new Warning($nameDaemon . ' должен быть унаследован от  Daemon');
+        if ($cli->hasArg($daemon::CLI_ARG_HELP)){
+            throw new CliInput(Cli::getStringForHelp($daemon::getHelp()));
         }
-        $daemon->setModule($module);
-        $daemon->setParams($params); 
-        
-        if (Cli::hasArg($daemon::CLI_ARG_HELP)){
-            throw new CliInput(Cli::getStringForHelp(Daemon::getHelp()));
-        }
+        $daemon->initialize($cli->getArgs());
         return $daemon;
     }
 
     function  __construct() {}
 
-
+    protected function _getDaemon($nameDaemon) {
+        $module = $this->_loadModuleForDaemon($nameDaemon);
+        $daemon = new $nameDaemon();
+        if (!is_subclass_of($daemon, 'Daemon')) {
+            throw new Warning($nameDaemon . ' должен быть унаследован от  Daemon');
+        }
+        $daemon->setModule($module);
+        return $daemon;
+    }
 
     /**
      * Ищет по всем модуляем демона, если его находит подключает его файл и возвращает путь на модуль
      * @param string $pathModule
      */
-        private static function _loadModuleDaemon($nameDaemon) {
+        private static function _loadModuleForDaemon($nameDaemon) {
         $dirsModules = scandir(MODULES_PATH);
 
         foreach ($dirsModules as $nameModule) {

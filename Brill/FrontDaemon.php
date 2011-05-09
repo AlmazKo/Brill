@@ -32,7 +32,7 @@ class FrontDeamon {
      *
      */
     private function init() {
-
+            //загрука автолоудера
     }
 
     /**
