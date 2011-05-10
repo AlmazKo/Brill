@@ -21,26 +21,26 @@ class GoogleStrategy implements ParsingStrategy {
         $this->curl->setOptArray($opt);
     }
     
-    function parsing(Keyword $keyword, $countKeywords = 10) {
+    function _parse(Keyword $keyword, $countKeywords = 10) {
         $urls = array();
-        $depth = $countKeywords % 10;
+        $depth = (int) ceil($countKeywords / 10);
         for ($page = 0; $page < $depth; $page++) {
             $this->curl->setGet(array(
                  'hl'       => 'ru', 
-                 'q'        => rawurlencode($keyword['kw_keyword']),
+                 'q'        => rawurlencode($keyword),
                  'start'    => $page * 10
             ));
 
            // $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
-            $response = file_get_contents($this->_module->pathDaemons . 'Mocks/googleAnswer.html');
+            $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
-                 throw new GoogleException($sxe->error);
+                 throw new GoogleException('Google Error');
             }
            $urls = array_merge($urls, $match[1]);
         }
-        var_dump($urls);
-        die;
+        var_dump($urls); die;
+        
         return $urls;
     }
 }

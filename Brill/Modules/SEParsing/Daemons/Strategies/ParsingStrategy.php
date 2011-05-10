@@ -10,6 +10,7 @@
  * @author almaz
  */
 interface ParsingStrategy {
-    function parsing(Keyword $keyword, $countKeywords);
+   # const URL_SEARCH = '';
+    function _parse(Keyword $keyword, $countKeywords);
 }
 

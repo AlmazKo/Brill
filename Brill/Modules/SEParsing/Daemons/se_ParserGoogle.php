@@ -19,8 +19,8 @@ class se_ParserGoogle extends se_Parser {
         parent::__construct();
         unset(self::$_cliParams[Daemon::KEY_NAME_DAEMON]);
         self::$_cliParams += array('s' => 'Название стратегии парсинга');
-        self::$_cliParams += array('set-reload' => 'Id сета. Пересобрать все ключевики сета');
-        self::$_cliParams += array('keyword-reload' => 'Id ключевика. Название ключевого слова');
+        self::$_cliParams += array('set-reload' => 'Id сета. Пересобрать все ключевики этого сета');
+        self::$_cliParams += array('keyword-reload' => 'Id ключевика, который надо пересобрать');
         self::$_cliParams += array('view' => 'Вывод информации');
         self::$_cliParams += array('region' => 'Парсить с учетом id этого региона');
         self::$_cliParams += array('no-save' => "Не сохранять результат парсинга. " .
@@ -113,11 +113,11 @@ class se_ParserGoogle extends se_Parser {
         echo "\nВзято ключевиков для обработки: " . count($listKeywords);
         $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
               
-        var_dump($listKeywords); die;
+    #    var_dump($listKeywords); die;
  
         foreach ($listKeywords as $keyword) {
             try {
-                $positions = $this->_strategy->_parse($keyword);
+                $positions = $this->_strategy->_parse($keyword, 60);
 //                if (!rand(0,5)) {
 //                    throw new YandexXmlException('Ошибка в XML-запросе — проверьте валидность отправляемого XML и корректность параметров');
 //                }
@@ -211,7 +211,7 @@ class se_ParserGoogle extends se_Parser {
                             ':seoh'     => $strSeoComp,
                             ':keyword'  => $keyword,
                             ':range'    => $keyword->range,
-                            ':premiya'  => $keyword->kw_premiya)
+                            ':premiya'  => $keyword->premiya)
                     );
     }
     
