@@ -105,6 +105,8 @@ class se_ParserGoogle extends se_Parser {
     }
     
     function _getKeywordsBySet($setId) {
+        $setId = (int) $setId;
+        echo "\nПересборка сета id=" . $setId;
         try {
             DB::begin();
             // получаем сет
@@ -113,18 +115,24 @@ class se_ParserGoogle extends se_Parser {
             if (is_null(!$result)) {
                 throw new Exception('Not found SetId=' . $setId);
             }
+            
             if ($result['status']) {
-                throw new Exception('Not found SetId=' . $setId);
+                throw new Exception('Set id=' . $setId . ' is busy');
+            }
+            
+            if (!$result['active']) {
+                throw new Exception('Set id=' . $setId . ' isn\'t  active');
             }
 
-            echo "\nПолучили сет: id=" . $setId;
+            
             if (!DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::SET_USED_SET),
                     array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Busy')
                     )->rowCount()) {
                 throw new Exception('Error blocking set');
             }
-
+ // сбрасываем данные по ключевикам сета
+            $this->_resetStatusKeywordsBySet($setId);
             // получаем ключевики сета
             $aKeywords = DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::GET_KEYWORDS_BY_SET_GOOGLE),
@@ -298,6 +306,14 @@ class se_ParserGoogle extends se_Parser {
         if ($failKeywords) {
             DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "3" WHERE kw_id in (' . implode(',', $failKeywords) . ')');
         }
+    }
+    
+    protected function _resetStatusKeywordsBySet($setId) {
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "0" WHERE kw_parent= ' .$setId. ')');
+    }
+    
+    protected function _resetStatusKeywords(array $keywordIds = array()) {
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "0" WHERE kw_id in (' . implode(',', $keywordIds) . ')');
     }
     
     protected static function _getListSuccessfullyKeywords (array &$aKeywords) {
