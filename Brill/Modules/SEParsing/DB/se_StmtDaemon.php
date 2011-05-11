@@ -65,6 +65,11 @@ WHERE t2.ss_isactive = '1' AND  t1.kw_parsedgoogle= '0' AND (ISNULL(ssst.status)
 order by kw_parent desc
 LIMIT 1";
 
+const GET_SET_GOOGLE_BY_ID = "SELECT ss.ss_isactive, ssst.status as status FROM #DB_ACC#.z_seoset AS ss
+left JOIN #DB_ACC#.sep_StatusSetsSearchTypes AS ssst ON ssst.set_id = ss.ss_id
+WHERE ss.ss_id=:ss_id AND (ISNULL(ssst.status) OR ssst.status<>'Busy')
+LIMIT 1";
+
 const GET_FREE_SET_ACC = "SELECT kw_parent FROM #DB_ACC#.z_keywords AS t1
 JOIN #DB_ACC#.z_seoset AS t2 ON t1.kw_parent = t2.ss_id
 WHERE t2.ss_isactive = '1' AND  t1.kw_parsed= '0'

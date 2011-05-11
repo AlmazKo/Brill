@@ -31,15 +31,15 @@ class GoogleStrategy implements ParsingStrategy {
                  'start'    => $page * 10
             ));
 
-           // $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
-            $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
+            $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
+          //  $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
                  throw new GoogleException('Google Error');
             }
            $urls = array_merge($urls, $match[1]);
         }
-        var_dump($urls); die;
+   //     var_dump($urls); die;
         
         return $urls;
     }

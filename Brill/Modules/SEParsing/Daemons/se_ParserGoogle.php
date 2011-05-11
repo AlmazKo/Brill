@@ -19,8 +19,8 @@ class se_ParserGoogle extends se_Parser {
         parent::__construct();
         unset(self::$_cliParams[Daemon::KEY_NAME_DAEMON]);
         self::$_cliParams += array('s' => 'Название стратегии парсинга');
-        self::$_cliParams += array('set-reload' => 'Id сета. Пересобрать все ключевики этого сета');
-        self::$_cliParams += array('keyword-reload' => 'Id ключевика, который надо пересобрать');
+        self::$_cliParams += array('set' => 'Id сета. Пересобрать все ключевики этого сета');
+        self::$_cliParams += array('keyword' => 'Id ключевика, который надо пересобрать');
         self::$_cliParams += array('view' => 'Вывод информации');
         self::$_cliParams += array('region' => 'Парсить с учетом id этого региона');
         self::$_cliParams += array('no-save' => "Не сохранять результат парсинга. " .
@@ -69,7 +69,7 @@ class se_ParserGoogle extends se_Parser {
      * @param type $setId
      * @return array Keyword 
      */
-    protected function _getKeywords($setId = null, $fix = true) {
+    protected function _getKeywords() {
         try {
             DB::begin();
             // получаем сет
@@ -104,11 +104,52 @@ class se_ParserGoogle extends se_Parser {
         return $collectionKeywords;
     }
     
+    function _getKeywordsBySet($setId) {
+        try {
+            DB::begin();
+            // получаем сет
+            $result = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_GOOGLE_BY_ID),
+                                       array(':set_id' => $setId))->fetchALL(PDO::FETCH_ASSOC);
+            if (is_null(!$result)) {
+                throw new Exception('Not found SetId=' . $setId);
+            }
+            if ($result['status']) {
+                throw new Exception('Not found SetId=' . $setId);
+            }
+
+            echo "\nПолучили сет: id=" . $setId;
+            if (!DB::execute(se_StmtDaemon::prepare(
+                    se_StmtDaemon::SET_USED_SET),
+                    array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Busy')
+                    )->rowCount()) {
+                throw new Exception('Error blocking set');
+            }
+
+            // получаем ключевики сета
+            $aKeywords = DB::execute(se_StmtDaemon::prepare(
+                    se_StmtDaemon::GET_KEYWORDS_BY_SET_GOOGLE),
+                    array(':set_id' => $setId)
+                    )->fetchALL(PDO::FETCH_ASSOC);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            // чтото не получилось, отдаем назад все
+            throw new Warning($e->getMessage());
+        }
+        $collectionKeywords = array();
+        foreach ($aKeywords as $kw) {
+            $collectionKeywords[] = new Keyword($kw);
+        }
+        return $collectionKeywords;
+    }
     /**
      * Стандартный парсинг
      * @param array $keywords
      */
     private function _parse() {
+                
+        var_dump($this->options);
+        die;
         $listKeywords = $this->_getKeywords();
         echo "\nВзято ключевиков для обработки: " . count($listKeywords);
         $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
@@ -157,7 +198,7 @@ class se_ParserGoogle extends se_Parser {
               // сохраняем эти данные, ставим отметку ключевику об успешном парсинге
              //сохраняем в массив сета ключевиков, нашли ли наш
 
-             echo "\n Yandex OK keyword[" .$keyword->id . "]!";
+             echo "\n Google OK keyword[" .$keyword->id . "]!";
              $this->_saveInSeoComp($setId, $keyword, $positions, $today8);
         } 
         
