@@ -69,7 +69,7 @@ class se_ParserGoogle extends se_Parser {
      * @param type $setId
      * @return array Keyword 
      */
-    protected function _getKeywords() {
+    protected function _getKeywordsByRandomSet() {
         try {
             DB::begin();
             // получаем сет
@@ -104,19 +104,24 @@ class se_ParserGoogle extends se_Parser {
         return $collectionKeywords;
     }
     
-    function _getKeywordsBySet($setId) {
-        $setId = (int) $setId;
+    /**
+     * Получить список ключевиков сета
+     * 
+     * @param int $setId
+     * @return Keyword 
+     */
+    function _getKeywordsBySetId($setId) {
         echo "\nПересборка сета id=" . $setId;
         try {
             DB::begin();
             // получаем сет
-            $result = (int) DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_GOOGLE_BY_ID),
-                                       array(':set_id' => $setId))->fetchALL(PDO::FETCH_ASSOC);
+            $result = DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_GOOGLE_BY_ID),
+                                       array(':set_id' => $setId))->fetch(PDO::FETCH_ASSOC);
             if (is_null(!$result)) {
                 throw new Exception('Not found SetId=' . $setId);
             }
-            
-            if ($result['status']) {
+            var_dump($result);
+            if ('Busy' === $result['status']) {
                 throw new Exception('Set id=' . $setId . ' is busy');
             }
             
@@ -150,15 +155,35 @@ class se_ParserGoogle extends se_Parser {
         }
         return $collectionKeywords;
     }
+    
+    function _getKeywords(array  $keywordIds = array()) {
+        echo "\nПересборка ключевиков id=" . $setId;
+
+        $collectionKeywords = array();
+        return $collectionKeywords;
+    }
+    
     /**
      * Стандартный парсинг
      * @param array $keywords
      */
     private function _parse() {
                 
-        var_dump($this->options);
+
+        switch (true) {
+            case isset($this->options['set']):
+                $listKeywords = $this->_getKeywordsBySetId((int)611);
+                break;
+            
+            case isset($this->options['keyword']):
+                $listKeywords = $this->_getKeywords((array)$this->options['keyword']);
+                break;
+            
+            default:
+                $listKeywords = $this->_getKeywordsByRandomSet();
+        }
+        var_dump($listKeywords);
         die;
-        $listKeywords = $this->_getKeywords();
         echo "\nВзято ключевиков для обработки: " . count($listKeywords);
         $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
               
@@ -309,7 +334,7 @@ class se_ParserGoogle extends se_Parser {
     }
     
     protected function _resetStatusKeywordsBySet($setId) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "0" WHERE kw_parent= ' .$setId. ')');
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "0" WHERE kw_parent= ' .$setId);
     }
     
     protected function _resetStatusKeywords(array $keywordIds = array()) {

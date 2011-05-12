@@ -100,7 +100,9 @@ class DB {
             $result = $pdo->exec($sql);
             LogMysql::query($sql,  RunTimer::endPoint('Mysql'));
         } catch (PDOException $e) {
-            LogMysql::errorQuery($sql . "\n\n" . implode('. ' , $e->getMessage()));
+            //TODO проверить
+          #  LogMysql::errorQuery($sql . "\n\n" . implode('. ' , $e->getMessage()));
+            LogMysql::errorQuery($sql . "\n\n" );
             throw new Warning('Error PDO: ' . $e->getMessage());
         }
         return $result;
@@ -140,7 +142,7 @@ class DB {
             throw new Exception('Error sql');
         }
      //   var_dump($sth->fetchAll());
-     //   var_dump($sth->debugDumpParams());
+     //s   var_dump($sth->debugDumpParams());
       //  var_dump($params);
 
         return $sth;

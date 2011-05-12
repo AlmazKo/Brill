@@ -58,7 +58,7 @@ final class Cli {
     private function setArgs (array $args) {
        if (is_null(self::$_args)) {
            foreach ($args as $key => $value) {
-              if (preg_match('/(?:\-([^=]))(?:=(.*))?/i', $value, $matches)) {
+              if (preg_match('/(?:\-([^=]+))(?:=(.*))?/i', $value, $matches)) {
                   self::$_args[$matches[1]] = isset($matches[2]) ? $matches[2] : null;
               }
            }

@@ -67,7 +67,7 @@ LIMIT 1";
 
 const GET_SET_GOOGLE_BY_ID = "SELECT ss.ss_isactive as active, ssst.status as status FROM #DB_ACC#.z_seoset AS ss
 left JOIN #DB_ACC#.sep_StatusSetsSearchTypes AS ssst ON ssst.set_id = ss.ss_id
-WHERE ss.ss_id=:ss_id AND (ISNULL(ssst.status) OR ssst.status<>'Busy')
+WHERE ss.ss_id=:set_id AND (ISNULL(ssst.status) OR ssst.status<>'Busy')
 LIMIT 1";
 
 const GET_FREE_SET_ACC = "SELECT kw_parent FROM #DB_ACC#.z_keywords AS t1

@@ -31,7 +31,9 @@
     // ссылка на конфигурацию модуля
         $_module,
         $_params;
-    protected static $_cliParams = array('n' => 'Daemon\'s name.', 'h' => 'View help');
+    protected static $_cliParams = array('n' => 'Daemon\'s name.', 
+                                         'h' => 'View help', 
+                                         'p' => 'View profile\'s log');
     
    // public function  __construct() {}
     public function start() {}
