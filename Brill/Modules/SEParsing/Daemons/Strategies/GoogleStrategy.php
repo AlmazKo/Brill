@@ -7,6 +7,8 @@
 class GoogleStrategy implements ParsingStrategy {
     const URL_SEARCH = 'http://www.google.ru/search';
     protected $curl;
+    protected $attempts = 0;
+    protected $curl;
     
     public function __construct() {
         $this->curl = new Curl();
@@ -21,10 +23,21 @@ class GoogleStrategy implements ParsingStrategy {
         $this->curl->setOptArray($opt);
     }
     
-    function _parse(Keyword $keyword, $countKeywords = 10) {
+    public function parse(Keyword $keyword, $countKeywords = 10) {
         $urls = array();
-        $depth = (int) ceil($countKeywords / 10);
-        for ($page = 0; $page < $depth; $page++) {
+        try {
+            
+        } catch (GoogleXmlException $ge) {
+            
+        }
+        
+        return $urls;
+    }
+    
+    protected function _parse($keyword, $countKeywords = 10, $customPage = 0) {
+    $urls = array();
+        $depth = $customPage + (int) ceil($countKeywords / 10);
+        for ($page = $customPage; $page < $depth; $page++) {
             $this->curl->setGet(array(
                  'hl'       => 'ru', 
                  'q'        => rawurlencode($keyword),
@@ -35,12 +48,12 @@ class GoogleStrategy implements ParsingStrategy {
           //  $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
-                 throw new GoogleException('Google Error');
+                 throw new GoogleException($urls, $page,'Google Error');
             }
            $urls = array_merge($urls, $match[1]);
         }
-   //     var_dump($urls); die;
         
         return $urls;
+        
     }
 }

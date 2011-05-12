@@ -120,7 +120,7 @@ class se_ParserGoogle extends se_Parser {
             if (is_null(!$result)) {
                 throw new Exception('Not found SetId=' . $setId);
             }
-            var_dump($result);
+            
             if ('Busy' === $result['status']) {
                 throw new Exception('Set id=' . $setId . ' is busy');
             }
@@ -128,16 +128,15 @@ class se_ParserGoogle extends se_Parser {
             if (!$result['active']) {
                 throw new Exception('Set id=' . $setId . ' isn\'t  active');
             }
-
             
             if (!DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::SET_USED_SET),
                     array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Busy')
                     )->rowCount()) {
-                throw new Exception('Error blocking set');
+                throw new Exception('Error: blocking set');
             }
  // сбрасываем данные по ключевикам сета
-            $this->_resetStatusKeywordsBySet($setId);
+            $this->_setStatusKeywordsBySet($setId);
             // получаем ключевики сета
             $aKeywords = DB::execute(se_StmtDaemon::prepare(
                     se_StmtDaemon::GET_KEYWORDS_BY_SET_GOOGLE),
@@ -326,19 +325,26 @@ class se_ParserGoogle extends se_Parser {
         echo "\nОшибки при парсинге : " . count($failKeywords) . ' ключевиков'; 
 
         if ($successKeywords) {
-            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "1" WHERE kw_id in (' . implode(',', $successKeywords) . ')');
+            $this->_resetStatusKeywords($successKeywords, 1);
+           # DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "1" WHERE kw_id in (' . implode(',', $successKeywords) . ')');
         }
         if ($failKeywords) {
-            DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "3" WHERE kw_id in (' . implode(',', $failKeywords) . ')');
+            $this->_resetStatusKeywords($successKeywords, 3);
+           # DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "3" WHERE kw_id in (' . implode(',', $failKeywords) . ')');
         }
     }
     
-    protected function _resetStatusKeywordsBySet($setId) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "0" WHERE kw_parent= ' .$setId);
+    /**
+     *
+     * @param int $setId
+     * @param int $value 
+     */
+    protected function _setStatusKeywordsBySet($setId, $value = 0) {
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = ' . $value .' WHERE kw_parent= ' .$setId);
     }
     
-    protected function _resetStatusKeywords(array $keywordIds = array()) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "0" WHERE kw_id in (' . implode(',', $keywordIds) . ')');
+    protected function _resetStatusKeywords(array $keywordIds = array(), $value = 0) {
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = '.$value.' WHERE kw_id in (' . implode(',', $keywordIds) . ')');
     }
     
     protected static function _getListSuccessfullyKeywords (array &$aKeywords) {
