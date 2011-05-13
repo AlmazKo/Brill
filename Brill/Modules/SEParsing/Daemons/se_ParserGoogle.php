@@ -198,24 +198,22 @@ class se_ParserGoogle extends se_Parser {
 //                }
             } catch (GoogleException $e) {
                 /* 
-                 * яндекс нас послал подальше
+                 * Google нас послал подальше
                  * ставим ключевик ошибку
                  */
-                $keyword->error = true;
-                echo "\nYandex error for keyword[" .$keyword['kw_id'] . "]: " . $e->getMessage() . '';
+                $keyword->status = Keyword::STATUS_ERROR;
+                echo "\nGoogle error for keyword[" .$keyword->id . "]: " . $e->getMessage() . '';
                 continue;
             } catch (LimitInterfacesException $e) {
                 //закончились айпи
-                $keyword->status = false;
-                echo "\nЗаконочились ip на keyword[" .$keyword['kw_id'] . "]: " . $e->getMessage() . ''; 
+                echo "\nЗаконочились ip на keyword[" .$keyword->id . "]: " . $e->getMessage() . ''; 
                 break;
             } catch (Exception $e) {
-                $keyword->status = false;
-                echo "\nЧертовщина с keyword[" .$keyword['kw_id'] . "]: " . $e->getMessage() . ''; 
+                echo "\nЧертовщина с keyword[" . $keyword->id . "]: " . $e->getMessage() . ''; 
                 break;
             }
             
-            $keyword->status = true;    
+            $keyword->status = Keyword::STATUS_OK;    
             foreach ($positions as $position => $item) {
                 if (strtolower($this->getHost($item['url'])) === strtolower($this->getHost($keyword['kw_url']))) {
                     $keyword->position = $item['pos'];
@@ -325,11 +323,9 @@ class se_ParserGoogle extends se_Parser {
 
         if ($successKeywords) {
             $this->_resetStatusKeywords($successKeywords, 1);
-           # DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "1" WHERE kw_id in (' . implode(',', $successKeywords) . ')');
         }
         if ($failKeywords) {
             $this->_resetStatusKeywords($successKeywords, 3);
-           # DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "3" WHERE kw_id in (' . implode(',', $failKeywords) . ')');
         }
     }
     
@@ -346,21 +342,21 @@ class se_ParserGoogle extends se_Parser {
         DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = '.$value.' WHERE kw_id in (' . implode(',', $keywordIds) . ')');
     }
     
-    protected static function _getListSuccessfullyKeywords (array &$aKeywords) {
+    protected static function _getListSuccessfullyKeywords (array &$listKeywords) {
         $list = array();
-        foreach ($aKeywords as $keyword) {
-            if (isset($keyword['pos']) && empty($keyword['error'])) {
-                $list[] = $keyword['kw_id'];
+        foreach ($listKeywords as $keyword) {
+            if ($keyword->status) {
+                $list[] = $keyword->id;
             }
         }
         return $list;
     }
     
-    protected static function _getListFailKeywords (array &$aKeywords) {
+    protected static function _getListFailKeywords (array &$listKeywords) {
         $list = array();
-        foreach ($aKeywords as $keyword) {
-            if (isset($keyword['pos']) && !empty($keyword['error'])) {
-                $list[] = $keyword['kw_id'];
+        foreach ($listKeywords as $keyword) {
+            if (!$keyword->status = Keyword::STATUS_ERROR) {
+                $list[] = $keyword->id;
             }
         }
         return $list;

@@ -12,6 +12,8 @@
  */
 class Keyword {
 
+    const STATUS_OK = 1;
+    const STATUS_ERROR = 2;
     public $id;
     public $keyword;
     public $region;
@@ -23,7 +25,6 @@ class Keyword {
     public $foundByLink;
     public $detectedUrl = false;
     public $status = false;
-    public $error = false;
     
     public function __toString() {
         return $this->keyword;
