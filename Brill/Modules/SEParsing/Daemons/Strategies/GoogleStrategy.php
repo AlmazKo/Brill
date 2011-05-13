@@ -8,7 +8,7 @@ class GoogleStrategy implements ParsingStrategy {
     const URL_SEARCH = 'http://www.google.ru/search';
     protected $curl;
     protected $attempts = 0;
-    protected $curl;
+    protected $sleep = 100000;
     
     public function __construct() {
         $this->curl = new Curl();
@@ -24,20 +24,37 @@ class GoogleStrategy implements ParsingStrategy {
     }
     
     public function parse(Keyword $keyword, $countKeywords = 10) {
-        $urls = array();
-        try {
-            
-        } catch (GoogleXmlException $ge) {
-            
-        }
         
+        $interface = st_Lib::getInterface(st_Lib::INTERFACE_GOOGLE);
+        if (st_Lib::INTERFASE_LOCALHOST != $interface['interface']) {
+            $this->curl->setOpt(CURLOPT_INTERFACE, $interface['interface']);
+        }
+        $attemts = 0;
+        $customPage = 0;
+        $urls = array();
+        while(count($urls) == $countKeywords){
+            try {
+                $currentUrls = $this->_parse($keyword, $countKeywords, $customPage, $interface['interface']);
+            } catch (GoogleException $ge) {
+                if (++$attemts > 4) {
+                   throw new GoogleException($urls, $ge->getCurrentPage(), $message = 'Google error.');
+                }
+                $this->sleep *= $attemts + 1; 
+                $customPage = $ge->getCurrentPage();
+                $currentUrls = $ge->getUrls();
+                
+                
+            }
+            $urls = array_merge($currentUrls, $match[1]);
+        }
         return $urls;
     }
     
-    protected function _parse($keyword, $countKeywords = 10, $customPage = 0) {
+    protected function _parse($keyword, $countKeywords = 10, $customPage = 0, $ip) {
     $urls = array();
         $depth = $customPage + (int) ceil($countKeywords / 10);
         for ($page = $customPage; $page < $depth; $page++) {
+            usleep($this->sleep);
             $this->curl->setGet(array(
                  'hl'       => 'ru', 
                  'q'        => rawurlencode($keyword),

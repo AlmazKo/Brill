@@ -10,7 +10,7 @@
  *
  * @author almazko
  */
-class GoogleXmlException extends Exception {
+class GoogleException extends Exception {
     protected $_urls;
     protected $_page;
    

@@ -9,6 +9,7 @@ class st_Lib extends Lib {
         //тип интерфейсов для доступа
         INTERFACE_SIMPLE = 0,
         INTERFACE_YA_XAML = 1,
+        INTERFACE_GOOGLE = 1,
         INTERFACE_PROXY = 4;
 
     const INTERFASE_LOCALHOST = '127.0.0.1';
@@ -25,6 +26,11 @@ class st_Lib extends Lib {
                 $result = DBExt::getOneRowSql(Stmt::prepare2(st_StmtDaemon::GET_INTERFACE_YANDEX_XML, array('host_id' => $hostId)));
                 break;
             
+            case self::INTERFACE_GOOGLE:
+                $hostId = 1;
+                DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_INTERFACE_FOR_GOOGLE))->fetchALL(PDO::FETCH_ASSOC);   ;
+                
+                break;         
             default:
                 $hostId = 0;
                 $result = DBExt::getOneRowSql(Stmt::prepare2(st_StmtDaemon::GET_INTERFACE_SIMPLE, array('host_id' => $hostId)));

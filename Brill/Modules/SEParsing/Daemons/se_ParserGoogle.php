@@ -117,7 +117,7 @@ class se_ParserGoogle extends se_Parser {
             // получаем сет
             $result = DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::GET_SET_GOOGLE_BY_ID),
                                        array(':set_id' => $setId))->fetch(PDO::FETCH_ASSOC);
-            if (is_null(!$result)) {
+            if (is_null($result)) {
                 throw new Exception('Not found SetId=' . $setId);
             }
             
@@ -181,8 +181,7 @@ class se_ParserGoogle extends se_Parser {
             default:
                 $listKeywords = $this->_getKeywordsByRandomSet();
         }
-        var_dump($listKeywords);
-        die;
+
         echo "\nВзято ключевиков для обработки: " . count($listKeywords);
         $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
               
@@ -190,7 +189,7 @@ class se_ParserGoogle extends se_Parser {
  
         foreach ($listKeywords as $keyword) {
             try {
-                $positions = $this->_strategy->_parse($keyword, 60);
+                $positions = $this->_strategy->parse($keyword, 60);
 //                if (!rand(0,5)) {
 //                    throw new YandexXmlException('Ошибка в XML-запросе — проверьте валидность отправляемого XML и корректность параметров');
 //                }
