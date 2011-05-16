@@ -12,6 +12,8 @@ class Stmt {
         DIRECTION = 'direction',
         RAND = 'rand';
 
+    const DB_ACC = 'webexpert_acc';
+    const DB_NEW = 'newindex';
     //массив стандартных настроек
     protected static $_arr = array(
         self::DIRECTION => 'ASC',
@@ -21,38 +23,43 @@ class Stmt {
         self::ORDER => null,
         self::RAND => null);
 
-    /**
-     * Подготавливает sql строку.
-     * ищет в коде конструкции типа #var# и заменяет их, на переданные значения.
-     * @param string $sql
-     * @param array $args
-     * @return string
-     */
-    public static function prepare($sql, $args = array()) {
-        if (!$sql) {
-            LogMysql::errorQuery('Пустой sql');
-        }
-        $pSql = $sql;
-        if (is_array($args)) {
-            foreach ($args as $key => $value) {
-                if (!array_key_exists($key, self::$_arr)) {
-                    if ((string)$value !== (string)(int) $value) {
-                        //$value = '\'' . $value . '\'';
-                    } else if (is_array($value)) {
-                        $value = '\'' . implode(',', $value) .'\'';
-                    }
-                    $pSql = str_replace("#$key#", $value, $pSql);
-                }
-            }
-            if ($pSql && is_array($args)) {
-                $aExt = array_merge(self::$_arr, $args);
-                $pSql .= self::_addExt($aExt);
-            }
+//    /**
+//     * Подготавливает sql строку.
+//     * ищет в коде конструкции типа #var# и заменяет их, на переданные значения.
+//     * @param string $sql
+//     * @param array $args
+//     * @return string
+//     */
+//    public static function prepare($sql, $args = array()) {
+//        if (!$sql) {
+//            LogMysql::errorQuery('Пустой sql');
+//        }
+//        $pSql = $sql;
+//        if (is_array($args)) {
+//            foreach ($args as $key => $value) {
+//                if (!array_key_exists($key, self::$_arr)) {
+//                    if ((string)$value !== (string)(int) $value) {
+//                        //$value = '\'' . $value . '\'';
+//                    } else if (is_array($value)) {
+//                        $value = '\'' . implode(',', $value) .'\'';
+//                    }
+//                    $pSql = str_replace("#$key#", $value, $pSql);
+//                }
+//            }
+//            if ($pSql && is_array($args)) {
+//                $aExt = array_merge(self::$_arr, $args);
+//                $pSql .= self::_addExt($aExt);
+//            }
+//
+//        }
+//        return $pSql;
+//    }
 
-        }
-        return $pSql;
+    
+    public static function prepare($nameStmt) {
+        return str_replace(array("#DB_ACC#", "#DB_NEW#"), array(self::DB_ACC, self::DB_NEW), $nameStmt);
     }
-
+    
     public function prepare2($sql, $args = array(), $ext = false) {
         if (!$sql) {
             LogMysql::errorQuery('Пустой sql');

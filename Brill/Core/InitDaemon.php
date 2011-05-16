@@ -7,10 +7,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 define ('ENCODING_CODE', 'utf-8');
 
-header('Content-type: text/html; charset=utf-8');
+header('Content-type: text/html; charset=' . ENCODING_CODE);
 
-
-@set_time_limit(0);
+@set_time_limit(600);
 
 define ('DIR_PATH', str_replace("\\", "/", realpath (dirname (__FILE__) .'/..')) . '/');
 define ('CORE_PATH', DIR_PATH . 'Core/');

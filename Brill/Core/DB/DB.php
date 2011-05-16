@@ -142,7 +142,7 @@ class DB {
             throw new Exception('Error sql');
         }
      //   var_dump($sth->fetchAll());
-     //s   var_dump($sth->debugDumpParams());
+    //   var_dump($sth->debugDumpParams());
       //  var_dump($params);
 
         return $sth;

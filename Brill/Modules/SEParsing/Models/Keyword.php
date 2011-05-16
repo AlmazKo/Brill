@@ -12,10 +12,13 @@
  */
 class Keyword {
 
+    const STATUS_NONE = 0;
     const STATUS_OK = 1;
     const STATUS_ERROR = 2;
+    
     public $id;
     public $keyword;
+    public $set;
     public $region;
     public $url;
     public $site;
@@ -24,7 +27,7 @@ class Keyword {
     public $position = 0;
     public $foundByLink;
     public $detectedUrl = false;
-    public $status = false;
+    public $status = self::STATUS_NONE;
     
     public function __toString() {
         return $this->keyword;
@@ -32,10 +35,11 @@ class Keyword {
     public function __construct(array $rawKeywords = array()) {
         $this->id       = isset($rawKeywords['kw_id'])      ? (int)$rawKeywords['kw_id'] : null;
         $this->keyword  = isset($rawKeywords['kw_keyword']) ? (string)$rawKeywords['kw_keyword'] : null;
+        $this->set      = isset($rawKeywords['kw_parent']) ? (string)$rawKeywords['kw_parent'] : null;
         $this->url      = isset($rawKeywords['kw_url'])     ? (string)$rawKeywords['kw_url'] : null;
         $this->region   = isset($rawKeywords['rg_region'])  ? (int)$rawKeywords['rg_region'] : null;
-        $this->range   = isset($rawKeywords['kw_range'])  ? (int)$rawKeywords['kw_range'] : null;
-        $this->premiya   = isset($rawKeywords['kw_premiya'])  ? (int)$rawKeywords['kw_premiya'] : null;
+        $this->range    = isset($rawKeywords['kw_range'])  ? (int)$rawKeywords['kw_range'] : null;
+        $this->premiya  = isset($rawKeywords['kw_premiya'])  ? (int)$rawKeywords['kw_premiya'] : null;
         
         
     }

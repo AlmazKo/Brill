@@ -42,6 +42,7 @@ class se_ParserGoogle extends se_Parser {
 
         require_once $this->_module->pathDaemons . 'Exceptions/LimitInterfacesException.php';
         require_once $this->_module->pathDaemons . 'Mocks/getMockResultParsingYaXml.php';
+        require_once $this->_module->pathDaemons . 'Exceptions/GoogleException.php';
     }
 
     // cleaning url for compare
@@ -167,7 +168,7 @@ class se_ParserGoogle extends se_Parser {
      * @param array $keywords
      */
     private function _parse() {
-                
+        DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
 
         switch (true) {
             case isset($this->options['set']):
@@ -182,14 +183,20 @@ class se_ParserGoogle extends se_Parser {
                 $listKeywords = $this->_getKeywordsByRandomSet();
         }
 
+        if (!$listKeywords) {
+            throw  new Warning ('Не найдены ключевики');
+        }
+        $setId = $listKeywords[0]->set;
+        
         echo "\nВзято ключевиков для обработки: " . count($listKeywords);
         $today8 = mktime (8, 0, 0, date ('m'), date ('d'), date ('Y'));
               
-    #    var_dump($listKeywords); die;
+    
  
         foreach ($listKeywords as $keyword) {
             try {
                 $positions = $this->_strategy->parse($keyword, 60);
+
 //                if (!rand(0,5)) {
 //                    throw new YandexXmlException('Ошибка в XML-запросе — проверьте валидность отправляемого XML и корректность параметров');
 //                }
@@ -214,11 +221,11 @@ class se_ParserGoogle extends se_Parser {
             }
             
             $keyword->status = Keyword::STATUS_OK;    
-            foreach ($positions as $position => $item) {
-                if (strtolower($this->getHost($item['url'])) === strtolower($this->getHost($keyword['kw_url']))) {
-                    $keyword->position = $item['pos'];
-                    $keyword->detectedUrl = $item['url'];
-                    $keyword->foundByLink = $item['links_search'];
+            foreach ($positions as $position => $url) {
+               
+                if (strtolower($this->getHost($url)) === strtolower($this->getHost($keyword->url))) {
+                    $keyword->position = $position + 1;
+                    $keyword->detectedUrl = $url;
                     break;
                 }
             }
@@ -228,9 +235,10 @@ class se_ParserGoogle extends se_Parser {
              //сохраняем в массив сета ключевиков, нашли ли наш
 
              echo "\n Google OK keyword[" .$keyword->id . "]!";
-             $this->_saveInSeoComp($setId, $keyword, $positions, $today8);
+            # $this->_saveInSeoComp($keyword, $positions, $today8);
         } 
-        
+                        var_dump($listKeywords);
+                die;
         echo "\n";
         $this->_updateStatusKeywords($listKeywords);
         $this->_saveInSeo($setId, $listKeywords, $today8);
@@ -272,11 +280,11 @@ class se_ParserGoogle extends se_Parser {
      * @param array $positions
      * @param int $today8 
      */
-    protected function _saveInSeoComp($setId, Keyword $keyword, array $positions, $today8) {
+    protected function _saveInSeoComp(Keyword $keyword, array $positions, $today8) {
         $strSeoComp = $this->_createStringForSeoComp($positions);
         echo "\nВставляем в seocomp информацию по Ключевику `" . $keyword . "`"; 
         DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_SEOCOMP_YA),
-                    array(  ':parent'   => $setId, 
+                    array(  ':parent'   => $keyword->set, 
                             ':date'     => $today8, 
                             ':seoh'     => $strSeoComp,
                             ':keyword'  => $keyword,
@@ -305,7 +313,7 @@ class se_ParserGoogle extends se_Parser {
 
         if (!DB::execute(se_StmtDaemon::prepare(
                 se_StmtDaemon::SET_USED_SET),
-                array(':set_id' => $setId, ':search_type' => 'YaXml', ':status' => 'Ok')
+                array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Ok')
                 )->rowCount()) {
             throw new Exception('Error blocking set');
         }  
@@ -345,7 +353,7 @@ class se_ParserGoogle extends se_Parser {
     protected static function _getListSuccessfullyKeywords (array &$listKeywords) {
         $list = array();
         foreach ($listKeywords as $keyword) {
-            if ($keyword->status) {
+            if ($keyword->status == Keyword::STATUS_OK) {
                 $list[] = $keyword->id;
             }
         }
@@ -355,7 +363,7 @@ class se_ParserGoogle extends se_Parser {
     protected static function _getListFailKeywords (array &$listKeywords) {
         $list = array();
         foreach ($listKeywords as $keyword) {
-            if (!$keyword->status = Keyword::STATUS_ERROR) {
+            if (!$keyword->status == Keyword::STATUS_ERROR) {
                 $list[] = $keyword->id;
             }
         }

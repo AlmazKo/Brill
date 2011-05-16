@@ -9,7 +9,7 @@ class GoogleStrategy implements ParsingStrategy {
     protected $curl;
     protected $attempts = 0;
     protected $sleep = 100000;
-    
+
     public function __construct() {
         $this->curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
@@ -23,34 +23,42 @@ class GoogleStrategy implements ParsingStrategy {
         $this->curl->setOptArray($opt);
     }
     
-    public function parse(Keyword $keyword, $countKeywords = 10) {
-        
+    protected function _getInterface() {
+         $this->sleep = 100000;
         $interface = st_Lib::getInterface(st_Lib::INTERFACE_GOOGLE);
-        if (st_Lib::INTERFASE_LOCALHOST != $interface['interface']) {
+        if (!st_Lib::isLocal($interface['interface'])) {
             $this->curl->setOpt(CURLOPT_INTERFACE, $interface['interface']);
         }
+        return $interface['interface'];
+    }
+    
+    public function parse(Keyword $keyword, $countKeywords = 10) {
+        $this->_getInterface();
+
         $attemts = 0;
         $customPage = 0;
         $urls = array();
-        while(count($urls) == $countKeywords){
+        while(count($urls) != $countKeywords) {
             try {
-                $currentUrls = $this->_parse($keyword, $countKeywords, $customPage, $interface['interface']);
+                $currentUrls = $this->_parse($keyword, $countKeywords, $customPage);
             } catch (GoogleException $ge) {
-                if (++$attemts > 4) {
-                   throw new GoogleException($urls, $ge->getCurrentPage(), $message = 'Google error.');
-                }
-                $this->sleep *= $attemts + 1; 
-                $customPage = $ge->getCurrentPage();
+                $this->_getInterface();
                 $currentUrls = $ge->getUrls();
-                
-                
+                if (++$attemts > 1) {
+                    $urls = array_merge($currentUrls, $urls);
+                    $this->sleep = 500000; 
+                    throw new GoogleException($urls, $ge->getCurrentPage(), $message = 'Google error.');
+                }
+              #  $this->sleep += 1500000 * pow(2, $attemts); 
+                $this->sleep += 1500000; 
+                $customPage = $ge->getCurrentPage();
             }
-            $urls = array_merge($currentUrls, $match[1]);
+            $urls = array_merge($currentUrls, $urls);
         }
         return $urls;
     }
     
-    protected function _parse($keyword, $countKeywords = 10, $customPage = 0, $ip) {
+    protected function _parse($keyword, $countKeywords = 10, $customPage = 0) {
     $urls = array();
         $depth = $customPage + (int) ceil($countKeywords / 10);
         for ($page = $customPage; $page < $depth; $page++) {
@@ -61,8 +69,14 @@ class GoogleStrategy implements ParsingStrategy {
                  'start'    => $page * 10
             ));
 
-            $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
-          //  $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
+          //  $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
+            if (!rand(0,15)) {
+                $response = 'asda<>asadasdmaslcmwlu e<><<M>>S><A><S>AS<S><DMLI@DM@>D>@<S<';
+            } else {
+                $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
+            }
+            
+            
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
                  throw new GoogleException($urls, $page,'Google Error');

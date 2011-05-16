@@ -7,7 +7,6 @@
 
 class se_StmtDaemon extends Stmt {
 
-    const DB_ACC = 'webexpert_acc';
     // сбросить инфу по сайтам
     const RESET_PARSER= "UPDATE `sep_Keywords` set `yandex` = 'NoData'";
     //получить ip
@@ -117,7 +116,4 @@ const GET_SEOCOMP_YA =
 const SET_SEOCOMP_YA =
 "INSERT ignore INTO #DB_ACC#.z_seocomp SET sc_parent = :parent, sc_date = :date, sc_poss = :seoh, sc_keyword = :keyword, sc_range = :range, sc_premiya = :premiya
      ON DUPLICATE KEY UPDATE sc_poss = :seoh";
-    public static function prepare($nameStmt) {
-        return str_replace("#DB_ACC#", se_StmtDaemon::DB_ACC, $nameStmt);
-    }
 }
