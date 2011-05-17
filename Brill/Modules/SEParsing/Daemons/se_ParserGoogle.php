@@ -235,25 +235,24 @@ class se_ParserGoogle extends se_Parser {
              //сохраняем в массив сета ключевиков, нашли ли наш
 
              echo "\n Google OK keyword[" .$keyword->id . "]!";
-            # $this->_saveInSeoComp($keyword, $positions, $today8);
+             $this->_saveInSeoComp($keyword, $positions, $today8);
         } 
-                        var_dump($listKeywords);
-                die;
+
         echo "\n";
         $this->_updateStatusKeywords($listKeywords);
         $this->_saveInSeo($setId, $listKeywords, $today8);
         echo "\n...Ok...\n ";
-    }
+    } 
 
  
     protected function _createStringForSeo (array $listKeywords) {
         $tmpArr = array();
         foreach ($listKeywords as  $keyword) {
             $str = $keyword;
-            if (empty($keyword->pos)) {
+            if (empty($keyword->position)) {
                 $str .= '|-|-|-|' . $keyword->url;
             } else {
-                $str .= '|' . $keyword->position . '|' . $keyword->foundByLink . '|'.$keyword->detectedUrl . '|' . $keyword->kw_url;
+                $str .= '|' . $keyword->position . '|-|'.$keyword->detectedUrl . '|' . $keyword->url;
             }
             $tmpArr[] = $str;
         }
@@ -267,8 +266,8 @@ class se_ParserGoogle extends se_Parser {
      */
     protected function _createStringForSeoComp(array $positions) {
         $tmpArr = array();
-        foreach ($positions as $key => $value) {
-            $tmpArr[] = $key . '|' . $value['url'];
+        foreach ($positions as $pos => $url) {
+            $tmpArr[] = $pos . '|' . $url;
         }
         return implode("\n", $tmpArr);
     }
@@ -281,8 +280,9 @@ class se_ParserGoogle extends se_Parser {
      * @param int $today8 
      */
     protected function _saveInSeoComp(Keyword $keyword, array $positions, $today8) {
-        $strSeoComp = $this->_createStringForSeoComp($positions);
+        $strSeoComp = $this->_createStringForSeoComp($positions);var_dump($strSeoComp);
         echo "\nВставляем в seocomp информацию по Ключевику `" . $keyword . "`"; 
+        //TODO поиск. дублирует ане обновляет
         DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_SEOCOMP_YA),
                     array(  ':parent'   => $keyword->set, 
                             ':date'     => $today8, 
@@ -343,11 +343,11 @@ class se_ParserGoogle extends se_Parser {
      * @param int $value 
      */
     protected function _setStatusKeywordsBySet($setId, $value = 0) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = ' . $value .' WHERE kw_parent= ' .$setId);
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "' . $value .'" WHERE kw_parent= ' .$setId);
     }
     
     protected function _resetStatusKeywords(array $keywordIds = array(), $value = 0) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = '.$value.' WHERE kw_id in (' . implode(',', $keywordIds) . ')');
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "'.$value.'" WHERE kw_id in (' . implode(',', $keywordIds) . ')');
     }
     
     protected static function _getListSuccessfullyKeywords (array &$listKeywords) {

@@ -34,7 +34,7 @@ class GoogleStrategy implements ParsingStrategy {
     
     public function parse(Keyword $keyword, $countKeywords = 10) {
         $this->_getInterface();
-
+        $this->sleep = 100000; 
         $attemts = 0;
         $customPage = 0;
         $urls = array();
@@ -70,7 +70,7 @@ class GoogleStrategy implements ParsingStrategy {
             ));
 
           //  $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
-            if (!rand(0,15)) {
+            if (!rand(0,1105)) {
                 $response = 'asda<>asadasdmaslcmwlu e<><<M>>S><A><S>AS<S><DMLI@DM@>D>@<S<';
             } else {
                 $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
