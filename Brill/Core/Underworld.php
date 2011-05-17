@@ -34,8 +34,8 @@ class Underworld {
 
         $daemon = $this->_getDaemon($cli->getArg(Daemon::KEY_NAME_DAEMON));
 
-        if ($cli->hasArg($daemon::CLI_ARG_HELP)){
-            throw new CliInput(Cli::getStringForHelp($daemon::getHelp()));
+        if ($cli->hasArg(Daemon::CLI_ARG_HELP)){
+            throw new CliInput(Cli::getStringForHelp(call_user_func(array($daemon, 'getHelp'))));
         }
         $daemon->initialize($cli->getArgs());
         return $daemon;

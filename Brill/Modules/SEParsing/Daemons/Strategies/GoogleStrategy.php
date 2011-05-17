@@ -10,6 +10,7 @@ class GoogleStrategy implements ParsingStrategy {
     protected $attempts = 0;
     protected $sleep = 100000;
 
+    protected $errors = 0;
     public function __construct() {
         $this->curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
@@ -38,19 +39,27 @@ class GoogleStrategy implements ParsingStrategy {
         $attemts = 0;
         $customPage = 0;
         $urls = array();
-        while(count($urls) != $countKeywords) {
+        var_dump($keyword);
+        while(count($urls) < $countKeywords) {
+            var_dump(' Собрано ' . count($urls));
             try {
                 $currentUrls = $this->_parse($keyword, $countKeywords, $customPage);
             } catch (GoogleException $ge) {
+                
+                $this->errors++;
+                var_dump('ОШИБКА'.$this->errors);
+                if ($this->errors> 7) {
+                    throw new LimitInterfacesException($urls, $ge->getCurrentPage(), 'много ошибок.');
+                }
                 $this->_getInterface();
                 $currentUrls = $ge->getUrls();
                 if (++$attemts > 1) {
                     $urls = array_merge($currentUrls, $urls);
-                    $this->sleep = 500000; 
+                   // $this->sleep += rand (100000,200000); 
                     throw new GoogleException($urls, $ge->getCurrentPage(), $message = 'Google error.');
                 }
               #  $this->sleep += 1500000 * pow(2, $attemts); 
-                $this->sleep += 1500000; 
+               // $this->sleep += rand(1000000, 1500000); 
                 $customPage = $ge->getCurrentPage();
             }
             $urls = array_merge($currentUrls, $urls);
@@ -62,26 +71,31 @@ class GoogleStrategy implements ParsingStrategy {
     $urls = array();
         $depth = $customPage + (int) ceil($countKeywords / 10);
         for ($page = $customPage; $page < $depth; $page++) {
+            var_dump((float)$this->sleep/1000);
             usleep($this->sleep);
             $this->curl->setGet(array(
                  'hl'       => 'ru', 
                  'q'        => rawurlencode($keyword),
                  'start'    => $page * 10
             ));
-
-          //  $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
-            if (!rand(0,1105)) {
-                $response = 'asda<>asadasdmaslcmwlu e<><<M>>S><A><S>AS<S><DMLI@DM@>D>@<S<';
-            } else {
-                $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
-            }
+                $this->sleep += rand(35000, 51000); 
+            $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
+//            if (!rand(0,11)) {
+//                $response = 'asda<>asadasdmaslcmwlu e<><<M>>S><A><S>AS<S><DMLI@DM@>D>@<S<';
+//            } else {
+//                $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
+//            }
             
             
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
                  throw new GoogleException($urls, $page,'Google Error');
             }
+            
+            
            $urls = array_merge($urls, $match[1]);
+
+           var_dump(' -- найдено ' . count($urls));
         }
         
         return $urls;

@@ -113,7 +113,6 @@ const GET_URL = "SELECT id FROM `sep_Urls` where url='#url#' limit 1";
 const GET_SEOCOMP_YA = 
 "SELECT sc_id  FROM #DB_ACC#.z_seocomp WHERE sc_parent = :parent AND sc_date = :date AND sc_keyword = :keyword LIMIT 1";
 
-const SET_SEOCOMP_YA =
-"INSERT ignore INTO #DB_ACC#.z_seocomp SET sc_parent = :parent, sc_date = :date, sc_poss = :seoh, sc_keyword = :keyword, sc_range = :range, sc_premiya = :premiya
-     ON DUPLICATE KEY UPDATE sc_poss = :seoh";
+const SET_SEOCOMP_GOOGLE =
+"INSERT INTO #DB_ACC#.z_seocompgoogle SET scg_parent = :parent, scg_date = :date, scg_poss = :seoh, scg_keyword = :keyword, scg_range = :range";
 }

@@ -168,11 +168,11 @@ class se_ParserGoogle extends se_Parser {
      * @param array $keywords
      */
     private function _parse() {
-        DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
+      #  DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
 
         switch (true) {
             case isset($this->options['set']):
-                $listKeywords = $this->_getKeywordsBySetId((int)611);
+                $listKeywords = $this->_getKeywordsBySetId((int)$this->options['set']);
                 break;
             
             case isset($this->options['keyword']):
@@ -194,7 +194,9 @@ class se_ParserGoogle extends se_Parser {
     
  
         foreach ($listKeywords as $keyword) {
+            
             try {
+                sleep(1);
                 $positions = $this->_strategy->parse($keyword, 60);
 
 //                if (!rand(0,5)) {
@@ -208,6 +210,7 @@ class se_ParserGoogle extends se_Parser {
                  * Google нас послал подальше
                  * ставим ключевик ошибку
                  */
+                sleep(1);
                 $keyword->status = Keyword::STATUS_ERROR;
                 echo "\nGoogle error for keyword[" .$keyword->id . "]: " . $e->getMessage() . '';
                 continue;
@@ -267,7 +270,7 @@ class se_ParserGoogle extends se_Parser {
     protected function _createStringForSeoComp(array $positions) {
         $tmpArr = array();
         foreach ($positions as $pos => $url) {
-            $tmpArr[] = $pos . '|' . $url;
+            $tmpArr[] = ($pos + 1) . '|' . $url;
         }
         return implode("\n", $tmpArr);
     }
@@ -280,17 +283,25 @@ class se_ParserGoogle extends se_Parser {
      * @param int $today8 
      */
     protected function _saveInSeoComp(Keyword $keyword, array $positions, $today8) {
-        $strSeoComp = $this->_createStringForSeoComp($positions);var_dump($strSeoComp);
+        $strSeoComp = $this->_createStringForSeoComp($positions);
         echo "\nВставляем в seocomp информацию по Ключевику `" . $keyword . "`"; 
         //TODO поиск. дублирует ане обновляет
-        DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_SEOCOMP_YA),
-                    array(  ':parent'   => $keyword->set, 
-                            ':date'     => $today8, 
-                            ':seoh'     => $strSeoComp,
-                            ':keyword'  => $keyword,
-                            ':range'    => $keyword->range,
-                            ':premiya'  => $keyword->premiya)
-                    );
+
+        $scgId = DB::execute("SELECT scg_id FROM webexpert_acc.z_seocompgoogle 
+            WHERE scg_parent = " . $keyword->set . " AND scg_date = ".$today8.'  and scg_keyword="' . $keyword .'" limit 1')->fetchColumn(0);
+        if ($scgId){
+            // обновляет катенацией, а надо сделать обновление умной вставкой
+            // пока сделано тупой вставкой 
+            DB::exec('UPDATE webexpert_acc.z_seocompgoogle SET scg_poss = "'.$strSeoComp.'" WHERE scg_id = '.(int)$scgId);
+        } else {
+           DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_SEOCOMP_GOOGLE),
+            array(  ':parent'   => $keyword->set, 
+                    ':date'     => $today8, 
+                    ':seoh'     => $strSeoComp,
+                    ':keyword'  => $keyword,
+                    ':range'    => $keyword->range)
+            );
+        }    
     }
     
     /**
@@ -302,13 +313,13 @@ class se_ParserGoogle extends se_Parser {
     protected function _saveInSeo ($setId, array $listKeywords, $today8) {
         $strSeo = $this->_createStringForSeo($listKeywords);
 
-        $seId = DB::execute("SELECT se_id FROM webexpert_acc.z_seo WHERE se_parent = " . $setId . " AND se_date = ".$today8.' limit 0,1')->fetchColumn(0);
+        $seId = DB::execute("SELECT seg_id FROM webexpert_acc.z_seogoogle WHERE seg_parent = " . $setId . " AND seg_date = ".$today8.' limit 0,1')->fetchColumn(0);
         if ($seId){
             // обновляет катенацией, а надо сделать обновление умной вставкой
             // пока сделано тупой вставкой 
-            DB::exec('UPDATE webexpert_acc.z_seo SET se_poss = "'.$strSeo.'" WHERE se_id = '.(int)$seId);
+            DB::exec('UPDATE webexpert_acc.z_seogoogle SET seg_poss = "'.$strSeo.'" WHERE seg_id = '.(int)$seId);
         } else {
-            DB::exec ('INSERT INTO webexpert_acc.z_seo SET se_parent = '.$setId.', se_date = '.$today8.', se_poss = "'.$strSeo.'"');
+            DB::exec ('INSERT INTO webexpert_acc.z_seogoogle SET seg_parent = '.$setId.', seg_date = '.$today8.', seg_poss = "'.$strSeo.'"');
         }        
 
         if (!DB::execute(se_StmtDaemon::prepare(
@@ -343,11 +354,11 @@ class se_ParserGoogle extends se_Parser {
      * @param int $value 
      */
     protected function _setStatusKeywordsBySet($setId, $value = 0) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "' . $value .'" WHERE kw_parent= ' .$setId);
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsedgoogle = "' . $value .'" WHERE kw_parent= ' .$setId);
     }
     
     protected function _resetStatusKeywords(array $keywordIds = array(), $value = 0) {
-        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsed = "'.$value.'" WHERE kw_id in (' . implode(',', $keywordIds) . ')');
+        DB::exec('UPDATE webexpert_acc.z_keywords SET kw_parsedgoogle = "'.$value.'" WHERE kw_id in (' . implode(',', $keywordIds) . ')');
     }
     
     protected static function _getListSuccessfullyKeywords (array &$listKeywords) {

@@ -11,6 +11,6 @@
  */
 interface ParsingStrategy {
    # const URL_SEARCH = '';
-    function parse(Keyword $keyword, $countKeywords);
+    public function parse(Keyword $keyword, $countKeywords = 10);
 }
 
