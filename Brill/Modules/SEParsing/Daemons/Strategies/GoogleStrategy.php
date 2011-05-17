@@ -49,7 +49,7 @@ class GoogleStrategy implements ParsingStrategy {
                 $this->errors++;
                 var_dump('ОШИБКА'.$this->errors);
                 if ($this->errors> 7) {
-                    throw new LimitInterfacesException($urls, $ge->getCurrentPage(), 'много ошибок.');
+                    throw new LimitInterfacesException('много ошибок.');
                 }
                 $this->_getInterface();
                 $currentUrls = $ge->getUrls();
