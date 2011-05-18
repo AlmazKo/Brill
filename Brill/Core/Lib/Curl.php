@@ -450,6 +450,7 @@ class Curl {
      * @return bool удачно или нет
      */
     protected function _exec() {
+        echo "\nCOOKIE: " . $this->_cookie . "\n\n";
         $this->_preparedHeaders();
         curl_setopt_array($this->_ch, $this->_opt);
        // Log::dump($this->getOpts(true));
@@ -488,6 +489,7 @@ class Curl {
      * @todo отрефакторить цикл
      */
     protected function _parseHeaders() {
+        $this->_aResponseCookies = array();
         $aHeaders = array();
         $sHeaders = substr($this->_responseRaw, 0, $this->_info['header_size']);
         $sHeaders = TFormat::winTextToLinux($sHeaders);

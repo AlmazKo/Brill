@@ -168,7 +168,7 @@ class se_ParserGoogle extends se_Parser {
      * @param array $keywords
      */
     private function _parse() {
-      #  DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
+###        DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
 
         switch (true) {
             case isset($this->options['set']):
@@ -222,7 +222,7 @@ class se_ParserGoogle extends se_Parser {
                 echo "\nЧертовщина с keyword[" . $keyword->id . "]: " . $e->getMessage() . ''; 
                 break;
             }
-            
+         //   var_dump($positions);
             $keyword->status = Keyword::STATUS_OK;    
             foreach ($positions as $position => $url) {
                

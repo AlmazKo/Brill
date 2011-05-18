@@ -9,6 +9,11 @@ class GoogleStrategy implements ParsingStrategy {
     protected $curl;
     protected $attempts = 0;
     protected $sleep = 100000;
+    /*
+     * счетчики запусков
+     */
+    protected $totalCount = 0;
+    protected $count = 0;
 
     protected $errors = 0;
     public function __construct() {
@@ -25,11 +30,16 @@ class GoogleStrategy implements ParsingStrategy {
     }
     
     protected function _getInterface() {
-         $this->sleep = 100000;
+        $this->count++;
+        $this->totalCount++;
+        $this->curl->resetCookies();
+        $this->sleep = 100000;
         $interface = st_Lib::getInterface(st_Lib::INTERFACE_GOOGLE);
         if (!st_Lib::isLocal($interface['interface'])) {
             $this->curl->setOpt(CURLOPT_INTERFACE, $interface['interface']);
         }
+        
+        
         return $interface['interface'];
     }
     
@@ -39,16 +49,17 @@ class GoogleStrategy implements ParsingStrategy {
         $attemts = 0;
         $customPage = 0;
         $urls = array();
-        var_dump($keyword);
+      //  var_dump($keyword);
         while(count($urls) < $countKeywords) {
-            var_dump(' Собрано ' . count($urls));
+            echo "\n Собрано: " . count($urls). "\n";
             try {
                 $currentUrls = $this->_parse($keyword, $countKeywords, $customPage);
             } catch (GoogleException $ge) {
-                
+                $this->curl->resetCookies();
                 $this->errors++;
-                var_dump('ОШИБКА'.$this->errors);
+                echo "\n --->>-- ОШИБКА".$this->errors . "\n";
                 if ($this->errors> 7) {
+                    $this->errors = 0;
                     throw new LimitInterfacesException('много ошибок.');
                 }
                 $this->_getInterface();
@@ -71,8 +82,8 @@ class GoogleStrategy implements ParsingStrategy {
     $urls = array();
         $depth = $customPage + (int) ceil($countKeywords / 10);
         for ($page = $customPage; $page < $depth; $page++) {
-            var_dump((float)$this->sleep/1000);
-            usleep($this->sleep);
+            echo "\n Задержка: ".(float)$this->sleep/1000 . "\n";
+             usleep($this->sleep);
             $this->curl->setGet(array(
                  'hl'       => 'ru', 
                  'q'        => rawurlencode($keyword),
@@ -86,6 +97,15 @@ class GoogleStrategy implements ParsingStrategy {
 //                $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer.html');
 //            }
             
+//            $response = file_get_contents(MODULES_PATH. 'SEParsing/Daemons/Mocks/googleAnswer_1.html');
+//            libxml_use_internal_errors(true);
+//
+//            $DOM = new DOMDocument;
+//            $DOM->loadHTML($response);
+//            libxml_use_internal_errors(false);
+//            var_dump($DOM->saveXML());
+//            die;
+            
             
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
@@ -95,7 +115,7 @@ class GoogleStrategy implements ParsingStrategy {
             
            $urls = array_merge($urls, $match[1]);
 
-           var_dump(' -- найдено ' . count($urls));
+           echo "\nнайдено " . count($urls);
         }
         
         return $urls;

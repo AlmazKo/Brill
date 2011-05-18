@@ -58,7 +58,7 @@ class SEParsing extends Modules {
         
         include_once $this->pathDaemons . 'Strategies/ParsingStrategy.php';
         include_once $this->pathDaemons . 'Strategies/GoogleStrategy.php';
-        include_once $this->pathDaemons . 'Strategies/GoogleStrategy.php';
+        include_once $this->pathDaemons . 'Strategies/YandexXMLSimpleStrategy.php';
     }
 
     public  static function instance() {

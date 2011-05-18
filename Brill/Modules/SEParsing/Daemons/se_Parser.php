@@ -14,10 +14,19 @@ abstract class se_Parser extends Daemon {
         $_strategy;
     
     public function initialize($options) {
-        if (isset($options['s'])) {
-            $this->_strategy = new $options['s'];
-        } else {
-            $this->_strategy = new GoogleStrategy();
+        switch (true) {
+            case $this instanceof se_ParserGoogle:
+                $this->_strategy = new GoogleStrategy(); 
+                break;
+            
+            case $this instanceof se_ParserYandexXml:
+                $this->_strategy = new YandexXMLSimpleStrategy(); 
+                break;
+            
+            default:
+                if (isset($options['s'])) {
+                    $this->_strategy = new $options['s'];
+                } 
         }
         $this->options = $options;
     }

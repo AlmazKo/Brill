@@ -82,21 +82,6 @@ class se_ParserYandexXml extends se_YandexXml {
     }
 
     /**
-     *
-     * @param array $keyword
-     * @param int $dot тип парсинга
-     * @return array
-     */
-    protected function parsing($keyword, $conf = 0) {
-        $query = $keyword['kw_keyword'] . ((self::CONF_WITH_DOT == $conf) ? '.' : '');
-        
-        $this->curl->setGet(array('lr' => $keyword['rg_region']));
-        $xmlQuery = $this->getXMLRequest($query);
-        $xmlResponse = $this->requestYandex($xmlQuery);
-        return $this->parsingXml($xmlResponse);
-    }
-
-    /**
      * Старт бота
      *
      * @param int $type - типа парсинга
@@ -160,7 +145,9 @@ class se_ParserYandexXml extends se_YandexXml {
                 if (!$kw['rg_region']) {
                     $kw['rg_region'] = self::DEFAULT_REGION_ID;
                 }
-                $result = $this->parsing($kw);
+                $oKw = new Keyword($kw);
+                $result = $this->parsingXml($this->_strategy->parse($oKw, 100));
+
                 //$result = getMockResultParsingYaXml();
                 /*
                  * Mock 

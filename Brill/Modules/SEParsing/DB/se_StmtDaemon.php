@@ -115,4 +115,9 @@ const GET_SEOCOMP_YA =
 
 const SET_SEOCOMP_GOOGLE =
 "INSERT INTO #DB_ACC#.z_seocompgoogle SET scg_parent = :parent, scg_date = :date, scg_poss = :seoh, scg_keyword = :keyword, scg_range = :range";
+
+
+const SET_SEOCOMP_YA =
+"INSERT ignore INTO #DB_ACC#.z_seocomp SET sc_parent = :parent, sc_date = :date, sc_poss = :seoh, sc_keyword = :keyword, sc_range = :range, sc_premiya = :premiya
+ON DUPLICATE KEY UPDATE sc_poss = :seoh";
 }
