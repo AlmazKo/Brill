@@ -68,7 +68,25 @@ class Curl {
         $session->set('curl_cookie', $this->_cookie);
         $session->set('curl_referer', $this->_referer);
     }
+    
 
+    /**
+     * Задать прокси
+     * @param string $address
+     * @param int $port
+     * @param string $login
+     * @param string $password 
+     */
+    public function setProxy($address, $port, $login, $password) {
+        $this->curl->setOpt(CURLOPT_INTERFACE, null);
+        $this->curl->setOpt(CURLOPT_PROXY, $address);
+        $this->curl->setOpt(CURLOPT_PROXYPORT, $port);
+        $this->curl->setOpt(CURLOPT_PROXYUSERPWD, $login . ':' . $password);
+    }
+
+    function disableProxy() {
+        $this->curl->setOpt(CURLOPT_PROXY, null);
+     }
     /**
      * Скачать файл с сервера
      * NO STABLE

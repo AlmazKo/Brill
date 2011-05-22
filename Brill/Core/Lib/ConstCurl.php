@@ -79,6 +79,9 @@ class ConstCurl {
         CURLOPT_HTTPAUTH => 'CURLOPT_HTTPAUTH',
         CURLOPT_HTTPGET => 'CURLOPT_HTTPGET',
         CURLOPT_HTTPHEADER => 'CURLOPT_HTTPHEADER',
+        /*
+         * При установке этого параметра в true данные будут передаваться через прокси-сервер 
+         */
         CURLOPT_HTTPPROXYTUNNEL => 'CURLOPT_HTTPPROXYTUNNEL',
         CURLOPT_INFILE => 'CURLOPT_INFILE',
         CURLOPT_INFILESIZE => 'CURLOPT_INFILESIZE',
@@ -126,13 +129,23 @@ class ConstCurl {
          * Имя HTTP прокси, через который будут направляться запросы.
          */
         CURLOPT_PROXY => 'CURLOPT_PROXY',
+        /*
+         * Метод HTTP-авторизации для использования при соединении с прокси. 
+         */
         CURLOPT_PROXYAUTH => 'CURLOPT_PROXYAUTH',
+        /*
+         * Номер порта для соединения с прокси-сервером; используется совместно с CURLOPT_PROXY
+         */
         CURLOPT_PROXYPORT => 'CURLOPT_PROXYPORT',
+        /*
+         * CURLPROXY_HTTP по умолчанию или CURLPROXY_SOCKS5
+         */
         CURLOPT_PROXYTYPE => 'CURLOPT_PROXYTYPE',
         /*
          * Стока с именем пользователя и паролем к HTTP прокси-серверу в виде [username]:[password].
          */
         CURLOPT_PROXYUSERPWD => 'CURLOPT_PROXYUSERPWD',
+        
         CURLOPT_PUT => 'CURLOPT_PUT',
         CURLOPT_QUOTE => 'CURLOPT_QUOTE',
         CURLOPT_RANDOM_FILE => 'CURLOPT_RANDOM_FILE',
