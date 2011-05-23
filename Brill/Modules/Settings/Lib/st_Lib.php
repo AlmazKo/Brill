@@ -15,7 +15,7 @@ class st_Lib extends Lib {
     const INTERFASE_LOCALHOST = '127.0.0.1';
 
     public static function isLocal ($interface) {
-        return  '127.0.0.1' != $interface || 'localhost' != $interface;
+        return  '127.0.0.1' === $interface || 'localhost' === $interface;
     }
     
     /**

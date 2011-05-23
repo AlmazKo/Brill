@@ -23,7 +23,6 @@ class GoogleStrategy implements ParsingStrategy {
                       CURLOPT_FOLLOWLOCATION => false,
                       CURLOPT_TIMEOUT => 20,
                       CURLOPT_CONNECTTIMEOUT => 7,
-                      CURLOPT_FOLLOWLOCATION => 1,
                       CURLOPT_USERAGENT => "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3"
                     );
         
@@ -35,24 +34,12 @@ class GoogleStrategy implements ParsingStrategy {
         $this->totalCount++;
         $this->curl->resetCookies();
         $this->sleep = 100000;
-        
-        if ('development' === APPLICATION_ENV) {
-            return null;
-        } 
-
         $interface = st_Lib::getInterface(st_Lib::INTERFACE_GOOGLE);
-        if (st_Lib::isLocal($interface['interface'])) {
-            return null;
-        }
-
-        if ('Proxy' === $interface['type']) {
-            echo "\n PROXY___________";
-            $this->curl->setProxy($interface['interface'], $interface['port'], 'webexpert', 'pvofiusyf');
-         } else {
-             echo "\n USUAL___________";
-            $this->curl->disableProxy();
+       // if (!st_Lib::isLocal($interface['interface'])) {
             $this->curl->setOpt(CURLOPT_INTERFACE, $interface['interface']);
-        }
+      //  }
+        
+        
         return $interface['interface'];
     }
     
@@ -103,7 +90,7 @@ class GoogleStrategy implements ParsingStrategy {
                  'start'    => $page * 10
             ));
                 $this->sleep += rand(35000, 51000); 
-            $response = $this->curl->requestGET(self::URL_SEARCH)->getResponseBody();
+            $response = $this->curl->requestGet(self::URL_SEARCH)->getResponseBody();
 //            if (!rand(0,11)) {
 //                $response = 'asda<>asadasdmaslcmwlu e<><<M>>S><A><S>AS<S><DMLI@DM@>D>@<S<';
 //            } else {
@@ -122,9 +109,6 @@ class GoogleStrategy implements ParsingStrategy {
             
             preg_match_all ('~<h3 class="r"><a href="(.*?)" (.*?)</h3>~', $response, $match);
             if (empty($match[1])) {
-                
-                var_dump($response);
-                var_dump($this->curl->getinfo());die;
                  throw new GoogleException($urls, $page,'Google Error');
             }
             

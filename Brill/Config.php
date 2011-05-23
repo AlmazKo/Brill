@@ -10,6 +10,7 @@
  */
 define ('WEB_PREFIX', '/ba/');
 
+define ('APPLICATION_ENV', 'development1');
 /*
  * Уровень логирования.
  * 0 - отменяет весь вывод.

@@ -78,14 +78,14 @@ class Curl {
      * @param string $password 
      */
     public function setProxy($address, $port, $login, $password) {
-        $this->curl->setOpt(CURLOPT_INTERFACE, null);
-        $this->curl->setOpt(CURLOPT_PROXY, $address);
-        $this->curl->setOpt(CURLOPT_PROXYPORT, $port);
-        $this->curl->setOpt(CURLOPT_PROXYUSERPWD, $login . ':' . $password);
+     //   $this->setOpt(CURLOPT_INTERFACE, null);
+        $this->setOpt(CURLOPT_PROXY, $address);
+        $this->setOpt(CURLOPT_PROXYPORT, $port);
+        $this->setOpt(CURLOPT_PROXYUSERPWD, $login . ':' . $password);
     }
 
     function disableProxy() {
-        $this->curl->setOpt(CURLOPT_PROXY, null);
+        $this->setOpt(CURLOPT_PROXY, null);
      }
     /**
      * Скачать файл с сервера
@@ -557,6 +557,7 @@ class Curl {
 
             if (@parse_url($this->_responseLocation, PHP_URL_HOST)) {
                 $urlRedirect = $this->_responseLocation;
+                return $this->requestGet($urlRedirect);
             } else {
                 $url = $this->getinfo('url');
                 $parseUrl = @parse_url($url);

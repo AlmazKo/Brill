@@ -7,6 +7,7 @@
  * @author almaz
  */
 class se_ParserGoogle extends se_Parser {
+    
     protected
         $_lnk2;
 
@@ -80,12 +81,7 @@ class se_ParserGoogle extends se_Parser {
             }   
 
             echo "\nПолучили сет: id=" . $setId;
-            if (!DB::execute(se_StmtDaemon::prepare(
-                    se_StmtDaemon::SET_USED_SET),
-                    array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Busy')
-                    )->rowCount()) {
-                throw new Exception('Error blocking set');
-            }
+            $this->setStatusParsing($setId, self::PARSING_STATUS_BUSY);
 
             // получаем ключевики сета
             $aKeywords = DB::execute(se_StmtDaemon::prepare(
@@ -130,13 +126,8 @@ class se_ParserGoogle extends se_Parser {
                 throw new Exception('Set id=' . $setId . ' isn\'t  active');
             }
             
-            if (!DB::execute(se_StmtDaemon::prepare(
-                    se_StmtDaemon::SET_USED_SET),
-                    array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Busy')
-                    )->rowCount()) {
-                throw new Exception('Error: blocking set');
-            }
- // сбрасываем данные по ключевикам сета
+            $this->setStatusParsing($setId, self::PARSING_STATUS_BUSY);
+            // сбрасываем данные по ключевикам сета
             $this->_setStatusKeywordsBySet($setId);
             // получаем ключевики сета
             $aKeywords = DB::execute(se_StmtDaemon::prepare(
@@ -168,7 +159,7 @@ class se_ParserGoogle extends se_Parser {
      * @param array $keywords
      */
     private function _parse() {
-###        DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
+##        DB::exec('DELETE FROM `webexpert_acc`.`sep_StatusSetsSearchTypes` WHERE `sep_StatusSetsSearchTypes`.`set_id` = 611 AND `sep_StatusSetsSearchTypes`.`search_type` = \'Google\'');
 
         switch (true) {
             case isset($this->options['set']):
@@ -322,12 +313,7 @@ class se_ParserGoogle extends se_Parser {
             DB::exec ('INSERT INTO webexpert_acc.z_seogoogle SET seg_parent = '.$setId.', seg_date = '.$today8.', seg_poss = "'.$strSeo.'"');
         }        
 
-        if (!DB::execute(se_StmtDaemon::prepare(
-                se_StmtDaemon::SET_USED_SET),
-                array(':set_id' => $setId, ':search_type' => 'Google', ':status' => 'Ok')
-                )->rowCount()) {
-            throw new Exception('Error blocking set');
-        }  
+        $this->setStatusParsing($setId, self::PARSING_STATUS_OK);
     }
     
     /**
@@ -379,5 +365,11 @@ class se_ParserGoogle extends se_Parser {
             }
         }
         return $list;
+    }
+    
+    protected function setStatusParsing ($setId, $status) {
+        if (!parent::setStatusParsing($setId, 'Google', $status)) {
+            throw new Exception('Error: setting status `' . $status . '` for setId=' . $setId);
+        }
     }
 }

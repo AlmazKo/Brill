@@ -6,6 +6,12 @@
  */
 
 abstract class se_Parser extends Daemon {
+
+    const PARSING_STATUS_OK = 'Ok';
+    const PARSING_STATUS_NO = 'No';
+    const PARSING_STATUS_BUSY = 'Busy';
+    const PARSING_STATUS_ERROR = 'Error';
+
     protected 
         //сколько страниц проходить по поисковой выдаче
         $_depth = 1,
@@ -66,6 +72,20 @@ abstract class se_Parser extends Daemon {
     }
 
     public function  __destruct() {
+    }
+    
+    
+    /**
+     * Задать статус для сета в базе
+     * @param int $setId
+     * @param string $searchType
+     * @param string $status
+     * @return bool 
+     */
+    protected function setStatusParsing($setId, $searchType, $status) {
+        return (bool)   DB::execute(se_StmtDaemon::prepare(se_StmtDaemon::SET_USED_SET),
+                        array(':set_id' => $setId, ':search_type' => $searchType, ':status' => $status)
+                        )->rowCount();
     }
 
 }
