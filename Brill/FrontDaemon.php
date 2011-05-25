@@ -19,7 +19,31 @@
 
 //Framework Initilization
 require 'Core/InitDaemon.php';
-
+//
+//
+//
+//        $curl = new Curl();
+//        $opt = array (CURLOPT_HEADER => true,
+//                      CURLOPT_RETURNTRANSFER => true,
+//                      CURLOPT_FOLLOWLOCATION => false,
+//                      CURLOPT_TIMEOUT => 20,
+//                      CURLOPT_CONNECTTIMEOUT => 7,
+//                      CURLOPT_FOLLOWLOCATION => 1,
+//                      CURLOPT_USERAGENT => "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3"
+//                    );
+//        
+//        $curl->setOptArray($opt);
+//  $curl->setProxy('95.169.184.240', '8080', 'webexpert', 'pvofiusyf');
+//
+//            $curl->setGet(array(
+//                 'hl'       => 'ru', 
+//                 'q'        => rawurlencode('Окна'),
+//                 'start'    => 0 * 10
+//            ));
+//      
+//      $response = $curl->requestGET('http://www.google.ru/search')->getResponseBody();
+//      var_dump($response);
+//die;
 class FrontDeamon {
     static function run() {
         $instance = new self();
