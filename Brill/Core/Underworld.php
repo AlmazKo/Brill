@@ -32,7 +32,12 @@ class Underworld {
             }
         }
 
-        $daemon = $this->_getDaemon($cli->getArg(Daemon::KEY_NAME_DAEMON));
+        $nameDaemon = $cli->getArg(Daemon::KEY_NAME_DAEMON);
+        if ('google' === $nameDaemon) {
+            $nameDaemon = 'se_ParserGoogle';
+        }
+        $daemon = $this->_getDaemon($nameDaemon);
+
 
         if ($cli->hasArg(Daemon::CLI_ARG_HELP)){
             throw new CliInput(Cli::getStringForHelp(call_user_func(array($daemon, 'getHelp'))));

@@ -51,6 +51,7 @@ class ConstCurl {
          * При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: "
          * будет происходить перенаправление на указанный этим заголовком URL
          * (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
+         * @var bool
          */
         CURLOPT_FOLLOWLOCATION => 'CURLOPT_FOLLOWLOCATION',
         CURLOPT_FORBID_REUSE => 'CURLOPT_FORBID_REUSE',

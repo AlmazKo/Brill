@@ -15,21 +15,28 @@ class GoogleStrategy implements ParsingStrategy {
     protected $totalCount = 0;
     protected $count = 0;
 
+    /**
+     *
+     * @var type UserAgent
+     */
+    protected $userAgentsGenerator;
     protected $errors = 0;
     public function __construct() {
         $this->curl = new Curl();
         $opt = array (CURLOPT_HEADER => true,
                       CURLOPT_RETURNTRANSFER => true,
-                      CURLOPT_FOLLOWLOCATION => false,
+                      CURLOPT_FOLLOWLOCATION => true,
                       CURLOPT_TIMEOUT => 20,
                       CURLOPT_CONNECTTIMEOUT => 7,
-                      CURLOPT_FOLLOWLOCATION => 1,
-                      CURLOPT_USERAGENT => "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.1.3) Gecko/20090824 Firefox/3.5.3"
+                      CURLOPT_USERAGENT => ''
                     );
         
         $this->curl->setOptArray($opt);
     }
     
+    public function setGeneratorUserAgents (UserAgent $uaGenerator) {
+        $this->userAgentsGenerator = $uaGenerator;
+    }
     protected function _getInterface() {
         $this->count++;
         $this->totalCount++;
@@ -53,6 +60,8 @@ class GoogleStrategy implements ParsingStrategy {
             $this->curl->disableProxy();
             $this->curl->setOpt(CURLOPT_INTERFACE, $interface['interface']);
         }
+        $this->curl->setOpt(CURLOPT_USERAGENT, $this->userAgentsGenerator->getString());
+        
         return $interface['interface'];
     }
     

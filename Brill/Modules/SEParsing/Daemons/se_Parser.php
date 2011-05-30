@@ -23,6 +23,7 @@ abstract class se_Parser extends Daemon {
         switch (true) {
             case $this instanceof se_ParserGoogle:
                 $this->_strategy = new GoogleStrategy(); 
+                $this->_strategy->setGeneratorUserAgents(new UserAgent());
                 break;
             
             case $this instanceof se_ParserYandexXml:
